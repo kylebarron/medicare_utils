@@ -360,7 +360,8 @@ def _search_codes(df, demo, cols, codes, collapse):
         collapse (bool): whether to return code-matches individually or not
     """
     if collapse:
-        demo['match'] = False
+        if 'match' not in demo.columns:
+            demo['match'] = False
 
         if isinstance(codes[0], re._pattern_type):
             idxs = []
