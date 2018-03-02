@@ -222,8 +222,7 @@ def convert_med(
             [
                 rename_dict.pop(k)
                 for k, v in rename_dict.copy().items()
-                if v in dups
-            ]
+                if v in dups]
         else:
             print(f'Year not in variable dictionary: {year}')
             rename_dict = None
@@ -406,8 +405,7 @@ def scan_file(infile, chunksize=100000, cat_threshold=0.1):
         'name': itr.varlist,
         'col_size': itr.col_sizes,
         'dtype': itr.dtyplist,
-        'label': list(itr.variable_labels().values())
-    })
+        'label': list(itr.variable_labels().values())})
 
     start_cols = {}
 
@@ -440,16 +438,13 @@ def scan_file(infile, chunksize=100000, cat_threshold=0.1):
             'min': {key: None
                     for key in start_cols['int_cols']},
             'max': {key: None
-                    for key in start_cols['int_cols']}
-        },
+                    for key in start_cols['int_cols']}},
         'cat_cols': {
             'names': start_cols['str_cols'],
             'cats': {key: set()
-                     for key in start_cols['str_cols']}
-        },
+                     for key in start_cols['str_cols']}},
         'str_cols': [],
-        'float_cols': start_cols['float_cols']
-    }
+        'float_cols': start_cols['float_cols']}
 
     tokeep = []
     tokeep.extend(start_cols['int_cols'])
