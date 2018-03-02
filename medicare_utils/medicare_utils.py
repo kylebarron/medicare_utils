@@ -347,6 +347,55 @@ def _check_code_types(var):
     return var
 
 
+def _search_codes(df, demo, cols, codes, collapse):
+    """Search through file for codes
+
+    Note: Modifies in place
+
+    Args:
+        df (pd.DataFrame): file with codes to search through
+        demo (pd.DataFrame): demographic file to track who has given code
+        cols (list[str]): column names to search over
+        codes (list[str] or list[re._pattern_type]): codes to match against
+        collapse (bool): whether to return code-matches individually or not
+    """
+    if collapse:
+        demo['match'] = False
+
+        if isinstance(codes[0], re._pattern_type):
+            idxs = []
+            for code in codes:
+                idxs.append(
+                    df.index[df[cols].apply(
+                        lambda x: x.str.contains(code)).any(axis=1)])
+
+            if len(idxs) == 1:
+                idx = idxs[0].unique()
+            elif len(idxs) == 2:
+                idx = idxs[0].append(idxs[1]).unique()
+            else:
+                idx = idxs[0].append(idxs[1:]).unique()
+            demo.loc[idx, 'match'] = True
+
+        else:
+            idx = df.index[(df[cols].isin(codes)).any(axis=1)]
+            demo.loc[idx, 'match'] = True
+
+    else:
+        for code in codes:
+            if isinstance(code, re._pattern_type):
+                demo[code.pattern] = False
+                idx = df.index[df[cols].apply(
+                    lambda x: x.str.contains(code)).any(axis=1)]
+                demo.loc[idx, code.pattern] = True
+            else:
+                demo[code] = False
+                idx = df.index[(df[cols] == code).any(axis=1)]
+                demo.loc[idx, code] = True
+
+    return demo
+
+
 def search_for_codes(pct, year, data_type, bene_ids_to_filter=None,
                      hcpcs=None, icd9_diag=None,
                      icd9_proc=None, collapse_codes=False):
@@ -409,6 +458,7 @@ def search_for_codes(pct, year, data_type, bene_ids_to_filter=None,
 
     pf = fp.ParquetFile(fpath(pct, year, data_type))
 
+    # Determine which variables to extract
     regex_string = []
     if hcpcs is not None:
         hcpcs_regex = r'^hcpcs_cd$'
@@ -442,53 +492,17 @@ def search_for_codes(pct, year, data_type, bene_ids_to_filter=None,
 
         if hcpcs is not None:
             hcpcs_cols = [x for x in df if re.search(hcpcs_regex, x)]
+            demo = _search_codes(df, demo, hcpcs_cols, hcpcs, collapse_codes)
 
         if icd9_diag is not None:
             icd9_diag_cols = [x for x in df if re.search(icd9_diag_regex, x)]
+            demo = _search_codes(df, demo, icd9_diag_cols,
+                                 icd9_diag, collapse_codes)
 
         if icd9_proc is not None:
             icd9_proc_cols = [x for x in df if re.search(icd9_proc_regex, x)]
-
-        if not collapse_codes:
-            if hcpcs is not None:
-                for code in hcpcs:
-                    demo[code] = False
-                    idx = df.index[(df[hcpcs_cols] == code).any(axis=1)]
-                    demo.loc[idx, code] = True
-                df.drop(hcpcs_cols, axis=1, inplace=True)
-
-            if icd9_diag is not None:
-                for code in icd9_diag:
-                    demo[code] = False
-                    idx = df.index[(df[icd9_diag_cols] == code).any(axis=1)]
-                    demo.loc[idx, code] = True
-                df.drop(icd9_diag_cols, axis=1, inplace=True)
-
-            if icd9_proc is not None:
-                for code in icd9_proc:
-                    demo[code] = False
-                    idx = df.index[(df[icd9_proc_cols] == code).any(axis=1)]
-                    demo.loc[idx, code] = True
-                df.drop(icd9_proc_cols, axis=1, inplace=True)
-
-        else:
-            demo['match'] = False
-            if hcpcs is not None:
-                idx = df.index[(df[hcpcs_cols].isin(hcpcs)).any(axis=1)]
-                demo.loc[idx, 'match'] = True
-                df.drop(hcpcs_cols, axis=1, inplace=True)
-
-            if icd9_diag is not None:
-                idx = df.index[(
-                    df[icd9_diag_cols].isin(icd9_diag)).any(axis=1)]
-                demo.loc[idx, 'match'] = True
-                df.drop(icd9_diag_cols, axis=1, inplace=True)
-
-            if icd9_proc is not None:
-                idx = df.index[(
-                    df[icd9_proc_cols].isin(icd9_proc)).any(axis=1)]
-                demo.loc[idx, 'match'] = True
-                df.drop(icd9_proc_cols, axis=1, inplace=True)
+            demo = _search_codes(df, demo, icd9_proc_cols,
+                                 icd9_proc, collapse_codes)
 
         all_demo.append(demo)
 
