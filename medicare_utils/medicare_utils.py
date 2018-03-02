@@ -314,6 +314,39 @@ def get_cohort(pct, years, gender=None, ages=None, races=None,
     return demo
 
 
+def _check_code_types(var):
+    """Check type of hcpcs, icd9_diag, icd9_proc codes
+
+    Args:
+        var: variable to check types of
+
+    Returns:
+        var
+
+    Raises:
+        TypeError if wrong type
+    """
+    import re
+
+    # If provided with str or compiled regex, coerce to list
+    if type(var) == str:
+        var = [var]
+    elif isinstance(var, re._pattern_type):
+        var = [var]
+    elif type(var) == list:
+        # Check all elements of list are same type
+        if type(var[0]) == str:
+            assert all((type(x) is str) for x in var)
+        elif isinstance(var[0], re._pattern_type):
+            assert all(isinstance(x, re._pattern_type) for x in var)
+        else:
+            raise TypeError('Codes must be str or compiled regex')
+    else:
+        raise TypeError('Codes must be str or compiled regex')
+
+    return var
+
+
 def search_for_codes(pct, year, data_type, bene_ids_to_filter=None,
                      hcpcs=None, icd9_diag=None,
                      icd9_proc=None, collapse_codes=False):
@@ -351,18 +384,31 @@ def search_for_codes(pct, year, data_type, bene_ids_to_filter=None,
         if data_type in ['carc', 'ipc', 'med', 'opc']:
             msg = 'data_type was supplied that does not have HCPCS columns'
             raise ValueError(msg)
+
+        hcpcs = _check_code_types(hcpcs)
+
     if icd9_diag is not None:
         # If variable is not in data_type file, raise error
         if data_type in ['ipr', 'opr']:
             msg = 'data_type was supplied that does not have columns for ICD-9'
             msg += 'diagnosis codes'
             raise ValueError(msg)
+
+        icd9_diag = _check_code_types(icd9_diag)
+
     if icd9_proc is not None:
         # If variable is not in data_type file, raise error
         if data_type in ['carc', 'carl', 'ipr', 'opr']:
             msg = 'data_type was supplied that does not have columns for ICD-9'
             msg += 'procedure codes'
             raise ValueError(msg)
+
+        icd9_proc = _check_code_types(icd9_proc)
+
+    if type(pct) != str:
+        raise TypeError('pct must be string')
+    if type(year) != int:
+        raise TypeError('year must be int')
 
     pf = fp.ParquetFile(fpath(pct, year, data_type))
 
