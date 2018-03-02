@@ -315,20 +315,23 @@ def get_cohort(pct, years, gender=None, ages=None, races=None,
 
 
 def search_for_codes(pct, year, data_type, bene_ids_to_filter=None,
-                     hcpcs_codes=None, icd9_diag_codes=None,
-                     icd9_proc_codes=None, collapse_codes=False):
+                     hcpcs=None, icd9_diag=None,
+                     icd9_proc=None, collapse_codes=False):
     """Search in given dataset for HCPCS/ICD9 codes
 
     Note: Each code given must be distinct, or collapse_codes must be True
 
     Args:
         pct (str): percent sample of data to use
-        years (int): year of data to search
+        year (int): year of data to search
         data_type (str): One of carc, carl, ipc, ipr, med, opc, opr
         bene_ids_to_filter (Index, list): List of bene_ids to search over
-        hcpcs_codes (list[str]): List of HCPCS codes to look for
-        icd9_diag_codes (list[str]): List of ICD-9 diagnosis codes to look for
-        icd9_proc_codes (list[str]): List of ICD-9 procedure codes to look for
+        hcpcs (str, compiled regex, list[str], list[compiled regex]):
+            List of HCPCS codes to look for
+        icd9_diag (str, compiled regex, list[str], list[compiled regex]):
+            List of ICD-9 diagnosis codes to look for
+        icd9_proc (str, compiled regex, list[str], list[compiled regex]):
+            List of ICD-9 procedure codes to look for
         collapse_codes (bool): If True, returns a single column "match";
             else it returns a column for each code provided
 
@@ -343,16 +346,19 @@ def search_for_codes(pct, year, data_type, bene_ids_to_filter=None,
         msg = 'data_type provided that does not match any dataset'
         raise ValueError(msg)
 
-    if hcpcs_codes is not None:
+    if hcpcs is not None:
+        # If variable is not in data_type file, raise error
         if data_type in ['carc', 'ipc', 'med', 'opc']:
             msg = 'data_type was supplied that does not have HCPCS columns'
             raise ValueError(msg)
-    if icd9_diag_codes is not None:
+    if icd9_diag is not None:
+        # If variable is not in data_type file, raise error
         if data_type in ['ipr', 'opr']:
             msg = 'data_type was supplied that does not have columns for ICD-9'
             msg += 'diagnosis codes'
             raise ValueError(msg)
-    if icd9_proc_codes is not None:
+    if icd9_proc is not None:
+        # If variable is not in data_type file, raise error
         if data_type in ['carc', 'carl', 'ipr', 'opr']:
             msg = 'data_type was supplied that does not have columns for ICD-9'
             msg += 'procedure codes'
@@ -361,11 +367,11 @@ def search_for_codes(pct, year, data_type, bene_ids_to_filter=None,
     pf = fp.ParquetFile(fpath(pct, year, data_type))
 
     regex_string = []
-    if hcpcs_codes is not None:
+    if hcpcs is not None:
         hcpcs_regex = r'^hcpcs_cd$'
         regex_string.append(hcpcs_regex)
 
-    if icd9_diag_codes is not None:
+    if icd9_diag is not None:
         if data_type == 'carl':
             icd9_diag_regex = r'icd_dgns_cd\d*$'
         elif data_type == 'med':
@@ -374,7 +380,7 @@ def search_for_codes(pct, year, data_type, bene_ids_to_filter=None,
             icd9_diag_regex = r'^icd_dgns_cd\d+$'
         regex_string.append(icd9_diag_regex)
 
-    if icd9_proc_codes is not None:
+    if icd9_proc is not None:
         icd9_proc_regex = r'^icd_prcdr_cd\d+$'
         regex_string.append(icd9_proc_regex)
 
@@ -391,32 +397,32 @@ def search_for_codes(pct, year, data_type, bene_ids_to_filter=None,
         else:
             demo = pd.DataFrame(index=df.index.unique())
 
-        if hcpcs_codes is not None:
+        if hcpcs is not None:
             hcpcs_cols = [x for x in df if re.search(hcpcs_regex, x)]
 
-        if icd9_diag_codes is not None:
+        if icd9_diag is not None:
             icd9_diag_cols = [x for x in df if re.search(icd9_diag_regex, x)]
 
-        if icd9_proc_codes is not None:
+        if icd9_proc is not None:
             icd9_proc_cols = [x for x in df if re.search(icd9_proc_regex, x)]
 
         if not collapse_codes:
-            if hcpcs_codes is not None:
-                for code in hcpcs_codes:
+            if hcpcs is not None:
+                for code in hcpcs:
                     demo[code] = False
                     idx = df.index[(df[hcpcs_cols] == code).any(axis=1)]
                     demo.loc[idx, code] = True
                 df.drop(hcpcs_cols, axis=1, inplace=True)
 
-            if icd9_diag_codes is not None:
-                for code in icd9_diag_codes:
+            if icd9_diag is not None:
+                for code in icd9_diag:
                     demo[code] = False
                     idx = df.index[(df[icd9_diag_cols] == code).any(axis=1)]
                     demo.loc[idx, code] = True
                 df.drop(icd9_diag_cols, axis=1, inplace=True)
 
-            if icd9_proc_codes is not None:
-                for code in icd9_proc_codes:
+            if icd9_proc is not None:
+                for code in icd9_proc:
                     demo[code] = False
                     idx = df.index[(df[icd9_proc_cols] == code).any(axis=1)]
                     demo.loc[idx, code] = True
@@ -424,20 +430,20 @@ def search_for_codes(pct, year, data_type, bene_ids_to_filter=None,
 
         else:
             demo['match'] = False
-            if hcpcs_codes is not None:
-                idx = df.index[(df[hcpcs_cols].isin(hcpcs_codes)).any(axis=1)]
+            if hcpcs is not None:
+                idx = df.index[(df[hcpcs_cols].isin(hcpcs)).any(axis=1)]
                 demo.loc[idx, 'match'] = True
                 df.drop(hcpcs_cols, axis=1, inplace=True)
 
-            if icd9_diag_codes is not None:
+            if icd9_diag is not None:
                 idx = df.index[(
-                    df[icd9_diag_cols].isin(icd9_diag_codes)).any(axis=1)]
+                    df[icd9_diag_cols].isin(icd9_diag)).any(axis=1)]
                 demo.loc[idx, 'match'] = True
                 df.drop(icd9_diag_cols, axis=1, inplace=True)
 
-            if icd9_proc_codes is not None:
+            if icd9_proc is not None:
                 idx = df.index[(
-                    df[icd9_proc_cols].isin(icd9_proc_codes)).any(axis=1)]
+                    df[icd9_proc_cols].isin(icd9_proc)).any(axis=1)]
                 demo.loc[idx, 'match'] = True
                 df.drop(icd9_proc_cols, axis=1, inplace=True)
 
@@ -450,16 +456,16 @@ def search_for_codes(pct, year, data_type, bene_ids_to_filter=None,
 
         if not collapse_codes:
             demo = pd.DataFrame(index=demo_concat.index)
-            if hcpcs_codes is not None:
-                for code in hcpcs_codes:
+            if hcpcs is not None:
+                for code in hcpcs:
                     demo[code] = demo_concat[code].max(axis=1)
 
-            if icd9_diag_codes is not None:
-                for code in icd9_diag_codes:
+            if icd9_diag is not None:
+                for code in icd9_diag:
                     demo[code] = demo_concat[code].max(axis=1)
 
-            if icd9_proc_codes is not None:
-                for code in icd9_proc_codes:
+            if icd9_proc is not None:
+                for code in icd9_proc:
                     demo[code] = demo_concat[code].max(axis=1)
         else:
             demo = demo_concat['match'].max(axis=1).to_frame('match')
