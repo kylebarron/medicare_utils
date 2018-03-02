@@ -2,6 +2,10 @@
 
 """Main module."""
 
+import re
+import pandas as pd
+import fastparquet as fp
+
 
 def fpath(percent: str, year: int, data_type: str, dta: bool=False):
     """Generate path to Medicare files
@@ -141,10 +145,7 @@ def get_cohort(pct, years, gender=None, ages=None, races=None,
         DataFrame of extracted cohort
     """
 
-    import re
     import numpy as np
-    import pandas as pd
-    import fastparquet as fp
 
     if type(years) == int:
         if buyin_months == 'age_year':
@@ -326,7 +327,6 @@ def _check_code_types(var):
     Raises:
         TypeError if wrong type
     """
-    import re
 
     # If provided with str or compiled regex, coerce to list
     if type(var) == str:
@@ -371,9 +371,6 @@ def search_for_codes(pct, year, data_type, bene_ids_to_filter=None,
     Returns:
         DataFrame with bene_id and bool columns for each code to search for
     """
-    import re
-    import pandas as pd
-    import fastparquet as fp
 
     if data_type not in ['carc', 'carl', 'ipc', 'ipr', 'med', 'opc', 'opr']:
         msg = 'data_type provided that does not match any dataset'
