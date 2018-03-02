@@ -19,7 +19,9 @@ def main(
         pcts=['0001', '01', '05', '100'],
         years=range(2001, 2013),
         med_types=['carc', 'opc', 'bsfab', 'med'],
-        n_jobs=6):
+        n_jobs=6,
+        med_dta='/disk/aging/medicare/data',
+        med_pq='/homes/nber/barronk/agebulk1/raw'):
     """Main program: In parallel convert Stata files to parquet
 
     Args:
@@ -40,6 +42,8 @@ def main(
             - bsfcu
             - bsfd
         n_jobs: number of processes to use
+        med_dta: canonical path for raw medicare dta files
+        med_pq: top of tree to output new parquet files
     """
 
     if type(pcts) is str:
@@ -80,7 +84,9 @@ def main(
     # Make sure list is unique:
     data_list = sorted([list(x) for x in set(tuple(y) for y in data_list)])
 
-    Parallel(n_jobs=n_jobs)(delayed(convert_med)(*i) for i in data_list)
+    Parallel(n_jobs=n_jobs)(
+        delayed(convert_med)(*i, med_dta=med_dta, med_pq=med_pq)
+        for i in data_list)
 
 
 def convert_med(
