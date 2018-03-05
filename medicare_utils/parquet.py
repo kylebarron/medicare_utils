@@ -5,10 +5,7 @@ import math
 import inspect
 import pkg_resources
 import pandas as pd
-import pyarrow as pa
-import pyarrow.parquet as pq
 import numpy as np
-import fastparquet as fp
 from pandas.api.types import CategoricalDtype
 from time import time
 from joblib import Parallel, delayed
@@ -272,6 +269,12 @@ def convert_file(
         Nothing. Writes .parquet file to disk.
     Raises:
     """
+    if parquet_engine == 'pyarrow':
+        import pyarrow as pa
+        import pyarrow.parquet as pq
+    elif parquet_engine == 'fastparquet':
+        import fastparquet as fp
+
     t0 = time()
 
     infile_stub = re.search(r'/?([^/]+?)\.([a-z0-9]+)$', infile)
@@ -552,6 +555,8 @@ def create_parquet_schema(dtypes):
     Returns:
         pyarrow.Schema
     """
+    import pyarrow as pa
+
     dtypes = dict(dtypes)
     fields = []
     for varname, vartype in dtypes.items():
