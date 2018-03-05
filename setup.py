@@ -11,7 +11,14 @@ with open('README.md') as readme_file:
 with open('HISTORY.md') as history_file:
     history = history_file.read()
 
-requirements = ['Click>=6.0', ]
+requirements = [
+    'fastparquet >= 0.1.4',
+    'joblib >= 0.11',
+    'natsort >= 5.2.0',
+    'numpy >= 1.14.1',
+    'pandas >= 0.22.0',
+    'requests >= 2.18.4',
+]
 
 setup_requirements = []
 
@@ -31,11 +38,6 @@ setup(
         'Programming Language :: Python :: 3.6',
     ],
     description="Scripts to assist working with Medicare data.",
-    entry_points={
-        'console_scripts': [
-            'medicare_utils=medicare_utils.cli:main',
-        ],
-    },
     install_requires=requirements,
     license="MIT license",
     long_description=readme + '\n\n' + history,
