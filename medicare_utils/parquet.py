@@ -594,4 +594,5 @@ def create_parquet_schema(dtypes):
     return schema
 
 
-main()
+if __name__ == '__main__':
+    main()
