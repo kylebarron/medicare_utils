@@ -115,204 +115,365 @@ def fpath(percent: str, year: int, data_type: str, dta: bool=False):
 # join_across_years = 'default'
 # keep_vars = []
 # @TODO add option to remove people who died during year
-# @TODO add verbose option
-def get_cohort(pct, years, gender=None, ages=None, races=None,
-               rti_race=False, buyin_val=None, buyin_months=None,
-               join_across_years='default', keep_vars=[]):
-    """Get cohort in standardized way
 
-    Merges in such a way that age has to be within `ages` in any such year
+class MedicareDF(object):
+    """A class to organize Medicare operations"""
 
-    Args:
-        pct (str): percent sample of data to use
-        years (range, list[int], int):
-            years of beneficiary data to get cohort from
-        gender (str): 'M', 'F', 'Male', 'Female', or None (keep both)
-        ages (range, list[int], int):
-            Minimum and maximum possible ages (inclusive)
-        races (list[str], str): which races to include
-        rti_race (bool): Whether to use the Research Triangle
-            Institute race code
-        buyin_val (list[str], str): The values `buyin\d\d` can take
-        buyin_months (str): 'All', 'age_year'
-            If 'age_year', years cannot be int
-        join_across_years (str): method for joining across years
-            Default is "outer" join for all years up to N-1, "left" for N
-            Otherwise must be "left", "inner", "outer", "right"
-        keep_vars (list[str]): Variable names to keep in final output
+    def __init__(self, percent, years):
+        """Return a MedicareDF object
 
-    Returns:
-        DataFrame of extracted cohort
-    """
+        Attributes:
+            percent (str): percent sample of data to use
+            years (list[int]): years of data to use
+        """
 
-    import numpy as np
+        allowed_pcts = ['0001', '01', '05', '20', '100']
 
-    if type(years) == int:
-        if buyin_months == 'age_year':
-            raise ValueError("Year can't be int when buyin_months is age_year")
-        years = [years]
-    if type(ages) == int:
-        ages = [ages]
-    if type(races) == str:
-        races = [races]
-    if type(buyin_val) == str:
-        buyin_val = [buyin_val]
-    if type(keep_vars) == str:
-        keep_vars = [keep_vars]
-
-    # Get list of variables to import for each year
-    tokeep_regex = []
-    tokeep_regex.extend([r'^(ehic)$', r'^(bene_id)$'])
-    if gender is not None:
-        tokeep_regex.append(r'^(sex)$')
-    if ages is not None:
-        tokeep_regex.append(r'^(age)$')
-    if buyin_val is not None:
-        tokeep_regex.append(r'^(buyin\d{2})$')
-        if buyin_months == 'age_year':
-            tokeep_regex.append(r'^(bene_dob)$')
-    if races is not None:
-        if rti_race:
-            tokeep_regex.append(r'^(rti_race_cd)$')
+        if type(percent) != str:
+            raise TypeError('percent must be str')
+        elif percent not in allowed_pcts:
+            msg = f'percent must be one of: {allowed_pcts}'
+            raise ValueError(msg)
         else:
-            tokeep_regex.append(r'^(race)$')
+            self.percent = percent
 
-    if keep_vars is not None:
-        for var in keep_vars:
-            tokeep_regex.append(rf'^({var})$')
+        if type(years) == int:
+            self.years = [years]
+        else:
+            self.years = years
 
-    tokeep_regex = '|'.join(tokeep_regex)
+        assert min(years) >= 2001
+        assert max(years) <= 2015
 
-    tokeep_vars = {}
-    for year in years:
-        cols = fp.ParquetFile(fpath(pct, year, 'bsfab')).columns
-        tokeep_vars[year] = [x for x in cols if re.search(tokeep_regex, x)]
+    def _get_variables_to_import(self, year, data_type, import_vars):
+        """Get list of variable names to import from given file
 
-    # Now perform extraction
-    extracted_dfs = []
-    nobs_dropped = {}
+        NOTE Not currently used
 
-    # Do filtering for all vars that are checkable within a single year's data
-    for year in years:
-        pf = fp.ParquetFile(fpath(pct, year, 'bsfab'))
-        demo = pf.to_pandas(columns=tokeep_vars[year], index='bene_id')
-        nobs = len(demo)
-        nobs_dropped[year] = {}
+        Returns:
+            List of strings of variable names to import from file
+        """
 
+        if type(year) != int:
+            raise TypeError('year must be type int')
+
+        allowed_data_types = [
+            'carc', 'carl', 'den', 'ipc', 'ipr',
+            'med', 'opc', 'opr', 'bsfab', 'bsfcc', 'bsfcu', 'bsfd']
+        if data_type not in allowed_data_types:
+            msg = f'data_type must be one of: {allowed_data_types}'
+            raise ValueError(msg)
+
+        import_vars = list(set(import_vars))
+
+        cols = fp.ParquetFile(fpath(self.percent, year, data_type)).columns
+        tokeep_list = []
+
+        for var in import_vars[:]:
+            # Keep columns that match text exactly
+            if var in cols:
+                tokeep_list.append(var)
+                import_vars.remove(var)
+
+            # Then perform regex against other variables
+            # else:
+            #     re.search
+
+    def get_cohort(self, gender=None, ages=None, races=None,
+                   rti_race=False, buyin_val=None, buyin_months=None,
+                   hmo_val=None, hmo_months=None,
+                   join_across_years='default', keep_vars=[]):
+        """Get cohort in standardized way
+
+        Merges in such a way that age has to be within `ages` in any such year
+
+        Args:
+            gender (str): 'M', 'F', 'Male', 'Female', or None (keep both)
+            ages (range, list[int], int):
+                Minimum and maximum possible ages (inclusive)
+            races (list[str], str): which races to include
+            rti_race (bool): Whether to use the Research Triangle
+                Institute race code
+            buyin_val (list[str], str): The values `buyin\d\d` can take
+            buyin_months (str): 'All', 'age_year'
+                If 'age_year', years cannot be int
+            join_across_years (str): method for joining across years
+                Default is "outer" join for all years up to N-1, "left" for N
+                Otherwise must be "left", "inner", "outer", "right"
+            keep_vars (list[str]): Variable names to keep in final output
+
+        Returns:
+            Adds DataFrame of extracted cohort to instance
+        """
+
+        import numpy as np
+
+        if len(self.years) == 1:
+            if buyin_months == 'age_year':
+                msg = "buyin_months can't be 'age_year' when one year is given"
+                raise ValueError(msg)
+        if type(ages) == int:
+            ages = [ages]
+        if type(races) == str:
+            races = [races]
+
+        if type(buyin_val) == str:
+            buyin_val = [buyin_val]
+
+        if buyin_val is not None:
+            allowed_buyin_months = ['all', 'age_year']
+            if buyin_months not in allowed_buyin_months:
+                msg = f'buyin_months must be one of: {allowed_buyin_months}'
+                raise ValueError(msg)
+
+        if type(hmo_val) == str:
+            hmo_val = [hmo_val]
+
+        if hmo_val is not None:
+            allowed_hmo_months = ['all', 'age_year']
+            if hmo_months not in allowed_hmo_months:
+                msg = f'hmo_months must be one of: {allowed_hmo_months}'
+                raise ValueError(msg)
+
+        allowed_join_across_years = [
+            'default', 'left', 'inner', 'outer', 'right']
+        if join_across_years not in allowed_join_across_years:
+            msg = 'join_across_years must be one of:'
+            msg += f' {allowed_join_across_years}'
+            raise ValueError(msg)
+
+        if type(keep_vars) == str:
+            keep_vars = [keep_vars]
+
+        # Get list of variables to import for each year
+        tokeep_regex = []
+        tokeep_regex.extend([r'^(ehic)$', r'^(bene_id)$'])
         if gender is not None:
-            if (gender.lower() == 'male') | (gender.lower() == 'm'):
-                if demo.sex.dtype.name == 'category':
-                    demo.drop(demo[demo['sex'] == '2'].index, inplace=True)
-                elif np.issubdtype(demo.sex.dtype, np.number):
-                    demo.drop(demo[demo['sex'] == 2].index, inplace=True)
-            elif (gender.lower() == 'female') | (gender.lower() == 'f'):
-                if demo.sex.dtype.name == 'category':
-                    demo.drop(demo[demo['sex'] == '1'].index, inplace=True)
-                elif np.issubdtype(demo.sex.dtype, np.number):
-                    demo.drop(demo[demo['sex'] == 1].index, inplace=True)
-
-            if 'sex' not in keep_vars:
-                demo.drop('sex', axis=1, inplace=True)
-
-            nobs_dropped[year]['gender'] = 1 - (len(demo) / nobs)
-            nobs = len(demo)
-
+            tokeep_regex.append(r'^(sex)$')
         if ages is not None:
-            demo = demo.loc[demo['age'].isin(ages)]
+            tokeep_regex.append(r'^(age)$')
+        if races is not None:
+            if rti_race:
+                tokeep_regex.append(r'^(rti_race_cd)$')
+            else:
+                tokeep_regex.append(r'^(race)$')
+        if buyin_val is not None:
+            tokeep_regex.append(r'^(buyin\d{2})$')
+            if buyin_months == 'age_year':
+                tokeep_regex.append(r'^(bene_dob)$')
+        if hmo_val is not None:
+            tokeep_regex.append(r'^(hmoind\d{2})$')
+            if hmo_months == 'age_year':
+                tokeep_regex.append(r'^(bene_dob)$')
 
-            if 'age' not in keep_vars:
-                demo.drop('age', axis=1, inplace=True)
+        if keep_vars is not None:
+            for var in keep_vars:
+                tokeep_regex.append(rf'^({var})$')
 
-            nobs_dropped[year]['age'] = 1 - (len(demo) / nobs)
+        tokeep_regex = '|'.join(tokeep_regex)
+
+        tokeep_vars = {}
+        for year in self.years:
+            cols = fp.ParquetFile(fpath(self.percent, year, 'bsfab')).columns
+            tokeep_vars[year] = [x for x in cols if re.search(tokeep_regex, x)]
+
+        # Now perform extraction
+        extracted_dfs = []
+        nobs_dropped = {}
+
+        # Do filtering for all vars that are
+        # checkable within a single year's data
+        for year in self.years:
+            pf = fp.ParquetFile(fpath(self.percent, year, 'bsfab'))
+            demo = pf.to_pandas(columns=tokeep_vars[year], index='bene_id')
             nobs = len(demo)
+            nobs_dropped[year] = {}
 
-        demo.columns = [f'{x}_{year}' for x in demo.columns]
+            if gender is not None:
+                if (gender.lower() == 'male') | (gender.lower() == 'm'):
+                    if demo.sex.dtype.name == 'category':
+                        demo.drop(demo[demo['sex'] == '2'].index, inplace=True)
+                    elif np.issubdtype(demo.sex.dtype, np.number):
+                        demo.drop(demo[demo['sex'] == 2].index, inplace=True)
+                elif (gender.lower() == 'female') | (gender.lower() == 'f'):
+                    if demo.sex.dtype.name == 'category':
+                        demo.drop(demo[demo['sex'] == '1'].index, inplace=True)
+                    elif np.issubdtype(demo.sex.dtype, np.number):
+                        demo.drop(demo[demo['sex'] == 1].index, inplace=True)
 
-        extracted_dfs.append(demo)
+                if 'sex' not in keep_vars:
+                    demo.drop('sex', axis=1, inplace=True)
 
-    # @NOTE As long as I'm only looking across years, doing a left join on the
-    # last year should be fine
-    if len(extracted_dfs) == 1:
-        demo = extracted_dfs[0]
+                nobs_dropped[year]['gender'] = 1 - (len(demo) / nobs)
+                nobs = len(demo)
 
-    elif len(extracted_dfs) == 2:
-        if join_across_years == 'default':
-            demo = extracted_dfs[0].join(extracted_dfs[1], how='left')
+            if ages is not None:
+                demo = demo.loc[demo['age'].isin(ages)]
+
+                if 'age' not in keep_vars:
+                    demo.drop('age', axis=1, inplace=True)
+
+                nobs_dropped[year]['age'] = 1 - (len(demo) / nobs)
+                nobs = len(demo)
+
+            demo.columns = [f'{x}_{year}' for x in demo.columns]
+
+            extracted_dfs.append(demo)
+
+        # @NOTE As long as I'm only looking across years,
+        # doing a left join on the last year should be fine
+        if len(extracted_dfs) == 1:
+            demo = extracted_dfs[0]
+        elif len(extracted_dfs) == 2:
+            if join_across_years == 'default':
+                demo = extracted_dfs[0].join(extracted_dfs[1], how='left')
+            else:
+                demo = extracted_dfs[0].join(
+                    extracted_dfs[1], how=join_across_years)
         else:
-            demo = extracted_dfs[0].join(
-                extracted_dfs[1], how=join_across_years)
+            if join_across_years == 'default':
+                demo = extracted_dfs[0].join(
+                    extracted_dfs[1:-1], how='outer').join(
+                    extracted_dfs[-1], how='left')
+            else:
+                demo = extracted_dfs[0].join(
+                    extracted_dfs[1:], how=join_across_years)
 
-    else:
-        if join_across_years == 'default':
-            demo = extracted_dfs[0].join(extracted_dfs[1:-1], how='outer').join(
-                extracted_dfs[-1], how='left')
-        else:
-            demo = extracted_dfs[0].join(
-                extracted_dfs[1:], how=join_across_years)
+        # Create single variable across years for any non month-oriented
+        # variables (i.e. buyin and hmo status)
 
-    # Create single variable across years for any non buyin_variables
-    # TODO Make this general for all variables
-    dob_cols = [x for x in demo if re.search(r'^bene_dob', x)]
-    demo['bene_dob'] = pd.NaT
-    for col in dob_cols:
-        demo['bene_dob'] = demo['bene_dob'].combine_first(demo[col])
-    demo.drop(dob_cols, axis=1, inplace=True)
+        # columns that don't vary by month:
+        year_cols = [x for x in demo if not re.search(r'\d{2}_\d{4}$', x)]
 
-    if buyin_val is not None:
-        if buyin_months == 'age_year':
+        # unique names of columns that don't vary by month:
+        year_cols_stub = list(set([x[:-5] for x in year_cols]))
+
+        dtypes = dict(demo.dtypes)
+        for col in year_cols_stub:
+            # Generate stub column with same dtype as col
+            dtype = dtypes[f'{col}_{min(self.years)}']
+            demo[col] = np.NaN
+            demo[col] = demo[col].astype(dtype)
+
+            for year in self.years:
+                demo[col] = demo[col].combine_first(demo[f'{col}_{year}'])
+                demo.drop(f'{col}_{year}', axis=1, inplace=True)
+
+            demo[col] = demo[col].astype(dtype)
+
+        if (((buyin_val is not None) and (buyin_months == 'age_year')) or
+            ((hmo_val is not None) and (hmo_months == 'age_year'))):
 
             demo['dob_month'] = demo['bene_dob'].dt.month
 
-            # Create indicator variable for each year if `buyin == buyin_val`
-            # for the 13 months starting in birthday month of `year` and ending
-            # in birthday month of `year + 1`
+        if buyin_val is not None:
+            if buyin_months == 'age_year':
 
-            for year in years[:-1]:
-                # Initialize indicator variable for each year
-                demo[f'buyin_match_{year}'] = False
+                # Create indicator variable for each year if `buyin ==
+                # buyin_val` for the 13 months starting in birthday month of
+                # `year` and ending in birthday month of `year + 1`
 
-                for month in range(1, 13):
-                    buyin_cols = []
-                    for colname in demo:
-                        match = re.search(r'buyin(\d{2})_(\d{4})', colname)
-                        if match is not None:
-                            mt_month = int(match[1])
-                            mt_year = int(match[2])
-                            if (mt_month >= month) & (mt_year == year):
-                                buyin_cols.append(colname)
-                            elif (mt_month <= month) & (mt_year == year + 1):
-                                buyin_cols.append(colname)
+                for year in self.years[:-1]:
+                    # Initialize indicator variable for each year
+                    demo[f'buyin_match_{year}'] = False
 
-                    demo.loc[(demo['dob_month'] == month)
-                             & (demo[buyin_cols].isin(buyin_val)).all(axis=1),
-                             f'buyin_match_{year}'] = True
+                    for month in range(1, 13):
+                        buyin_cols = []
+                        for colname in demo.columns:
+                            match = re.search(r'buyin(\d{2})_(\d{4})', colname)
+                            if match is not None:
+                                # Match month
+                                m_month = int(match[1])
+                                # Match year
+                                m_year = int(match[2])
+                                if (m_month >= month) & (m_year == year):
+                                    buyin_cols.append(colname)
+                                elif (m_month <= month) & (m_year == year + 1):
+                                    buyin_cols.append(colname)
 
-                nobs_dropped[year]['buyin'] = (
-                    1 - (demo[f'buyin_match_{year}'].sum() / len(demo)))
+                        demo.loc[(demo['dob_month'] == month)
+                                 & (demo[buyin_cols].isin(buyin_val)).all(axis=1),
+                                 f'buyin_match_{year}'] = True
 
-            regex = re.compile(r'^buyin_match_\d{4}$').search
-            buyin_match_cols = [x for x in demo if regex(x)]
-            demo = demo.loc[demo[buyin_match_cols].all(axis=1)]
+                    nobs_dropped[year]['buyin'] = (
+                        1 - (demo[f'buyin_match_{year}'].sum() / len(demo)))
 
-            regex = re.compile(r'^buyin\d{2}_\d{4}$').search
-            cols_todrop = [x for x in demo if regex(x)]
-            cols_todrop.append('dob_month')
-            cols_todrop.extend(buyin_match_cols)
-            demo.drop(cols_todrop, axis=1, inplace=True)
+                regex = re.compile(r'^buyin_match_\d{4}$').search
+                buyin_match_cols = [x for x in demo if regex(x)]
+                demo = demo.loc[demo[buyin_match_cols].all(axis=1)]
 
-        elif buyin_months == 'all':
-            buyin_cols = [x for x in demo if re.search(r'^buyin\d{2}', x)]
-            demo = demo.loc[(demo[buyin_cols].isin(buyin_val)).all(axis=1)]
+                regex = re.compile(r'^buyin\d{2}_\d{4}$').search
+                cols_todrop = [x for x in demo if regex(x)]
+                cols_todrop.extend(buyin_match_cols)
+                demo.drop(cols_todrop, axis=1, inplace=True)
 
-            regex = re.compile(r'^buyin\d{2}_\d{4}$').search
-            cols_todrop = [x for x in demo if regex(x)]
-            demo = demo.drop(cols_todrop, axis=1)
+            elif buyin_months == 'all':
+                buyin_cols = [x for x in demo if re.search(r'^buyin\d{2}', x)]
+                demo = demo.loc[(demo[buyin_cols].isin(buyin_val)).all(axis=1)]
 
-        else:
-            msg = 'Have coded only age_year for buyin_months'
-            raise NotImplementedError(msg)
+                regex = re.compile(r'^buyin\d{2}_\d{4}$').search
+                cols_todrop = [x for x in demo if regex(x)]
+                demo = demo.drop(cols_todrop, axis=1)
 
-    return demo
+        if hmo_val is not None:
+            if hmo_months == 'age_year':
+
+                # Create indicator variable for each year if `hmo ==
+                # hmo_val` for the 13 months starting in birthday month of
+                # `year` and ending in birthday month of `year + 1`
+
+                for year in self.years[:-1]:
+                    # Initialize indicator variable for each year
+                    demo[f'hmo_match_{year}'] = False
+
+                    for month in range(1, 13):
+                        hmo_cols = []
+                        for colname in demo.columns:
+                            match = re.search(r'hmoind(\d{2})_(\d{4})', colname)
+                            if match is not None:
+                                # Match month
+                                m_month = int(match[1])
+                                # Match year
+                                m_year = int(match[2])
+                                if (m_month >= month) & (m_year == year):
+                                    hmo_cols.append(colname)
+                                elif (m_month <= month) & (m_year == year + 1):
+                                    hmo_cols.append(colname)
+
+                        demo.loc[(demo['dob_month'] == month)
+                                 & (demo[hmo_cols].isin(hmo_val)).all(axis=1),
+                                 f'hmo_match_{year}'] = True
+
+                    nobs_dropped[year]['hmo'] = (
+                        1 - (demo[f'hmo_match_{year}'].sum() / len(demo)))
+
+                regex = re.compile(r'^hmo_match_\d{4}$').search
+                hmo_match_cols = [x for x in demo if regex(x)]
+                demo = demo.loc[demo[hmo_match_cols].all(axis=1)]
+
+                regex = re.compile(r'^hmoind\d{2}_\d{4}$').search
+                cols_todrop = [x for x in demo if regex(x)]
+                cols_todrop.extend(hmo_match_cols)
+                demo.drop(cols_todrop, axis=1, inplace=True)
+
+            elif hmo_months == 'all':
+                hmo_cols = [x for x in demo if re.search(r'^buyin\d{2}', x)]
+                demo = demo.loc[(demo[hmo_cols].isin(hmo_val)).all(axis=1)]
+
+                regex = re.compile(r'^buyin\d{2}_\d{4}$').search
+                cols_todrop = [x for x in demo if regex(x)]
+                demo = demo.drop(cols_todrop, axis=1)
+
+        if (((buyin_val is not None) and (buyin_months == 'age_year')) or
+            ((hmo_val is not None) and (hmo_months == 'age_year'))):
+
+            demo.drop('dob_month', axis=1, inplace=True)
+
+            if 'bene_dob' not in keep_vars:
+                demo.drop('bene_dob', axis=1, inplace=True)
+
+        self.nobs_dropped = nobs_dropped
+        self.pl = demo
 
 
 def _check_code_types(var):
