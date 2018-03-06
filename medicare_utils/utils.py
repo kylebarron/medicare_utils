@@ -399,7 +399,8 @@ def _search_codes(df, demo, cols, codes, collapse):
 
 def search_for_codes(pct, year, data_type, bene_ids_to_filter=None,
                      hcpcs=None, icd9_diag=None,
-                     icd9_proc=None, collapse_codes=False):
+                     icd9_proc=None, return_level='person',
+                     keep_vars=[], collapse_codes=False):
     """Search in given dataset for HCPCS/ICD9 codes
 
     Note: Each code given must be distinct, or collapse_codes must be True
@@ -415,6 +416,8 @@ def search_for_codes(pct, year, data_type, bene_ids_to_filter=None,
             List of ICD-9 diagnosis codes to look for
         icd9_proc (str, compiled regex, list[str], list[compiled regex]):
             List of ICD-9 procedure codes to look for
+        return_level (str): The level of data to return ('person' or 'claim')
+        keep_vars (list[str]): list of column names to return
         collapse_codes (bool): If True, returns a single column "match";
             else it returns a column for each code provided
 
@@ -422,9 +425,18 @@ def search_for_codes(pct, year, data_type, bene_ids_to_filter=None,
         DataFrame with bene_id and bool columns for each code to search for
     """
 
+    if type(pct) != str:
+        raise TypeError('pct must be string')
+
+    if type(year) != int:
+        raise TypeError('year must be int')
+
     if data_type not in ['carc', 'carl', 'ipc', 'ipr', 'med', 'opc', 'opr']:
         msg = 'data_type provided that does not match any dataset'
         raise ValueError(msg)
+
+    if type(bene_ids_to_filter) == str:
+        bene_ids_to_filter = [bene_ids_to_filter]
 
     if hcpcs is not None:
         # If variable is not in data_type file, raise error
@@ -452,10 +464,17 @@ def search_for_codes(pct, year, data_type, bene_ids_to_filter=None,
 
         icd9_proc = _check_code_types(icd9_proc)
 
-    if type(pct) != str:
-        raise TypeError('pct must be string')
-    if type(year) != int:
-        raise TypeError('year must be int')
+    return_level_person_syn = ['patient', 'beneficiary']
+    return_level_values = ['person', *return_level_person_syn, 'claim']
+    if type(return_level) != str:
+        raise TypeError('return_level must be string')
+    elif return_level not in return_level_values:
+        raise ValueError(f'return_level must be one of {return_level_values}')
+    elif return_level in return_level_person_syn:
+        return_level = 'person'
+
+    if type(collapse_codes) != bool:
+        raise TypeError('collapse_codes must be boolean')
 
     pf = fp.ParquetFile(fpath(pct, year, data_type))
 
