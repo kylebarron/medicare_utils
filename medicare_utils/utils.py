@@ -113,12 +113,12 @@ def fpath(percent: str, year: int, data_type: str, dta: bool=False):
 # buyin_val = '3'
 # buyin_months = 'all'
 # join_across_years = 'default'
-# vars_to_keep = []
+# keep_vars = []
 # @TODO add option to remove people who died during year
 # @TODO add verbose option
 def get_cohort(pct, years, gender=None, ages=None, races=None,
                rti_race=False, buyin_val=None, buyin_months=None,
-               join_across_years='default', vars_to_keep=[]):
+               join_across_years='default', keep_vars=[]):
     """Get cohort in standardized way
 
     Merges in such a way that age has to be within `ages` in any such year
@@ -139,7 +139,7 @@ def get_cohort(pct, years, gender=None, ages=None, races=None,
         join_across_years (str): method for joining across years
             Default is "outer" join for all years up to N-1, "left" for N
             Otherwise must be "left", "inner", "outer", "right"
-        vars_to_keep (list[str]): Variable names to keep in final output
+        keep_vars (list[str]): Variable names to keep in final output
 
     Returns:
         DataFrame of extracted cohort
@@ -157,8 +157,8 @@ def get_cohort(pct, years, gender=None, ages=None, races=None,
         races = [races]
     if type(buyin_val) == str:
         buyin_val = [buyin_val]
-    if type(vars_to_keep) == str:
-        vars_to_keep = [vars_to_keep]
+    if type(keep_vars) == str:
+        keep_vars = [keep_vars]
 
     # Get list of variables to import for each year
     tokeep_regex = []
@@ -177,8 +177,8 @@ def get_cohort(pct, years, gender=None, ages=None, races=None,
         else:
             tokeep_regex.append(r'^(race)$')
 
-    if vars_to_keep is not None:
-        for var in vars_to_keep:
+    if keep_vars is not None:
+        for var in keep_vars:
             tokeep_regex.append(rf'^({var})$')
 
     tokeep_regex = '|'.join(tokeep_regex)
@@ -211,7 +211,7 @@ def get_cohort(pct, years, gender=None, ages=None, races=None,
                 elif np.issubdtype(demo.sex.dtype, np.number):
                     demo.drop(demo[demo['sex'] == 1].index, inplace=True)
 
-            if 'sex' not in vars_to_keep:
+            if 'sex' not in keep_vars:
                 demo.drop('sex', axis=1, inplace=True)
 
             nobs_dropped[year]['gender'] = 1 - (len(demo) / nobs)
@@ -220,7 +220,7 @@ def get_cohort(pct, years, gender=None, ages=None, races=None,
         if ages is not None:
             demo = demo.loc[demo['age'].isin(ages)]
 
-            if 'age' not in vars_to_keep:
+            if 'age' not in keep_vars:
                 demo.drop('age', axis=1, inplace=True)
 
             nobs_dropped[year]['age'] = 1 - (len(demo) / nobs)
