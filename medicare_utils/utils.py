@@ -755,6 +755,61 @@ class MedicareDF(object):
 
         self.cl = cl
 
+        pl = self.pl
+
+        if collapse_codes:
+            bene_id_idx = cl.index[cl['match'] == True]
+
+            if 'match' not in pl.columns:
+                pl['match'] = False
+
+            pl.loc[bene_id_idx, 'match'] = True
+
+        else:
+            if hcpcs:
+                for code in hcpcs:
+                    if isinstance(code, re._pattern_type):
+                        if code.pattern not in pl.columns:
+                            pl[code.pattern] = False
+                        idx = cl.index[cl[code.pattern] == True]
+                        pl.loc[idx, code.pattern] = True
+
+                    else:
+                        if code not in pl.columns:
+                            pl[code] = False
+                        idx = cl.index[cl[code] == True]
+                        pl.loc[idx, code] = True
+
+            if icd9_diag:
+                for code in icd9_diag:
+                    if isinstance(code, re._pattern_type):
+                        if code.pattern not in pl.columns:
+                            pl[code.pattern] = False
+                        idx = cl.index[cl[code.pattern] == True]
+                        pl.loc[idx, code.pattern] = True
+
+                    else:
+                        if code not in pl.columns:
+                            pl[code] = False
+                        idx = cl.index[cl[code] == True]
+                        pl.loc[idx, code] = True
+
+            if icd9_proc:
+                for code in icd9_proc:
+                    if isinstance(code, re._pattern_type):
+                        if code.pattern not in pl.columns:
+                            pl[code.pattern] = False
+                        idx = cl.index[cl[code.pattern] == True]
+                        pl.loc[idx, code.pattern] = True
+
+                    else:
+                        if code not in pl.columns:
+                            pl[code] = False
+                        idx = cl.index[cl[code] == True]
+                        pl.loc[idx, code] = True
+
+        self.pl = pl
+
 
 def pq_vars(ParquetFile):
     import re
