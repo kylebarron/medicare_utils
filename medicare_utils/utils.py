@@ -158,8 +158,8 @@ class MedicareDF(object):
             raise TypeError('year must be type int')
 
         allowed_data_types = [
-            'carc', 'carl', 'den', 'ipc', 'ipr',
-            'med', 'opc', 'opr', 'bsfab', 'bsfcc', 'bsfcu', 'bsfd']
+            'carc', 'carl', 'den', 'ipc', 'ipr', 'med', 'opc', 'opr', 'bsfab',
+            'bsfcc', 'bsfcu', 'bsfd']
         if data_type not in allowed_data_types:
             msg = f'data_type must be one of: {allowed_data_types}'
             raise ValueError(msg)
@@ -179,10 +179,18 @@ class MedicareDF(object):
             # else:
             #     re.search
 
-    def get_cohort(self, gender=None, ages=None, races=None,
-                   rti_race=False, buyin_val=None, buyin_months=None,
-                   hmo_val=None, hmo_months=None,
-                   join_across_years='default', keep_vars=[]):
+    def get_cohort(
+            self,
+            gender=None,
+            ages=None,
+            races=None,
+            rti_race=False,
+            buyin_val=None,
+            buyin_months=None,
+            hmo_val=None,
+            hmo_months=None,
+            join_across_years='default',
+            keep_vars=[]):
         """Get cohort in standardized way
 
         Merges in such a way that age has to be within `ages` in any such year
@@ -334,7 +342,7 @@ class MedicareDF(object):
             if join_across_years == 'default':
                 pl = extracted_dfs[0].join(
                     extracted_dfs[1:-1], how='outer').join(
-                    extracted_dfs[-1], how='left')
+                        extracted_dfs[-1], how='left')
             else:
                 pl = extracted_dfs[0].join(
                     extracted_dfs[1:], how=join_across_years)
@@ -361,8 +369,8 @@ class MedicareDF(object):
 
             pl[col] = pl[col].astype(dtype)
 
-        if (((buyin_val is not None) and (buyin_months == 'age_year')) or
-            ((hmo_val is not None) and (hmo_months == 'age_year'))):
+        if (((buyin_val is not None) and (buyin_months == 'age_year'))
+                or ((hmo_val is not None) and (hmo_months == 'age_year'))):
 
             pl['dob_month'] = pl['bene_dob'].dt.month
 
@@ -392,8 +400,8 @@ class MedicareDF(object):
                                     buyin_cols.append(colname)
 
                         pl.loc[(pl['dob_month'] == month)
-                                 & (pl[buyin_cols].isin(buyin_val)).all(axis=1),
-                                 f'buyin_match_{year}'] = True
+                               & (pl[buyin_cols].isin(buyin_val)).all(axis=1),
+                               f'buyin_match_{year}'] = True
 
                     nobs_dropped[year]['buyin'] = (
                         1 - (pl[f'buyin_match_{year}'].sum() / len(pl)))
@@ -441,8 +449,8 @@ class MedicareDF(object):
                                     hmo_cols.append(colname)
 
                         pl.loc[(pl['dob_month'] == month)
-                                 & (pl[hmo_cols].isin(hmo_val)).all(axis=1),
-                                 f'hmo_match_{year}'] = True
+                               & (pl[hmo_cols].isin(hmo_val)).all(axis=1),
+                               f'hmo_match_{year}'] = True
 
                     nobs_dropped[year]['hmo'] = (
                         1 - (pl[f'hmo_match_{year}'].sum() / len(pl)))
@@ -464,8 +472,8 @@ class MedicareDF(object):
                 cols_todrop = [x for x in pl if regex(x)]
                 pl = pl.drop(cols_todrop, axis=1)
 
-        if (((buyin_val is not None) and (buyin_months == 'age_year')) or
-            ((hmo_val is not None) and (hmo_months == 'age_year'))):
+        if (((buyin_val is not None) and (buyin_months == 'age_year'))
+                or ((hmo_val is not None) and (hmo_months == 'age_year'))):
 
             pl.drop('dob_month', axis=1, inplace=True)
 
@@ -475,239 +483,275 @@ class MedicareDF(object):
         self.nobs_dropped = nobs_dropped
         self.pl = pl
 
-def _check_code_types(var):
-    """Check type of hcpcs, icd9_diag, icd9_proc codes
+    @staticmethod
+    def _check_code_types(var):
+        """Check type of hcpcs, icd9_diag, icd9_proc codes
 
-    Args:
-        var: variable to check types of
+        Args:
+            var: variable to check types of
 
-    Returns:
-        var
+        Returns:
+            var
 
-    Raises:
-        TypeError if wrong type
-    """
+        Raises:
+            TypeError if wrong type
+        """
 
-    # If provided with str or compiled regex, coerce to list
-    if type(var) == str:
-        var = [var]
-    elif isinstance(var, re._pattern_type):
-        var = [var]
-    elif type(var) == list:
-        # Check all elements of list are same type
-        if type(var[0]) == str:
-            assert all((type(x) is str) for x in var)
-        elif isinstance(var[0], re._pattern_type):
-            assert all(isinstance(x, re._pattern_type) for x in var)
+        # If provided with str or compiled regex, coerce to list
+        if type(var) == str:
+            var = [var]
+        elif isinstance(var, re._pattern_type):
+            var = [var]
+        elif type(var) == list:
+            # Check all elements of list are same type
+            if type(var[0]) == str:
+                assert all((type(x) is str) for x in var)
+            elif isinstance(var[0], re._pattern_type):
+                assert all(isinstance(x, re._pattern_type) for x in var)
+            else:
+                raise TypeError('Codes must be str or compiled regex')
         else:
             raise TypeError('Codes must be str or compiled regex')
-    else:
-        raise TypeError('Codes must be str or compiled regex')
 
-    return var
+        return var
 
+    def search_for_codes(
+            self,
+            year,
+            data_type,
+            hcpcs=None,
+            icd9_diag=None,
+            icd9_proc=None,
+            keep_vars=[],
+            collapse_codes=False):
+        """Search in given claim-level dataset for HCPCS/ICD9 codes
+        NOTE: Will want to remove year?
 
-def _search_codes(df, demo, cols, codes, collapse):
-    """Search through file for codes
+        Note: Each code given must be distinct, or collapse_codes must be True
 
-    Note: Modifies in place
+        Args:
+            year (int): year of data to search
+            data_type (str): One of carc, carl, ipc, ipr, med, opc, opr
+            hcpcs (str, compiled regex, list[str], list[compiled regex]):
+                List of HCPCS codes to look for
+            icd9_diag (str, compiled regex, list[str], list[compiled regex]):
+                List of ICD-9 diagnosis codes to look for
+            icd9_proc (str, compiled regex, list[str], list[compiled regex]):
+                List of ICD-9 procedure codes to look for
+            keep_vars (list[str]): list of column names to return
+            collapse_codes (bool): If True, returns a single column "match";
+                else it returns a column for each code provided
 
-    Args:
-        df (pd.DataFrame): file with codes to search through
-        demo (pd.DataFrame): demographic file to track who has given code
-        cols (list[str]): column names to search over
-        codes (list[str] or list[re._pattern_type]): codes to match against
-        collapse (bool): whether to return code-matches individually or not
-    """
-    if collapse:
-        if 'match' not in demo.columns:
-            demo['match'] = False
+        Returns:
+            DataFrame with bene_id and bool columns for each code to search for
+        """
 
-        if isinstance(codes[0], re._pattern_type):
-            idxs = []
-            for code in codes:
-                idxs.append(
-                    df.index[df[cols].apply(
-                        lambda x: x.str.contains(code)).any(axis=1)])
-
-            if len(idxs) == 1:
-                idx = idxs[0].unique()
-            elif len(idxs) == 2:
-                idx = idxs[0].append(idxs[1]).unique()
-            else:
-                idx = idxs[0].append(idxs[1:]).unique()
-            demo.loc[idx, 'match'] = True
-
-        else:
-            idx = df.index[(df[cols].isin(codes)).any(axis=1)]
-            demo.loc[idx, 'match'] = True
-
-    else:
-        for code in codes:
-            if isinstance(code, re._pattern_type):
-                demo[code.pattern] = False
-                idx = df.index[df[cols].apply(
-                    lambda x: x.str.contains(code)).any(axis=1)]
-                demo.loc[idx, code.pattern] = True
-            else:
-                demo[code] = False
-                idx = df.index[(df[cols] == code).any(axis=1)]
-                demo.loc[idx, code] = True
-
-    return demo
-
-
-def search_for_codes(pct, year, data_type, bene_ids_to_filter=None,
-                     hcpcs=None, icd9_diag=None,
-                     icd9_proc=None, return_level='person',
-                     keep_vars=[], collapse_codes=False):
-    """Search in given dataset for HCPCS/ICD9 codes
-
-    Note: Each code given must be distinct, or collapse_codes must be True
-
-    Args:
-        pct (str): percent sample of data to use
-        year (int): year of data to search
-        data_type (str): One of carc, carl, ipc, ipr, med, opc, opr
-        bene_ids_to_filter (Index, list): List of bene_ids to search over
-        hcpcs (str, compiled regex, list[str], list[compiled regex]):
-            List of HCPCS codes to look for
-        icd9_diag (str, compiled regex, list[str], list[compiled regex]):
-            List of ICD-9 diagnosis codes to look for
-        icd9_proc (str, compiled regex, list[str], list[compiled regex]):
-            List of ICD-9 procedure codes to look for
-        return_level (str): The level of data to return ('person' or 'claim')
-        keep_vars (list[str]): list of column names to return
-        collapse_codes (bool): If True, returns a single column "match";
-            else it returns a column for each code provided
-
-    Returns:
-        DataFrame with bene_id and bool columns for each code to search for
-    """
-
-    if type(pct) != str:
-        raise TypeError('pct must be string')
-
-    if type(year) != int:
-        raise TypeError('year must be int')
-
-    if data_type not in ['carc', 'carl', 'ipc', 'ipr', 'med', 'opc', 'opr']:
-        msg = 'data_type provided that does not match any dataset'
-        raise ValueError(msg)
-
-    if type(bene_ids_to_filter) == str:
-        bene_ids_to_filter = [bene_ids_to_filter]
-
-    if hcpcs is not None:
-        # If variable is not in data_type file, raise error
-        if data_type in ['carc', 'ipc', 'med', 'opc']:
-            msg = 'data_type was supplied that does not have HCPCS columns'
+        if data_type not in ['carc', 'carl', 'ipc', 'ipr', 'med', 'opc', 'opr']:
+            msg = 'data_type provided that does not match any dataset'
             raise ValueError(msg)
-
-        hcpcs = _check_code_types(hcpcs)
-
-    if icd9_diag is not None:
-        # If variable is not in data_type file, raise error
-        if data_type in ['ipr', 'opr']:
-            msg = 'data_type was supplied that does not have columns for ICD-9'
-            msg += 'diagnosis codes'
-            raise ValueError(msg)
-
-        icd9_diag = _check_code_types(icd9_diag)
-
-    if icd9_proc is not None:
-        # If variable is not in data_type file, raise error
-        if data_type in ['carc', 'carl', 'ipr', 'opr']:
-            msg = 'data_type was supplied that does not have columns for ICD-9'
-            msg += 'procedure codes'
-            raise ValueError(msg)
-
-        icd9_proc = _check_code_types(icd9_proc)
-
-    return_level_person_syn = ['patient', 'beneficiary']
-    return_level_values = ['person', *return_level_person_syn, 'claim']
-    if type(return_level) != str:
-        raise TypeError('return_level must be string')
-    elif return_level not in return_level_values:
-        raise ValueError(f'return_level must be one of {return_level_values}')
-    elif return_level in return_level_person_syn:
-        return_level = 'person'
-
-    if type(collapse_codes) != bool:
-        raise TypeError('collapse_codes must be boolean')
-
-    pf = fp.ParquetFile(fpath(pct, year, data_type))
-
-    # Determine which variables to extract
-    regex_string = []
-    if hcpcs is not None:
-        hcpcs_regex = r'^hcpcs_cd$'
-        regex_string.append(hcpcs_regex)
-
-    if icd9_diag is not None:
-        if data_type == 'carl':
-            icd9_diag_regex = r'icd_dgns_cd\d*$'
-        elif data_type == 'med':
-            icd9_diag_regex = r'^dgnscd\d+$$'
-        else:
-            icd9_diag_regex = r'^icd_dgns_cd\d+$'
-        regex_string.append(icd9_diag_regex)
-
-    if icd9_proc is not None:
-        icd9_proc_regex = r'^icd_prcdr_cd\d+$'
-        regex_string.append(icd9_proc_regex)
-
-    regex_string = '|'.join(regex_string)
-    regex = re.compile(regex_string).search
-    cols = [x for x in pf.columns if regex(x)]
-
-    all_demo = []
-    for df in pf.iter_row_groups(columns=cols, index='bene_id'):
-
-        if bene_ids_to_filter is not None:
-            demo = pd.DataFrame(index=bene_ids_to_filter)
-            df = df.join(demo, how='inner')
-        else:
-            demo = pd.DataFrame(index=df.index.unique())
 
         if hcpcs is not None:
-            hcpcs_cols = [x for x in df if re.search(hcpcs_regex, x)]
-            demo = _search_codes(df, demo, hcpcs_cols, hcpcs, collapse_codes)
+            # If variable is not in data_type file, raise error
+            if data_type in ['carc', 'ipc', 'med', 'opc']:
+                msg = 'data_type was supplied that does not have HCPCS columns'
+                raise ValueError(msg)
+
+            hcpcs = self._check_code_types(hcpcs)
 
         if icd9_diag is not None:
-            icd9_diag_cols = [x for x in df if re.search(icd9_diag_regex, x)]
-            demo = _search_codes(df, demo, icd9_diag_cols,
-                                 icd9_diag, collapse_codes)
+            # If variable is not in data_type file, raise error
+            if data_type in ['ipr', 'opr']:
+                msg = 'data_type was supplied that does not have columns'
+                msg += ' for ICD-9 diagnosis codes'
+                raise ValueError(msg)
+
+            icd9_diag = self._check_code_types(icd9_diag)
 
         if icd9_proc is not None:
-            icd9_proc_cols = [x for x in df if re.search(icd9_proc_regex, x)]
-            demo = _search_codes(df, demo, icd9_proc_cols,
-                                 icd9_proc, collapse_codes)
+            # If variable is not in data_type file, raise error
+            if data_type in ['carc', 'carl', 'ipr', 'opr']:
+                msg = 'data_type was supplied that does not have columns'
+                msg += ' for ICD-9 procedure codes'
+                raise ValueError(msg)
 
-        all_demo.append(demo)
+            icd9_proc = self._check_code_types(icd9_proc)
 
-    if len(all_demo) == 1:
-        demo = all_demo[0]
-    else:
-        demo_concat = pd.concat(all_demo, axis=1, join='outer')
+        if type(collapse_codes) != bool:
+            raise TypeError('collapse_codes must be boolean')
 
-        if not collapse_codes:
-            demo = pd.DataFrame(index=demo_concat.index)
-            if hcpcs is not None:
-                for code in hcpcs:
-                    demo[code] = demo_concat[code].max(axis=1)
+        try:
+            bene_ids_to_filter = self.pl.index
+        except AttributeError:
+            bene_ids_to_filter = None
 
-            if icd9_diag is not None:
-                for code in icd9_diag:
-                    demo[code] = demo_concat[code].max(axis=1)
+        pf = fp.ParquetFile(fpath(self.percent, year, data_type))
 
-            if icd9_proc is not None:
-                for code in icd9_proc:
-                    demo[code] = demo_concat[code].max(axis=1)
+        # Determine which variables to extract
+        regex_string = []
+        if data_type == 'med':
+            cl_id_regex = r'^medparid$'
+            regex_string.append(cl_id_regex)
         else:
-            demo = demo_concat['match'].max(axis=1).to_frame('match')
+            cl_id_regex = r'^clm_id$|^claimindex$'
+            regex_string.append(cl_id_regex)
 
-    return demo
+        regex_string.append(r'^ehic$')
+
+        if hcpcs is not None:
+            hcpcs_regex = r'^hcpcs_cd$'
+            regex_string.append(hcpcs_regex)
+
+        if icd9_diag is not None:
+            if data_type == 'carl':
+                icd9_diag_regex = r'icd_dgns_cd\d*$'
+            elif data_type == 'med':
+                icd9_diag_regex = r'^dgnscd\d+$$'
+            else:
+                icd9_diag_regex = r'^icd_dgns_cd\d+$'
+            regex_string.append(icd9_diag_regex)
+
+        if icd9_proc is not None:
+            icd9_proc_regex = r'^icd_prcdr_cd\d+$'
+            regex_string.append(icd9_proc_regex)
+
+        for var in keep_vars:
+            regex_string.append(rf'^{var}$')
+
+        regex_string = '|'.join(regex_string)
+        regex = re.compile(regex_string).search
+        cols = [x for x in pf.columns if regex(x)]
+
+        cl_id_col = [x for x in cols if re.search(cl_id_regex, x)]
+        if hcpcs is not None:
+            hcpcs_cols = [x for x in cols if re.search(hcpcs_regex, x)]
+        else:
+            hcpcs_cols = None
+
+        if icd9_diag is not None:
+            icd9_diag_cols = [x for x in cols if re.search(icd9_diag_regex, x)]
+        else:
+            icd9_diag_cols = None
+
+        if icd9_proc is not None:
+            icd9_proc_cols = [x for x in cols if re.search(icd9_proc_regex, x)]
+        else:
+            icd9_proc_cols = None
+
+        # This holds the df's from each iteration over the claim-level dataset
+        all_cl = []
+
+        # cl = pf.to_pandas(columns=cols, index='bene_id')
+        for cl in pf.iter_row_groups(columns=cols, index='bene_id'):
+            if bene_ids_to_filter is not None:
+                cl = cl.join(
+                    pd.DataFrame(index=bene_ids_to_filter), how='inner')
+
+            if cl.index.name == 'bene_id':
+                cl = cl.reset_index().set_index(cl_id_col)
+
+            if collapse_codes:
+                cl['match'] = False
+
+                if hcpcs:
+                    for code in hcpcs:
+                        if isinstance(code, re._pattern_type):
+                            cl.loc[cl[hcpcs_cols].apply(
+                                lambda col: col.str.contains(code)).any(
+                                    axis=1), 'match'] = True
+                        else:
+                            cl.loc[(cl[hcpcs_cols] == code
+                                    ).any(axis=1), 'match'] = True
+
+                    cl.drop(hcpcs_cols, axis=1, inplace=True)
+
+                if icd9_diag:
+                    for code in icd9_diag:
+                        if isinstance(code, re._pattern_type):
+                            cl.loc[cl[icd9_diag_cols].apply(
+                                lambda col: col.str.contains(code)).any(
+                                    axis=1), 'match'] = True
+                        else:
+                            cl.loc[(cl[icd9_diag_cols] == code
+                                    ).any(axis=1), 'match'] = True
+
+                    cl.drop(icd9_diag_cols, axis=1, inplace=True)
+
+                if icd9_proc:
+                    for code in icd9_proc:
+                        if isinstance(code, re._pattern_type):
+                            cl.loc[cl[icd9_proc_cols].apply(
+                                lambda col: col.str.contains(code)).any(
+                                    axis=1), 'match'] = True
+                        else:
+                            cl.loc[(cl[icd9_proc_cols] == code
+                                    ).any(axis=1), 'match'] = True
+
+                    cl.drop(icd9_proc_cols, axis=1, inplace=True)
+
+                # Unsure whether to keep only true matches
+                # cl = cl.loc[cl['match']]
+                all_cl.append(cl)
+
+            else:
+                if hcpcs:
+                    for code in hcpcs:
+                        if isinstance(code, re._pattern_type):
+                            cl[code.pattern] = False
+                            idx = cl.index[cl[hcpcs_cols].apply(
+                                lambda col: col.str.contains(code)).any(axis=1)]
+                            cl.loc[idx, code.pattern] = True
+
+                        else:
+                            cl[code] = False
+                            idx = cl.index[(cl[hcpcs_cols] == code).any(axis=1)]
+                            cl.loc[idx, code] = True
+
+                    cl.drop(hcpcs_cols, axis=1, inplace=True)
+
+                if icd9_diag:
+                    for code in icd9_diag:
+                        if isinstance(code, re._pattern_type):
+                            cl[code.pattern] = False
+                            idx = cl.index[cl[icd9_diag_cols].apply(
+                                lambda col: col.str.contains(code)).any(axis=1)]
+                            cl.loc[idx, code.pattern] = True
+
+                        else:
+                            cl[code] = False
+                            idx = cl.index[(
+                                cl[icd9_diag_cols] == code).any(axis=1)]
+                            cl.loc[idx, code] = True
+
+                    cl.drop(icd9_diag_cols, axis=1, inplace=True)
+
+                if icd9_proc:
+                    for code in icd9_proc:
+                        if isinstance(code, re._pattern_type):
+                            cl[code.pattern] = False
+                            idx = cl.index[cl[icd9_proc_cols].apply(
+                                lambda col: col.str.contains(code)).any(axis=1)]
+                            cl.loc[idx, code.pattern] = True
+
+                        else:
+                            cl[code] = False
+                            idx = cl.index[(
+                                cl[icd9_proc_cols] == code).any(axis=1)]
+                            cl.loc[idx, code] = True
+
+                    cl.drop(icd9_proc_cols, axis=1, inplace=True)
+
+                all_cl.append(cl)
+
+        cl = pd.concat(all_cl, axis=0)
+        # Merge back onto bene_ids_to_filter so that claim-level df
+        # has same index values as person-level df
+        cl = cl.reset_index().merge(
+            pd.DataFrame(index=bene_ids_to_filter),
+            how='outer',
+            left_on='bene_id',
+            right_index=True).set_index('bene_id')
+
+        self.cl = cl
 
 
 def pq_vars(ParquetFile):
