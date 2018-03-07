@@ -758,7 +758,7 @@ class MedicareDF(object):
         pl = self.pl
 
         if collapse_codes:
-            bene_id_idx = cl.index[cl['match'] == True]
+            bene_id_idx = cl.index[cl['match'] == True]  # noqa
 
             if 'match' not in pl.columns:
                 pl['match'] = False
@@ -771,13 +771,13 @@ class MedicareDF(object):
                     if isinstance(code, re._pattern_type):
                         if code.pattern not in pl.columns:
                             pl[code.pattern] = False
-                        idx = cl.index[cl[code.pattern] == True]
+                        idx = cl.index[cl[code.pattern] == True]  # noqa
                         pl.loc[idx, code.pattern] = True
 
                     else:
                         if code not in pl.columns:
                             pl[code] = False
-                        idx = cl.index[cl[code] == True]
+                        idx = cl.index[cl[code] == True]  # noqa
                         pl.loc[idx, code] = True
 
             if icd9_diag:
@@ -785,13 +785,13 @@ class MedicareDF(object):
                     if isinstance(code, re._pattern_type):
                         if code.pattern not in pl.columns:
                             pl[code.pattern] = False
-                        idx = cl.index[cl[code.pattern] == True]
+                        idx = cl.index[cl[code.pattern] == True]  # noqa
                         pl.loc[idx, code.pattern] = True
 
                     else:
                         if code not in pl.columns:
                             pl[code] = False
-                        idx = cl.index[cl[code] == True]
+                        idx = cl.index[cl[code] == True]  # noqa
                         pl.loc[idx, code] = True
 
             if icd9_proc:
@@ -799,13 +799,13 @@ class MedicareDF(object):
                     if isinstance(code, re._pattern_type):
                         if code.pattern not in pl.columns:
                             pl[code.pattern] = False
-                        idx = cl.index[cl[code.pattern] == True]
+                        idx = cl.index[cl[code.pattern] == True]  # noqa
                         pl.loc[idx, code.pattern] = True
 
                     else:
                         if code not in pl.columns:
                             pl[code] = False
-                        idx = cl.index[cl[code] == True]
+                        idx = cl.index[cl[code] == True]  # noqa
                         pl.loc[idx, code] = True
 
         self.pl = pl
