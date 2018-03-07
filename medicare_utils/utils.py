@@ -138,12 +138,14 @@ class MedicareDF(object):
             self.percent = percent
 
         if type(years) == int:
-            self.years = [years]
+            years = [years]
         else:
-            self.years = years
+            years = years
 
-        assert min(self.years) >= 2001
-        assert max(self.years) <= 2015
+        assert min(years) >= 2001
+        assert max(years) <= 2015
+
+        self.years = years
 
     def _get_variables_to_import(self, year, data_type, import_vars):
         """Get list of variable names to import from given file
