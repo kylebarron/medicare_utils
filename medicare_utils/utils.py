@@ -1,5 +1,4 @@
 #! /usr/bin/env python3
-
 """Main module."""
 
 import re
@@ -104,17 +103,6 @@ def fpath(percent: str, year: int, data_type: str, dta: bool=False):
     else:
         return pq_path
 
-
-# pct = '01'
-# years = 2009
-# gender = 'female'
-# ages = range(65, 70)
-# races = None
-# buyin_val = '3'
-# buyin_months = 'all'
-# join_across_years = 'default'
-# keep_vars = []
-# @TODO add option to remove people who died during year
 
 class MedicareDF(object):
     """A class to organize Medicare operations"""
