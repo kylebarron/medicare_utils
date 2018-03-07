@@ -285,86 +285,86 @@ class MedicareDF(object):
         # checkable within a single year's data
         for year in self.years:
             pf = fp.ParquetFile(fpath(self.percent, year, 'bsfab'))
-            demo = pf.to_pandas(columns=tokeep_vars[year], index='bene_id')
-            nobs = len(demo)
+            pl = pf.to_pandas(columns=tokeep_vars[year], index='bene_id')
+            nobs = len(pl)
             nobs_dropped[year] = {}
 
             if gender is not None:
                 if (gender.lower() == 'male') | (gender.lower() == 'm'):
-                    if demo.sex.dtype.name == 'category':
-                        demo.drop(demo[demo['sex'] == '2'].index, inplace=True)
-                    elif np.issubdtype(demo.sex.dtype, np.number):
-                        demo.drop(demo[demo['sex'] == 2].index, inplace=True)
+                    if pl.sex.dtype.name == 'category':
+                        pl.drop(pl[pl['sex'] == '2'].index, inplace=True)
+                    elif np.issubdtype(pl.sex.dtype, np.number):
+                        pl.drop(pl[pl['sex'] == 2].index, inplace=True)
                 elif (gender.lower() == 'female') | (gender.lower() == 'f'):
-                    if demo.sex.dtype.name == 'category':
-                        demo.drop(demo[demo['sex'] == '1'].index, inplace=True)
-                    elif np.issubdtype(demo.sex.dtype, np.number):
-                        demo.drop(demo[demo['sex'] == 1].index, inplace=True)
+                    if pl.sex.dtype.name == 'category':
+                        pl.drop(pl[pl['sex'] == '1'].index, inplace=True)
+                    elif np.issubdtype(pl.sex.dtype, np.number):
+                        pl.drop(pl[pl['sex'] == 1].index, inplace=True)
 
                 if 'sex' not in keep_vars:
-                    demo.drop('sex', axis=1, inplace=True)
+                    pl.drop('sex', axis=1, inplace=True)
 
-                nobs_dropped[year]['gender'] = 1 - (len(demo) / nobs)
-                nobs = len(demo)
+                nobs_dropped[year]['gender'] = 1 - (len(pl) / nobs)
+                nobs = len(pl)
 
             if ages is not None:
-                demo = demo.loc[demo['age'].isin(ages)]
+                pl = pl.loc[pl['age'].isin(ages)]
 
                 if 'age' not in keep_vars:
-                    demo.drop('age', axis=1, inplace=True)
+                    pl.drop('age', axis=1, inplace=True)
 
-                nobs_dropped[year]['age'] = 1 - (len(demo) / nobs)
-                nobs = len(demo)
+                nobs_dropped[year]['age'] = 1 - (len(pl) / nobs)
+                nobs = len(pl)
 
-            demo.columns = [f'{x}_{year}' for x in demo.columns]
+            pl.columns = [f'{x}_{year}' for x in pl.columns]
 
-            extracted_dfs.append(demo)
+            extracted_dfs.append(pl)
 
         # @NOTE As long as I'm only looking across years,
         # doing a left join on the last year should be fine
         if len(extracted_dfs) == 1:
-            demo = extracted_dfs[0]
+            pl = extracted_dfs[0]
         elif len(extracted_dfs) == 2:
             if join_across_years == 'default':
-                demo = extracted_dfs[0].join(extracted_dfs[1], how='left')
+                pl = extracted_dfs[0].join(extracted_dfs[1], how='left')
             else:
-                demo = extracted_dfs[0].join(
+                pl = extracted_dfs[0].join(
                     extracted_dfs[1], how=join_across_years)
         else:
             if join_across_years == 'default':
-                demo = extracted_dfs[0].join(
+                pl = extracted_dfs[0].join(
                     extracted_dfs[1:-1], how='outer').join(
                     extracted_dfs[-1], how='left')
             else:
-                demo = extracted_dfs[0].join(
+                pl = extracted_dfs[0].join(
                     extracted_dfs[1:], how=join_across_years)
 
         # Create single variable across years for any non month-oriented
         # variables (i.e. buyin and hmo status)
 
         # columns that don't vary by month:
-        year_cols = [x for x in demo if not re.search(r'\d{2}_\d{4}$', x)]
+        year_cols = [x for x in pl if not re.search(r'\d{2}_\d{4}$', x)]
 
         # unique names of columns that don't vary by month:
         year_cols_stub = list(set([x[:-5] for x in year_cols]))
 
-        dtypes = dict(demo.dtypes)
+        dtypes = dict(pl.dtypes)
         for col in year_cols_stub:
             # Generate stub column with same dtype as col
             dtype = dtypes[f'{col}_{min(self.years)}']
-            demo[col] = np.NaN
-            demo[col] = demo[col].astype(dtype)
+            pl[col] = np.NaN
+            pl[col] = pl[col].astype(dtype)
 
             for year in self.years:
-                demo[col] = demo[col].combine_first(demo[f'{col}_{year}'])
-                demo.drop(f'{col}_{year}', axis=1, inplace=True)
+                pl[col] = pl[col].combine_first(pl[f'{col}_{year}'])
+                pl.drop(f'{col}_{year}', axis=1, inplace=True)
 
-            demo[col] = demo[col].astype(dtype)
+            pl[col] = pl[col].astype(dtype)
 
         if (((buyin_val is not None) and (buyin_months == 'age_year')) or
             ((hmo_val is not None) and (hmo_months == 'age_year'))):
 
-            demo['dob_month'] = demo['bene_dob'].dt.month
+            pl['dob_month'] = pl['bene_dob'].dt.month
 
         if buyin_val is not None:
             if buyin_months == 'age_year':
@@ -375,11 +375,11 @@ class MedicareDF(object):
 
                 for year in self.years[:-1]:
                     # Initialize indicator variable for each year
-                    demo[f'buyin_match_{year}'] = False
+                    pl[f'buyin_match_{year}'] = False
 
                     for month in range(1, 13):
                         buyin_cols = []
-                        for colname in demo.columns:
+                        for colname in pl.columns:
                             match = re.search(r'buyin(\d{2})_(\d{4})', colname)
                             if match is not None:
                                 # Match month
@@ -391,29 +391,29 @@ class MedicareDF(object):
                                 elif (m_month <= month) & (m_year == year + 1):
                                     buyin_cols.append(colname)
 
-                        demo.loc[(demo['dob_month'] == month)
-                                 & (demo[buyin_cols].isin(buyin_val)).all(axis=1),
+                        pl.loc[(pl['dob_month'] == month)
+                                 & (pl[buyin_cols].isin(buyin_val)).all(axis=1),
                                  f'buyin_match_{year}'] = True
 
                     nobs_dropped[year]['buyin'] = (
-                        1 - (demo[f'buyin_match_{year}'].sum() / len(demo)))
+                        1 - (pl[f'buyin_match_{year}'].sum() / len(pl)))
 
                 regex = re.compile(r'^buyin_match_\d{4}$').search
-                buyin_match_cols = [x for x in demo if regex(x)]
-                demo = demo.loc[demo[buyin_match_cols].all(axis=1)]
+                buyin_match_cols = [x for x in pl if regex(x)]
+                pl = pl.loc[pl[buyin_match_cols].all(axis=1)]
 
                 regex = re.compile(r'^buyin\d{2}_\d{4}$').search
-                cols_todrop = [x for x in demo if regex(x)]
+                cols_todrop = [x for x in pl if regex(x)]
                 cols_todrop.extend(buyin_match_cols)
-                demo.drop(cols_todrop, axis=1, inplace=True)
+                pl.drop(cols_todrop, axis=1, inplace=True)
 
             elif buyin_months == 'all':
-                buyin_cols = [x for x in demo if re.search(r'^buyin\d{2}', x)]
-                demo = demo.loc[(demo[buyin_cols].isin(buyin_val)).all(axis=1)]
+                buyin_cols = [x for x in pl if re.search(r'^buyin\d{2}', x)]
+                pl = pl.loc[(pl[buyin_cols].isin(buyin_val)).all(axis=1)]
 
                 regex = re.compile(r'^buyin\d{2}_\d{4}$').search
-                cols_todrop = [x for x in demo if regex(x)]
-                demo = demo.drop(cols_todrop, axis=1)
+                cols_todrop = [x for x in pl if regex(x)]
+                pl = pl.drop(cols_todrop, axis=1)
 
         if hmo_val is not None:
             if hmo_months == 'age_year':
@@ -424,11 +424,11 @@ class MedicareDF(object):
 
                 for year in self.years[:-1]:
                     # Initialize indicator variable for each year
-                    demo[f'hmo_match_{year}'] = False
+                    pl[f'hmo_match_{year}'] = False
 
                     for month in range(1, 13):
                         hmo_cols = []
-                        for colname in demo.columns:
+                        for colname in pl.columns:
                             match = re.search(r'hmoind(\d{2})_(\d{4})', colname)
                             if match is not None:
                                 # Match month
@@ -440,41 +440,40 @@ class MedicareDF(object):
                                 elif (m_month <= month) & (m_year == year + 1):
                                     hmo_cols.append(colname)
 
-                        demo.loc[(demo['dob_month'] == month)
-                                 & (demo[hmo_cols].isin(hmo_val)).all(axis=1),
+                        pl.loc[(pl['dob_month'] == month)
+                                 & (pl[hmo_cols].isin(hmo_val)).all(axis=1),
                                  f'hmo_match_{year}'] = True
 
                     nobs_dropped[year]['hmo'] = (
-                        1 - (demo[f'hmo_match_{year}'].sum() / len(demo)))
+                        1 - (pl[f'hmo_match_{year}'].sum() / len(pl)))
 
                 regex = re.compile(r'^hmo_match_\d{4}$').search
-                hmo_match_cols = [x for x in demo if regex(x)]
-                demo = demo.loc[demo[hmo_match_cols].all(axis=1)]
+                hmo_match_cols = [x for x in pl if regex(x)]
+                pl = pl.loc[pl[hmo_match_cols].all(axis=1)]
 
                 regex = re.compile(r'^hmoind\d{2}_\d{4}$').search
-                cols_todrop = [x for x in demo if regex(x)]
+                cols_todrop = [x for x in pl if regex(x)]
                 cols_todrop.extend(hmo_match_cols)
-                demo.drop(cols_todrop, axis=1, inplace=True)
+                pl.drop(cols_todrop, axis=1, inplace=True)
 
             elif hmo_months == 'all':
-                hmo_cols = [x for x in demo if re.search(r'^buyin\d{2}', x)]
-                demo = demo.loc[(demo[hmo_cols].isin(hmo_val)).all(axis=1)]
+                hmo_cols = [x for x in pl if re.search(r'^buyin\d{2}', x)]
+                pl = pl.loc[(pl[hmo_cols].isin(hmo_val)).all(axis=1)]
 
                 regex = re.compile(r'^buyin\d{2}_\d{4}$').search
-                cols_todrop = [x for x in demo if regex(x)]
-                demo = demo.drop(cols_todrop, axis=1)
+                cols_todrop = [x for x in pl if regex(x)]
+                pl = pl.drop(cols_todrop, axis=1)
 
         if (((buyin_val is not None) and (buyin_months == 'age_year')) or
             ((hmo_val is not None) and (hmo_months == 'age_year'))):
 
-            demo.drop('dob_month', axis=1, inplace=True)
+            pl.drop('dob_month', axis=1, inplace=True)
 
             if 'bene_dob' not in keep_vars:
-                demo.drop('bene_dob', axis=1, inplace=True)
+                pl.drop('bene_dob', axis=1, inplace=True)
 
         self.nobs_dropped = nobs_dropped
-        self.pl = demo
-
+        self.pl = pl
 
 def _check_code_types(var):
     """Check type of hcpcs, icd9_diag, icd9_proc codes
