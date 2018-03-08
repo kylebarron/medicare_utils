@@ -126,7 +126,10 @@ def convert_med(
 
     jroth_dir = '/disk/agedisk2/medicare.work/doyle-DUA18266/jroth'
     if data_type == 'carc':
-        varnames = pd.read_stata(f'{jroth_dir}/harmcarc.dta')
+        try:
+            varnames = pd.read_stata(f'{jroth_dir}/harmcarc.dta')
+        except PermissionError:
+            varnames = None
         if year >= 2002:
             infile = f'{med_dta}/{pct}pct/car/{year}/carc{year}.dta'
         else:
@@ -135,17 +138,26 @@ def convert_med(
 
     elif data_type == 'carl':
         assert year >= 2002
-        varnames = pd.read_stata(f'{jroth_dir}/harmcarl.dta')
+        try:
+            varnames = pd.read_stata(f'{jroth_dir}/harmcarl.dta')
+        except PermissionError:
+            varnames = None
         infile = f'{med_dta}/{pct}pct/car/{year}/carl{year}.dta'
         outfile = f'{med_pq}/pq/{pct}pct/car/carl{year}.parquet'
 
     elif data_type == 'den':
-        varnames = pd.read_stata(f'{jroth_dir}/harmden.dta')
+        try:
+            varnames = pd.read_stata(f'{jroth_dir}/harmden.dta')
+        except PermissionError:
+            varnames = None
         infile = f'{med_dta}/{pct}pct/den/{year}/den{year}.dta'
         outfile = f'{med_pq}/pq/{pct}pct/den/den{year}.parquet'
 
     elif data_type == 'ipc':
-        varnames = pd.read_stata(f'{jroth_dir}/harmipc.dta')
+        try:
+            varnames = pd.read_stata(f'{jroth_dir}/harmipc.dta')
+        except PermissionError:
+            varnames = None
         if year >= 2002:
             infile = f'{med_dta}/{pct}pct/ip/{year}/ipc{year}.dta'
         else:
@@ -154,17 +166,26 @@ def convert_med(
 
     elif data_type == 'ipr':
         assert year >= 2002
-        varnames = pd.read_stata(f'{jroth_dir}/harmipr.dta')
+        try:
+            varnames = pd.read_stata(f'{jroth_dir}/harmipr.dta')
+        except PermissionError:
+            varnames = None
         infile = f'{med_dta}/{pct}pct/ip/{year}/ipr{year}.dta'
         outfile = f'{med_pq}/pq/{pct}pct/ip/ipr{year}.parquet'
 
     elif data_type == 'med':
-        varnames = pd.read_stata(f'{jroth_dir}/harmmed.dta')
+        try:
+            varnames = pd.read_stata(f'{jroth_dir}/harmmed.dta')
+        except PermissionError:
+            varnames = None
         infile = f'{med_dta}/{pct}pct/med/{year}/med{year}.dta'
         outfile = f'{med_pq}/pq/{pct}pct/med/med{year}.parquet'
 
     elif data_type == 'op':
-        varnames = pd.read_stata(f'{jroth_dir}/harmop.dta')
+        try:
+            varnames = pd.read_stata(f'{jroth_dir}/harmop.dta')
+        except PermissionError:
+            varnames = None
         raise Exception('Haven\'t added support yet for older op files')
 
     elif data_type == 'opc':
@@ -173,12 +194,18 @@ def convert_med(
         # harmop has some duplicated varnames from 2001 on, most likely due to
         # the mix of claims and revenue center data
 
-        varnames = pd.read_stata(f'{jroth_dir}/harmopc.dta')
+        try:
+            varnames = pd.read_stata(f'{jroth_dir}/harmopc.dta')
+        except PermissionError:
+            varnames = None
         infile = f'{med_dta}/{pct}pct/op/{year}/opc{year}.dta'
         outfile = f'{med_pq}/pq/{pct}pct/op/opc{year}.parquet'
 
     elif data_type == 'opr':
-        varnames = pd.read_stata(f'{jroth_dir}/harmopr.dta')
+        try:
+            varnames = pd.read_stata(f'{jroth_dir}/harmopr.dta')
+        except PermissionError:
+            varnames = None
         infile = f'{med_dta}/{pct}pct/op/{year}/opr{year}.dta'
         outfile = f'{med_pq}/pq/{pct}pct/op/opr{year}.parquet'
 
