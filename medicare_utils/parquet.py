@@ -26,22 +26,31 @@ def main(
         pcts: string or list of strings of percent samples to convert
         years: int, range, or list of ints of file years to convert
         med_types: string or list of strings of type of data files to convert
-            - carc
-            - carl
-            - den
-            - ipc
-            - ipr
-            - med
-            - op
-            - opc
-            - opr
-            - bsfab
-            - bsfcc
-            - bsfcu
-            - bsfd
+            - bsfab Beneficiary Summary File, Base segment
+            - bsfcc Beneficiary Summary File, Chronic Conditions segment
+            - bsfcu Beneficiary Summary File, Cost & Use segment
+            - bsfd  Beneficiary Summary File, National Death Index segment
+            - carc  Carrier File, Claims segment
+            - carl  Carrier File, Line segment
+            - den   Denominator File
+            - dmec  Durable Medical Equipment File, Claims segment
+            - dmel  Durable Medical Equipment File, Line segment
+            - hhac  Home Health Agency File, Claims segment
+            - hhar  Home Health Agency File, Revenue Center segment
+            - hosc  Hospice File, Claims segment
+            - hosr  Hospice File, Revenue Center segment
+            - ipc   Inpatient File, Claims segment
+            - ipr   Inpatient File, Revenue Center segment
+            - med   MedPAR File
+            - opc   Outpatient File, Claims segment
+            - opr   Outpatient File, Revenue Center segment
+            - snfc  Skilled Nursing Facility File, Claims segment
+            - snfr  Skilled Nursing Facility File, Revenue Center segment
+            - xw    `ehic` - `bene_id` crosswalk files
         n_jobs: number of processes to use
         med_dta: top of tree for medicare stata files
         med_pq: top of tree to output new parquet files
+        xw_dir: directory with variable name crosswalks
     """
 
     if type(pcts) is str:
@@ -102,22 +111,31 @@ def convert_med(
         pct: percent sample to convert
         year: year of data to convert
         data_type:
-            - carc
-            - carl
-            - den
-            - ipc
-            - ipr
-            - med
-            - op
-            - opc
-            - opr
-            - bsfab
-            - bsfcc
-            - bsfcu
-            - bsfd
+            - bsfab Beneficiary Summary File, Base segment
+            - bsfcc Beneficiary Summary File, Chronic Conditions segment
+            - bsfcu Beneficiary Summary File, Cost & Use segment
+            - bsfd  Beneficiary Summary File, National Death Index segment
+            - carc  Carrier File, Claims segment
+            - carl  Carrier File, Line segment
+            - den   Denominator File
+            - dmec  Durable Medical Equipment File, Claims segment
+            - dmel  Durable Medical Equipment File, Line segment
+            - hhac  Home Health Agency File, Claims segment
+            - hhar  Home Health Agency File, Revenue Center segment
+            - hosc  Hospice File, Claims segment
+            - hosr  Hospice File, Revenue Center segment
+            - ipc   Inpatient File, Claims segment
+            - ipr   Inpatient File, Revenue Center segment
+            - med   MedPAR File
+            - opc   Outpatient File, Claims segment
+            - opr   Outpatient File, Revenue Center segment
+            - snfc  Skilled Nursing Facility File, Claims segment
+            - snfr  Skilled Nursing Facility File, Revenue Center segment
+            - xw    `ehic` - `bene_id` crosswalk files
         rg_size: size in GB of each Parquet row group
         med_dta: canonical path for raw medicare dta files
         med_pq: top of tree to output new parquet files
+        xw_dir: directory with variable name crosswalks
     Returns:
         nothing. Writes parquet file to disk.
     Raises:
@@ -126,23 +144,48 @@ def convert_med(
 
     year = int(year)
 
-    if data_type == 'carc':
+    allowed_data_types = [
+        'bsfab', 'bsfcc', 'bsfcu', 'bsfd', 'carc', 'carl', 'den', 'dmec',
+        'dmel', 'hhac', 'hhar', 'hosc', 'hosr', 'ipc', 'ipr', 'med', 'opc',
+        'opr', 'snfc', 'snfr', 'xw']
+    if data_type not in allowed_data_types:
+        raise ValueError(f'data_type must be one of:\n{allowed_data_types}')
+
+    if data_type == 'bsfab':
+        varnames = None
+        infile = f'{med_dta}/{pct}pct/bsf/{year}/1/bsfab{year}.dta'
+        outfile = f'{med_pq}/pq/{pct}pct/bsf/bsfab{year}.parquet'
+    elif data_type == 'bsfcc':
+        varnames = None
+        infile = f'{med_dta}/{pct}pct/bsf/{year}/1/bsfcc{year}.dta'
+        outfile = f'{med_pq}/pq/{pct}pct/bsf/bsfcc{year}.parquet'
+    elif data_type == 'bsfcu':
+        varnames = None
+        infile = f'{med_dta}/{pct}pct/bsf/{year}/1/bsfcu{year}.dta'
+        outfile = f'{med_pq}/pq/{pct}pct/bsf/bsfcu{year}.parquet'
+    elif data_type == 'bsfd':
+        varnames = None
+        infile = f'{med_dta}/{pct}pct/bsf/{year}/1/bsfd{year}.dta'
+        outfile = f'{med_pq}/pq/{pct}pct/bsf/bsfd{year}.parquet'
+
+    elif data_type == 'carc':
         try:
             varnames = pd.read_stata(f'{xw_dir}/harmcarc.dta')
         except PermissionError:
             varnames = None
+
         if year >= 2002:
             infile = f'{med_dta}/{pct}pct/car/{year}/carc{year}.dta'
         else:
             infile = f'{med_dta}/{pct}pct/car/{year}/car{year}.dta'
         outfile = f'{med_pq}/pq/{pct}pct/car/carc{year}.parquet'
-
     elif data_type == 'carl':
         assert year >= 2002
         try:
             varnames = pd.read_stata(f'{xw_dir}/harmcarl.dta')
         except PermissionError:
             varnames = None
+
         infile = f'{med_dta}/{pct}pct/car/{year}/carl{year}.dta'
         outfile = f'{med_pq}/pq/{pct}pct/car/carl{year}.parquet'
 
@@ -151,6 +194,7 @@ def convert_med(
             varnames = pd.read_stata(f'{xw_dir}/harmden.dta')
         except PermissionError:
             varnames = None
+
         infile = f'{med_dta}/{pct}pct/den/{year}/den{year}.dta'
         outfile = f'{med_pq}/pq/{pct}pct/den/den{year}.parquet'
 
@@ -159,18 +203,19 @@ def convert_med(
             varnames = pd.read_stata(f'{xw_dir}/harmipc.dta')
         except PermissionError:
             varnames = None
+
         if year >= 2002:
             infile = f'{med_dta}/{pct}pct/ip/{year}/ipc{year}.dta'
         else:
             infile = f'{med_dta}/{pct}pct/ip/{year}/ip{year}.dta'
         outfile = f'{med_pq}/pq/{pct}pct/ip/ipc{year}.parquet'
-
     elif data_type == 'ipr':
         assert year >= 2002
         try:
             varnames = pd.read_stata(f'{xw_dir}/harmipr.dta')
         except PermissionError:
             varnames = None
+
         infile = f'{med_dta}/{pct}pct/ip/{year}/ipr{year}.dta'
         outfile = f'{med_pq}/pq/{pct}pct/ip/ipr{year}.parquet'
 
@@ -179,26 +224,16 @@ def convert_med(
             varnames = pd.read_stata(f'{xw_dir}/harmmed.dta')
         except PermissionError:
             varnames = None
+
         infile = f'{med_dta}/{pct}pct/med/{year}/med{year}.dta'
         outfile = f'{med_pq}/pq/{pct}pct/med/med{year}.parquet'
 
-    elif data_type == 'op':
-        try:
-            varnames = pd.read_stata(f'{xw_dir}/harmop.dta')
-        except PermissionError:
-            varnames = None
-        raise Exception('Haven\'t added support yet for older op files')
-
     elif data_type == 'opc':
-        # For years 2001(?) - present, use harmopc and harmopr; for before then
-        # use harmop
-        # harmop has some duplicated varnames from 2001 on, most likely due to
-        # the mix of claims and revenue center data
-
         try:
             varnames = pd.read_stata(f'{xw_dir}/harmopc.dta')
         except PermissionError:
             varnames = None
+
         infile = f'{med_dta}/{pct}pct/op/{year}/opc{year}.dta'
         outfile = f'{med_pq}/pq/{pct}pct/op/opc{year}.parquet'
 
@@ -207,31 +242,12 @@ def convert_med(
             varnames = pd.read_stata(f'{xw_dir}/harmopr.dta')
         except PermissionError:
             varnames = None
+
         infile = f'{med_dta}/{pct}pct/op/{year}/opr{year}.dta'
         outfile = f'{med_pq}/pq/{pct}pct/op/opr{year}.parquet'
 
-    elif data_type == 'bsfab':
-        varnames = None
-        infile = f'{med_dta}/{pct}pct/bsf/{year}/1/bsfab{year}.dta'
-        outfile = f'{med_pq}/pq/{pct}pct/bsf/bsfab{year}.parquet'
-
-    elif data_type == 'bsfcc':
-        varnames = None
-        infile = f'{med_dta}/{pct}pct/bsf/{year}/1/bsfcc{year}.dta'
-        outfile = f'{med_pq}/pq/{pct}pct/bsf/bsfcc{year}.parquet'
-
-    elif data_type == 'bsfcu':
-        varnames = None
-        infile = f'{med_dta}/{pct}pct/bsf/{year}/1/bsfcu{year}.dta'
-        outfile = f'{med_pq}/pq/{pct}pct/bsf/bsfcu{year}.parquet'
-
-    elif data_type == 'bsfd':
-        varnames = None
-        infile = f'{med_dta}/{pct}pct/bsf/{year}/1/bsfd{year}.dta'
-        outfile = f'{med_pq}/pq/{pct}pct/bsf/bsfd{year}.parquet'
-
     else:
-        raise NameError('Unknown data type')
+        raise NotImplementedError
 
     if varnames is not None:
         if year in set(varnames.year):

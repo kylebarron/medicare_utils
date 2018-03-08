@@ -15,19 +15,27 @@ def fpath(percent: str, year: int, data_type: str, dta: bool=False,
         percent: percent sample to convert
         year: year of data to convert
         data_type:
-            - carc
-            - carl
-            - den
-            - ipc
-            - ipr
-            - med
-            - op
-            - opc
-            - opr
-            - bsfab
-            - bsfcc
-            - bsfcu
-            - bsfd
+            - bsfab Beneficiary Summary File, Base segment
+            - bsfcc Beneficiary Summary File, Chronic Conditions segment
+            - bsfcu Beneficiary Summary File, Cost & Use segment
+            - bsfd  Beneficiary Summary File, National Death Index segment
+            - carc  Carrier File, Claims segment
+            - carl  Carrier File, Line segment
+            - den   Denominator File
+            - dmec  Durable Medical Equipment File, Claims segment
+            - dmel  Durable Medical Equipment File, Line segment
+            - hhac  Home Health Agency File, Claims segment
+            - hhar  Home Health Agency File, Revenue Center segment
+            - hosc  Hospice File, Claims segment
+            - hosr  Hospice File, Revenue Center segment
+            - ipc   Inpatient File, Claims segment
+            - ipr   Inpatient File, Revenue Center segment
+            - med   MedPAR File
+            - opc   Outpatient File, Claims segment
+            - opr   Outpatient File, Revenue Center segment
+            - snfc  Skilled Nursing Facility File, Claims segment
+            - snfr  Skilled Nursing Facility File, Revenue Center segment
+            - xw    `ehic` - `bene_id` crosswalk files
         dta: Returns Stata file path
         med_dta: top of tree for medicare stata files
         med_pq: top of tree for medicare parquet files
@@ -37,13 +45,37 @@ def fpath(percent: str, year: int, data_type: str, dta: bool=False,
         NameError if data_type is not one of the above
     """
 
-    if data_type == 'carc':
+    from os.path import isfile
+
+    if type(data_type) != str:
+        raise TypeError('data_type must be str')
+
+    allowed_data_types = [
+        'bsfab', 'bsfcc', 'bsfcu', 'bsfd', 'carc', 'carl', 'den', 'dmec',
+        'dmel', 'hhac', 'hhar', 'hosc', 'hosr', 'ipc', 'ipr', 'med', 'opc',
+        'opr', 'snfc', 'snfr', 'xw']
+    if data_type not in allowed_data_types:
+        raise ValueError(f'data_type must be one of:\n{allowed_data_types}')
+
+    if data_type == 'bsfab':
+        dta_path = f'{med_dta}/{percent}pct/bsf/{year}/1/bsfab{year}.dta'
+        pq_path = f'{med_pq}/pq/{percent}pct/bsf/bsfab{year}.parquet'
+    elif data_type == 'bsfcc':
+        dta_path = f'{med_dta}/{percent}pct/bsf/{year}/1/bsfcc{year}.dta'
+        pq_path = f'{med_pq}/pq/{percent}pct/bsf/bsfcc{year}.parquet'
+    elif data_type == 'bsfcu':
+        dta_path = f'{med_dta}/{percent}pct/bsf/{year}/1/bsfcu{year}.dta'
+        pq_path = f'{med_pq}/pq/{percent}pct/bsf/bsfcu{year}.parquet'
+    elif data_type == 'bsfd':
+        dta_path = f'{med_dta}/{percent}pct/bsf/{year}/1/bsfd{year}.dta'
+        pq_path = f'{med_pq}/pq/{percent}pct/bsf/bsfd{year}.parquet'
+
+    elif data_type == 'carc':
         if year >= 2002:
             dta_path = f'{med_dta}/{percent}pct/car/{year}/carc{year}.dta'
         else:
             dta_path = f'{med_dta}/{percent}pct/car/{year}/car{year}.dta'
         pq_path = f'{med_pq}/pq/{percent}pct/car/carc{year}.parquet'
-
     elif data_type == 'carl':
         assert year >= 2002
         dta_path = f'{med_dta}/{percent}pct/car/{year}/carl{year}.dta'
@@ -53,13 +85,33 @@ def fpath(percent: str, year: int, data_type: str, dta: bool=False,
         dta_path = f'{med_dta}/{percent}pct/den/{year}/den{year}.dta'
         pq_path = f'{med_pq}/pq/{percent}pct/den/den{year}.parquet'
 
+    elif data_type == 'dmec':
+        dta_path = f'{med_dta}/{percent}pct/dme/{year}/dmec{year}.dta'
+        pq_path = f'{med_pq}/pq/{percent}pct/dme/dmec{year}.parquet'
+    elif data_type == 'dmel':
+        dta_path = f'{med_dta}/{percent}pct/dme/{year}/dmel{year}.dta'
+        pq_path = f'{med_pq}/pq/{percent}pct/dme/dmel{year}.parquet'
+
+    elif data_type == 'hhac':
+        dta_path = f'{med_dta}/{percent}pct/hha/{year}/hhac{year}.dta'
+        pq_path = f'{med_pq}/pq/{percent}pct/hha/hhac{year}.parquet'
+    elif data_type == 'hhar':
+        dta_path = f'{med_dta}/{percent}pct/hha/{year}/hhar{year}.dta'
+        pq_path = f'{med_pq}/pq/{percent}pct/hha/hhar{year}.parquet'
+
+    elif data_type == 'hosc':
+        dta_path = f'{med_dta}/{percent}pct/hos/{year}/hosc{year}.dta'
+        pq_path = f'{med_pq}/pq/{percent}pct/hos/hosc{year}.parquet'
+    elif data_type == 'hosr':
+        dta_path = f'{med_dta}/{percent}pct/hos/{year}/hosr{year}.dta'
+        pq_path = f'{med_pq}/pq/{percent}pct/hos/hosr{year}.parquet'
+
     elif data_type == 'ipc':
         if year >= 2002:
             dta_path = f'{med_dta}/{percent}pct/ip/{year}/ipc{year}.dta'
         else:
             dta_path = f'{med_dta}/{percent}pct/ip/{year}/ip{year}.dta'
         pq_path = f'{med_pq}/pq/{percent}pct/ip/ipc{year}.parquet'
-
     elif data_type == 'ipr':
         assert year >= 2002
         dta_path = f'{med_dta}/{percent}pct/ip/{year}/ipr{year}.dta'
@@ -69,38 +121,29 @@ def fpath(percent: str, year: int, data_type: str, dta: bool=False,
         dta_path = f'{med_dta}/{percent}pct/med/{year}/med{year}.dta'
         pq_path = f'{med_pq}/pq/{percent}pct/med/med{year}.parquet'
 
-    elif data_type == 'op':
-        raise Exception('Haven\'t added support yet for older op files')
-
     elif data_type == 'opc':
         dta_path = f'{med_dta}/{percent}pct/op/{year}/opc{year}.dta'
         pq_path = f'{med_pq}/pq/{percent}pct/op/opc{year}.parquet'
-
     elif data_type == 'opr':
         dta_path = f'{med_dta}/{percent}pct/op/{year}/opr{year}.dta'
         pq_path = f'{med_pq}/pq/{percent}pct/op/opr{year}.parquet'
 
-    elif data_type == 'bsfab':
-        dta_path = f'{med_dta}/{percent}pct/bsf/{year}/1/bsfab{year}.dta'
-        pq_path = f'{med_pq}/pq/{percent}pct/bsf/bsfab{year}.parquet'
+    elif data_type == 'snfc':
+        dta_path = f'{med_dta}/{percent}pct/snf/{year}/snfc{year}.dta'
+        pq_path = f'{med_pq}/pq/{percent}pct/snf/snfc{year}.parquet'
+    elif data_type == 'snfr':
+        dta_path = f'{med_dta}/{percent}pct/snf/{year}/snfr{year}.dta'
+        pq_path = f'{med_pq}/pq/{percent}pct/snf/snfr{year}.parquet'
 
-    elif data_type == 'bsfcc':
-        dta_path = f'{med_dta}/{percent}pct/bsf/{year}/1/bsfcc{year}.dta'
-        pq_path = f'{med_pq}/pq/{percent}pct/bsf/bsfcc{year}.parquet'
-
-    elif data_type == 'bsfcu':
-        dta_path = f'{med_dta}/{percent}pct/bsf/{year}/1/bsfcu{year}.dta'
-        pq_path = f'{med_pq}/pq/{percent}pct/bsf/bsfcu{year}.parquet'
-
-    elif data_type == 'bsfd':
-        dta_path = f'{med_dta}/{percent}pct/bsf/{year}/1/bsfd{year}.dta'
-        pq_path = f'{med_pq}/pq/{percent}pct/bsf/bsfd{year}.parquet'
-
-    else:
-        raise NameError('Unknown data type')
+    elif data_type == 'xw':
+        dta_path = f'{med_dta}/{percent}pct/xw/{year}/ehicbenex_one{year}.dta'
+        pq_path = f'{med_pq}/pq/{percent}pct/xw/ehicbenex_one{year}.parquet'
 
     if dta:
-        return dta_path
+        if isfile(dta_path):
+            return dta_path
+        else:
+            raise FileNotFoundError
     else:
         return pq_path
 
