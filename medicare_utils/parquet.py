@@ -40,7 +40,7 @@ def main(
             - bsfcu
             - bsfd
         n_jobs: number of processes to use
-        med_dta: canonical path for raw medicare dta files
+        med_dta: top of tree for medicare stata files
         med_pq: top of tree to output new parquet files
     """
 

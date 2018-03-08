@@ -6,13 +6,14 @@ import pandas as pd
 import fastparquet as fp
 
 
-def fpath(percent: str, year: int, data_type: str, dta: bool=False):
+def fpath(percent: str, year: int, data_type: str, dta: bool=False,
+          med_dta: str='/disk/aging/medicare/data',
+          med_pq: str='/homes/nber/barronk/agebulk1/raw'):
     """Generate path to Medicare files
 
     Args:
         percent: percent sample to convert
         year: year of data to convert
-        dta: Returns Stata file path
         data_type:
             - carc
             - carl
@@ -27,14 +28,14 @@ def fpath(percent: str, year: int, data_type: str, dta: bool=False):
             - bsfcc
             - bsfcu
             - bsfd
+        dta: Returns Stata file path
+        med_dta: top of tree for medicare stata files
+        med_pq: top of tree for medicare parquet files
     Returns:
         string with file path.
     Raises:
         NameError if data_type is not one of the above
     """
-
-    med_dta = '/disk/aging/medicare/data'
-    med_pq = '/homes/nber/barronk/agebulk1/raw'
 
     if data_type == 'carc':
         if year >= 2002:
