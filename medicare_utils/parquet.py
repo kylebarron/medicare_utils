@@ -142,7 +142,10 @@ def convert_med(
         NameError if data_type is not one of the above
     """
 
-    year = int(year)
+    if type(pct) != str:
+        raise TypeError('pct must be str')
+    if type(year) != int:
+        raise TypeError('year must be int')
 
     allowed_data_types = [
         'bsfab', 'bsfcc', 'bsfcu', 'bsfd', 'carc', 'carl', 'den', 'dmec',
