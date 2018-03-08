@@ -151,7 +151,7 @@ def fpath(percent: str, year: int, data_type: str, dta: bool=False,
 class MedicareDF(object):
     """A class to organize Medicare operations"""
 
-    def __init__(self, percent, years):
+    def __init__(self, percent, years, verbose=False):
         """Return a MedicareDF object
 
         Attributes:
@@ -178,6 +178,7 @@ class MedicareDF(object):
         assert max(years) <= 2015
 
         self.years = years
+        self.verbose = verbose
 
     def _get_variables_to_import(self, year, data_type, import_vars):
         """Get list of variable names to import from given file
@@ -224,7 +225,8 @@ class MedicareDF(object):
             hmo_val=None,
             hmo_months=None,
             join_across_years='default',
-            keep_vars=[]):
+            keep_vars=[],
+            verbose=False):
         """Get cohort in standardized way
 
         Merges in such a way that age has to be within `ages` in any such year
@@ -249,6 +251,16 @@ class MedicareDF(object):
         """
 
         import numpy as np
+
+        if self.verbose:
+            verbose = True
+
+        if verbose:
+            from time import time
+            t0 = time()
+            msg = 'Starting cohort retrieval\n'
+            msg += f'\t- percent sample: {self.percent}\n'
+            print(msg)
 
         if len(self.years) == 1:
             if buyin_months == 'age_year':
@@ -326,6 +338,13 @@ class MedicareDF(object):
         # Do filtering for all vars that are
         # checkable within a single year's data
         for year in self.years:
+            if verbose:
+                msg = 'Importing bsfab file\n'
+                msg += f'\t- year: {year}\n'
+                msg += f'\t- columns: {tokeep_vars[year]}\n'
+                msg += f'\t- time elapsed: {(time() - t0) / 60:.2f} minutes\n'
+                print(msg)
+
             pf = fp.ParquetFile(fpath(self.percent, year, 'bsfab'))
             pl = pf.to_pandas(columns=tokeep_vars[year], index='bene_id')
             nobs = len(pl)
@@ -361,6 +380,13 @@ class MedicareDF(object):
             pl.columns = [f'{x}_{year}' for x in pl.columns]
 
             extracted_dfs.append(pl)
+
+        if verbose:
+            msg = 'Merging together beneficiary files\n'
+            msg += f'\t- years: {self.years}\n'
+            msg += f'\t- merge type: {join_across_years}\n'
+            msg += f'\t- time elapsed: {(time() - t0) / 60:.2f} minutes\n'
+            print(msg)
 
         # @NOTE As long as I'm only looking across years,
         # doing a left join on the last year should be fine
@@ -409,6 +435,13 @@ class MedicareDF(object):
             pl['dob_month'] = pl['bene_dob'].dt.month
 
         if buyin_val is not None:
+            if verbose:
+                msg = 'Filtering based on buyin_val\n'
+                msg += f'\t- values: {buyin_val}\n'
+                msg += f'\t- filter type: {buyin_months}\n'
+                msg += f'\t- time elapsed: {(time() - t0) / 60:.2f} minutes\n'
+                print(msg)
+
             if buyin_months == 'age_year':
 
                 # Create indicator variable for each year if `buyin ==
@@ -458,6 +491,13 @@ class MedicareDF(object):
                 pl = pl.drop(cols_todrop, axis=1)
 
         if hmo_val is not None:
+            if verbose:
+                msg = 'Filtering based on hmo_val\n'
+                msg += f'\t- values: {hmo_val}\n'
+                msg += f'\t- filter type: {hmo_months}\n'
+                msg += f'\t- time elapsed: {(time() - t0) / 60:.2f} minutes\n'
+                print(msg)
+
             if hmo_months == 'age_year':
 
                 # Create indicator variable for each year if `hmo ==
