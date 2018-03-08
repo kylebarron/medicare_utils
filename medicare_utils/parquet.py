@@ -18,7 +18,8 @@ def main(
         med_types=['carc', 'opc', 'bsfab', 'med'],
         n_jobs=6,
         med_dta='/disk/aging/medicare/data',
-        med_pq='/homes/nber/barronk/agebulk1/raw'):
+        med_pq='/homes/nber/barronk/agebulk1/raw',
+        xw_dir='/disk/agedisk2/medicare.work/doyle-DUA18266/jroth'):
     """Main program: In parallel convert Stata files to parquet
 
     Args:
@@ -82,7 +83,7 @@ def main(
     data_list = sorted([list(x) for x in set(tuple(y) for y in data_list)])
 
     Parallel(n_jobs=n_jobs)(
-        delayed(convert_med)(*i, med_dta=med_dta, med_pq=med_pq)
+        delayed(convert_med)(*i, med_dta=med_dta, med_pq=med_pq, xw_dir=xw_dir)
         for i in data_list)
 
 
@@ -92,7 +93,8 @@ def convert_med(
         data_type,
         rg_size=2.5,
         med_dta='/disk/aging/medicare/data',
-        med_pq='/homes/nber/barronk/agebulk1/raw'):
+        med_pq='/homes/nber/barronk/agebulk1/raw',
+        xw_dir='/disk/agedisk2/medicare.work/doyle-DUA18266/jroth'):
     """Top-level function to convert a given percent sample, year, and
     data type of file to parquet format.
 
@@ -124,10 +126,9 @@ def convert_med(
 
     year = int(year)
 
-    jroth_dir = '/disk/agedisk2/medicare.work/doyle-DUA18266/jroth'
     if data_type == 'carc':
         try:
-            varnames = pd.read_stata(f'{jroth_dir}/harmcarc.dta')
+            varnames = pd.read_stata(f'{xw_dir}/harmcarc.dta')
         except PermissionError:
             varnames = None
         if year >= 2002:
@@ -139,7 +140,7 @@ def convert_med(
     elif data_type == 'carl':
         assert year >= 2002
         try:
-            varnames = pd.read_stata(f'{jroth_dir}/harmcarl.dta')
+            varnames = pd.read_stata(f'{xw_dir}/harmcarl.dta')
         except PermissionError:
             varnames = None
         infile = f'{med_dta}/{pct}pct/car/{year}/carl{year}.dta'
@@ -147,7 +148,7 @@ def convert_med(
 
     elif data_type == 'den':
         try:
-            varnames = pd.read_stata(f'{jroth_dir}/harmden.dta')
+            varnames = pd.read_stata(f'{xw_dir}/harmden.dta')
         except PermissionError:
             varnames = None
         infile = f'{med_dta}/{pct}pct/den/{year}/den{year}.dta'
@@ -155,7 +156,7 @@ def convert_med(
 
     elif data_type == 'ipc':
         try:
-            varnames = pd.read_stata(f'{jroth_dir}/harmipc.dta')
+            varnames = pd.read_stata(f'{xw_dir}/harmipc.dta')
         except PermissionError:
             varnames = None
         if year >= 2002:
@@ -167,7 +168,7 @@ def convert_med(
     elif data_type == 'ipr':
         assert year >= 2002
         try:
-            varnames = pd.read_stata(f'{jroth_dir}/harmipr.dta')
+            varnames = pd.read_stata(f'{xw_dir}/harmipr.dta')
         except PermissionError:
             varnames = None
         infile = f'{med_dta}/{pct}pct/ip/{year}/ipr{year}.dta'
@@ -175,7 +176,7 @@ def convert_med(
 
     elif data_type == 'med':
         try:
-            varnames = pd.read_stata(f'{jroth_dir}/harmmed.dta')
+            varnames = pd.read_stata(f'{xw_dir}/harmmed.dta')
         except PermissionError:
             varnames = None
         infile = f'{med_dta}/{pct}pct/med/{year}/med{year}.dta'
@@ -183,7 +184,7 @@ def convert_med(
 
     elif data_type == 'op':
         try:
-            varnames = pd.read_stata(f'{jroth_dir}/harmop.dta')
+            varnames = pd.read_stata(f'{xw_dir}/harmop.dta')
         except PermissionError:
             varnames = None
         raise Exception('Haven\'t added support yet for older op files')
@@ -195,7 +196,7 @@ def convert_med(
         # the mix of claims and revenue center data
 
         try:
-            varnames = pd.read_stata(f'{jroth_dir}/harmopc.dta')
+            varnames = pd.read_stata(f'{xw_dir}/harmopc.dta')
         except PermissionError:
             varnames = None
         infile = f'{med_dta}/{pct}pct/op/{year}/opc{year}.dta'
@@ -203,7 +204,7 @@ def convert_med(
 
     elif data_type == 'opr':
         try:
-            varnames = pd.read_stata(f'{jroth_dir}/harmopr.dta')
+            varnames = pd.read_stata(f'{xw_dir}/harmopr.dta')
         except PermissionError:
             varnames = None
         infile = f'{med_dta}/{pct}pct/op/{year}/opr{year}.dta'
