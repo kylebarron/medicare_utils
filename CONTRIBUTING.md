@@ -22,13 +22,13 @@ If you are reporting a bug, please include:
 
 ### Fix Bugs
 
-Look through the GitHub issues for bugs. Anything tagged with \"bug\"
-and \"help wanted\" is open to whoever wants to implement it.
+Look through the GitHub issues for bugs. Anything tagged with "bug"
+and "help wanted" is open to whoever wants to implement it.
 
 ### Implement Features
 
 Look through the GitHub issues for features. Anything tagged with
-\"enhancement\" and \"help wanted\" is open to whoever wants to
+"enhancement" and "help wanted" is open to whoever wants to
 implement it.
 
 ### Write Documentation
@@ -102,7 +102,7 @@ Before you submit a pull request, check that it meets these guidelines:
 2.  If the pull request adds functionality, the docs should be updated.
     Put your new functionality into a function with a docstring, and add
     the feature to the list in README.rst.
-3.  The pull request should work for Python 2.7, 3.4, 3.5 and 3.6, and
+3.  The pull request should work for Python 3.5 and 3.6, and
     for PyPy. Check
     <https://travis-ci.org/kylebarron/medicare_utils/pull_requests> and
     make sure that the tests pass for all supported Python versions.

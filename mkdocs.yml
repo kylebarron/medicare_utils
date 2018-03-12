@@ -1,0 +1,54 @@
+# Project Information
+site_name: medicare_utils
+site_description: 'Scripts to assist working with Medicare data'
+site_author: 'Kyle Barron'
+site_url: 'https://kylebarron.github.io/medicare_utils/'
+
+docs_dir: 'docs'
+site_dir: 'site'
+
+# Repository
+repo_name: 'medicare_utils'
+repo_url: 'https://github.com/kylebarron/medicare_utils'
+edit_uri: 'blob/master/docs/'
+
+# Layout
+pages:
+    - Home: 'index.md'
+    - Installation: 'installation.md'
+    - Usage: 'usage.md'
+    - Authors: authors.md
+    - Contributing: contributing.md
+    - History: history.md
+    - License: license.md
+
+# Theme
+theme:
+    logo:
+        icon: 'local_library'
+    name: 'material'
+    language: 'en'
+    palette:
+        primary: 'indigo'
+        accent:  'light blue'
+    font:
+        text: 'Nunito Sans'
+        code: 'Fira Code'
+
+extra_javascript:
+    # - js/helpers.js
+    - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_HTMLorMML
+
+markdown_extensions:
+    - admonition
+    - codehilite:
+        linenums: true
+    - footnotes
+    - meta
+    - pymdownx.arithmatex
+    - pymdownx.details
+    - pymdownx.smartsymbols
+    - pymdownx.tasklist(custom_checkbox=true)
+    - pymdownx.tilde
+    - toc:
+        permalink: true

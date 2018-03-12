@@ -4,7 +4,7 @@ Credits
 Development Lead
 ----------------
 
--   Kyle Barron \<<barronk@mit.edu>\>
+-   Kyle Barron <barronk@mit.edu>
 
 Contributors
 ------------
