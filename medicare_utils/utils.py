@@ -4,6 +4,9 @@
 import re
 import pandas as pd
 import fastparquet as fp
+import numpy as np
+import pyarrow as pa
+import pyarrow.parquet as pq
 
 
 def fpath(percent: str, year: int, data_type: str, dta: bool=False,
@@ -151,12 +154,16 @@ def fpath(percent: str, year: int, data_type: str, dta: bool=False,
 class MedicareDF(object):
     """A class to organize Medicare operations"""
 
-    def __init__(self, percent, years, verbose=False):
+    def __init__(self, percent, years, verbose=False, parquet_engine='pyarrow',
+                 parquet_nthreads=None):
         """Return a MedicareDF object
 
         Attributes:
             percent (str): percent sample of data to use
             years (list[int]): years of data to use
+            verbose (bool): Print status of program
+            parquet_engine (str): 'pyarrow' or 'fastparquet'
+            parquet_nthreads (int): number of threads to use when reading file
         """
 
         allowed_pcts = ['0001', '01', '05', '20', '100']
@@ -179,6 +186,12 @@ class MedicareDF(object):
 
         self.years = years
         self.verbose = verbose
+
+        if parquet_engine not in ['pyarrow', 'fastparquet']:
+            raise ValueError('parquet_engine must be pyarrow or fastparquet')
+
+        self.parquet_engine = parquet_engine
+        self.parquet_nthreads = parquet_nthreads
 
     def _get_variables_to_import(self, year, data_type, import_vars):
         """Get list of variable names to import from given file
@@ -245,12 +258,11 @@ class MedicareDF(object):
                 Default is "outer" join for all years up to N-1, "left" for N
                 Otherwise must be "left", "inner", "outer", "right"
             keep_vars (list[str]): Variable names to keep in final output
+            verbose (bool): Print status of program
 
         Returns:
             Adds DataFrame of extracted cohort to instance
         """
-
-        import numpy as np
 
         if self.verbose:
             verbose = True
@@ -345,8 +357,14 @@ class MedicareDF(object):
                 msg += f'\t- time elapsed: {(time() - t0) / 60:.2f} minutes\n'
                 print(msg)
 
-            pf = fp.ParquetFile(fpath(self.percent, year, 'bsfab'))
-            pl = pf.to_pandas(columns=tokeep_vars[year], index='bene_id')
+            if self.parquet_engine == 'pyarrow':
+                pf = pq.ParquetFile(fpath(self.percent, year, 'bsfab'))
+                pl = pf.read(
+                    columns=tokeep_vars[year],
+                    nthreads=self.parquet_nthreads).to_pandas()
+            else:
+                pf = fp.ParquetFile(fpath(self.percent, year, 'bsfab'))
+                pl = pf.to_pandas(columns=tokeep_vars[year], index='bene_id')
             nobs = len(pl)
             nobs_dropped[year] = {}
 
@@ -658,8 +676,6 @@ class MedicareDF(object):
         except AttributeError:
             bene_ids_to_filter = None
 
-        pf = fp.ParquetFile(fpath(self.percent, year, data_type))
-
         # Determine which variables to extract
         regex_string = []
         if data_type == 'med':
@@ -693,7 +709,8 @@ class MedicareDF(object):
 
         regex_string = '|'.join(regex_string)
         regex = re.compile(regex_string).search
-        cols = [x for x in pf.columns if regex(x)]
+        all_cols = fp.ParquetFile(fpath(self.percent, year, data_type)).columns
+        cols = [x for x in all_cols if regex(x)]
 
         cl_id_col = [x for x in cols if re.search(cl_id_regex, x)]
         if hcpcs is not None:
@@ -714,8 +731,21 @@ class MedicareDF(object):
         # This holds the df's from each iteration over the claim-level dataset
         all_cl = []
 
+        if self.parquet_engine == 'pyarrow':
+            pf = pq.ParquetFile(fpath(self.percent, year, data_type))
+            itr = (
+                pf.read_row_group(
+                    i,
+                    columns=cols,
+                    nthreads=self.parquet_nthreads
+                ).to_pandas().set_index('bene_id')
+                for i in range(pf.num_row_groups))
+        else:
+            pf = fp.ParquetFile(fpath(self.percent, year, data_type))
+            itr = pf.iter_row_groups(columns=cols, index='bene_id')
+
         # cl = pf.to_pandas(columns=cols, index='bene_id')
-        for cl in pf.iter_row_groups(columns=cols, index='bene_id'):
+        for cl in itr:
             if bene_ids_to_filter is not None:
                 cl = cl.join(
                     pd.DataFrame(index=bene_ids_to_filter), how='inner')
