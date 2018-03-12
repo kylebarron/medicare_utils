@@ -1,0 +1,144 @@
+{
+    "docs": [
+        {
+            "location": "/",
+            "text": "Welcome to \nmedicare_utils\n's documentation!\n\u00b6",
+            "title": "Home"
+        },
+        {
+            "location": "/#welcome-to-medicare_utilss-documentation",
+            "text": "",
+            "title": "Welcome to medicare_utils's documentation!"
+        },
+        {
+            "location": "/installation/",
+            "text": "Installation\n\u00b6\n\n\nStable release\n\u00b6\n\n\nTo install medicare_utils, run this command in your terminal:\n\n\n1\n$ pip install git+https://github.com/kylebarron/medicare_utils --upgrade\n\n\n\n\n\n\nThis is the preferred method to install medicare_utils, as it will always install the most recent stable release.\n\n\nIf you don't have \npip\n installed, this \nPython installation guide\n can guide you through the process.\n\n\nFrom sources\n\u00b6\n\n\nThe sources for medicare_utils can be downloaded from the \nGithub repo\n.\n\n\nYou can either clone the public repository:\n\n\n1\n$ git clone git://github.com/kylebarron/medicare_utils\n\n\n\n\n\n\nOr download the \ntarball\n:\n\n\n1\n$ curl  -OL https://github.com/kylebarron/medicare_utils/tarball/master\n\n\n\n\n\n\nOnce you have a copy of the source, you can install it with:\n\n\n1\n$ python setup.py install",
+            "title": "Installation"
+        },
+        {
+            "location": "/installation/#installation",
+            "text": "",
+            "title": "Installation"
+        },
+        {
+            "location": "/installation/#stable-release",
+            "text": "To install medicare_utils, run this command in your terminal:  1 $ pip install git+https://github.com/kylebarron/medicare_utils --upgrade   This is the preferred method to install medicare_utils, as it will always install the most recent stable release.  If you don't have  pip  installed, this  Python installation guide  can guide you through the process.",
+            "title": "Stable release"
+        },
+        {
+            "location": "/installation/#from-sources",
+            "text": "The sources for medicare_utils can be downloaded from the  Github repo .  You can either clone the public repository:  1 $ git clone git://github.com/kylebarron/medicare_utils   Or download the  tarball :  1 $ curl  -OL https://github.com/kylebarron/medicare_utils/tarball/master   Once you have a copy of the source, you can install it with:  1 $ python setup.py install",
+            "title": "From sources"
+        },
+        {
+            "location": "/usage/",
+            "text": "Usage\n\u00b6\n\n\nTo use \nmedicare_utils\n in a project:\n\n\n1\nimport\n \nmedicare_utils\n \nas\n \nmed",
+            "title": "Usage"
+        },
+        {
+            "location": "/usage/#usage",
+            "text": "To use  medicare_utils  in a project:  1 import   medicare_utils   as   med",
+            "title": "Usage"
+        },
+        {
+            "location": "/authors/",
+            "text": "Credits\n\u00b6\n\n\nDevelopment Lead\n\u00b6\n\n\n\n\nKyle Barron \nbarronk@mit.edu\n\n\n\n\nContributors\n\u00b6\n\n\nNone yet. Why not be the first?",
+            "title": "Authors"
+        },
+        {
+            "location": "/authors/#credits",
+            "text": "",
+            "title": "Credits"
+        },
+        {
+            "location": "/authors/#development-lead",
+            "text": "Kyle Barron  barronk@mit.edu",
+            "title": "Development Lead"
+        },
+        {
+            "location": "/authors/#contributors",
+            "text": "None yet. Why not be the first?",
+            "title": "Contributors"
+        },
+        {
+            "location": "/contributing/",
+            "text": "Contributing\n\u00b6\n\n\nContributions are welcome, and they are greatly appreciated! Every\nlittle bit helps, and credit will always be given.\n\n\nYou can contribute in many ways:\n\n\nTypes of Contributions\n\u00b6\n\n\nReport Bugs\n\u00b6\n\n\nReport bugs at \nhttps://github.com/kylebarron/medicare_utils/issues\n.\n\n\nIf you are reporting a bug, please include:\n\n\n\n\nYour operating system name and version.\n\n\nAny details about your local setup that might be helpful in\n    troubleshooting.\n\n\nDetailed steps to reproduce the bug.\n\n\n\n\nFix Bugs\n\u00b6\n\n\nLook through the GitHub issues for bugs. Anything tagged with \"bug\"\nand \"help wanted\" is open to whoever wants to implement it.\n\n\nImplement Features\n\u00b6\n\n\nLook through the GitHub issues for features. Anything tagged with\n\"enhancement\" and \"help wanted\" is open to whoever wants to\nimplement it.\n\n\nWrite Documentation\n\u00b6\n\n\nmedicare_utils could always use more documentation, whether as part of\nthe official medicare_utils docs, in docstrings, or even on the web in\nblog posts, articles, and such.\n\n\nSubmit Feedback\n\u00b6\n\n\nThe best way to send feedback is to file an issue at\n\nhttps://github.com/kylebarron/medicare_utils/issues\n.\n\n\nIf you are proposing a feature:\n\n\n\n\nExplain in detail how it would work.\n\n\nKeep the scope as narrow as possible, to make it easier to\n    implement.\n\n\nRemember that this is a volunteer-driven project, and that\n    contributions are welcome :)\n\n\n\n\nGet Started!\n\u00b6\n\n\nReady to contribute? Here\\'s how to set up medicare_utils for local\ndevelopment.\n\n\n\n\nFork the medicare_utils repo on GitHub.\n\n\n\n\nClone your fork locally:\n\n\n1\n$ git clone git@github.com:your_name_here/medicare_utils.git\n\n\n\n\n\n\n\n\n\n\nInstall your local copy into a virtualenv. Assuming you have\n    virtualenvwrapper installed, this is how you set up your fork for\n    local development:\n\n\n1\n2\n3\n$ mkvirtualenv medicare_utils\n$ \ncd\n medicare_utils/\n$ python setup.py develop\n\n\n\n\n\n\n\n\n\n\nCreate a branch for local development:\n\n\n1\n$ git checkout -b name-of-your-bugfix-or-feature\n\n\n\n\n\n\nNow you can make your changes locally.\n\n\n\n\n\n\nWhen you\\'re done making changes, check that your changes pass\n    flake8 and the tests, including testing other Python versions with\n    tox:\n\n\n1\n2\n3\n$ flake8 medicare_utils tests\n$ python setup.py \ntest\n or py.test\n$ tox\n\n\n\n\n\n\nTo get flake8 and tox, just pip install them into your virtualenv.\n\n\n\n\n\n\nCommit your changes and push your branch to GitHub:\n\n\n1\n2\n3\n$ git add .\n$ git commit -m \n\"Your detailed description of your changes.\"\n\n$ git push origin name-of-your-bugfix-or-feature\n\n\n\n\n\n\n\n\n\n\nSubmit a pull request through the GitHub website.\n\n\n\n\n\n\nPull Request Guidelines\n\u00b6\n\n\nBefore you submit a pull request, check that it meets these guidelines:\n\n\n\n\nThe pull request should include tests.\n\n\nIf the pull request adds functionality, the docs should be updated.\n    Put your new functionality into a function with a docstring, and add\n    the feature to the list in README.rst.\n\n\nThe pull request should work for Python 3.5 and 3.6, and\n    for PyPy. Check\n    \nhttps://travis-ci.org/kylebarron/medicare_utils/pull_requests\n and\n    make sure that the tests pass for all supported Python versions.\n\n\n\n\nTips\n\u00b6\n\n\nTo run a subset of tests:\n\n\n1\n$ python -m unittest tests.test_medicare_utils\n\n\n\n\n\n\nDeploying\n\u00b6\n\n\nA reminder for the maintainers on how to deploy. Make sure all your\nchanges are committed (including an entry in HISTORY.rst). Then run:\n\n\n1\n2\n3\n$ bumpversion patch \n# possible: major / minor / patch\n\n$ git push\n$ git push --tags\n\n\n\n\n\n\nTravis will then deploy to PyPI if tests pass.",
+            "title": "Contributing"
+        },
+        {
+            "location": "/contributing/#contributing",
+            "text": "Contributions are welcome, and they are greatly appreciated! Every\nlittle bit helps, and credit will always be given.  You can contribute in many ways:",
+            "title": "Contributing"
+        },
+        {
+            "location": "/contributing/#types-of-contributions",
+            "text": "",
+            "title": "Types of Contributions"
+        },
+        {
+            "location": "/contributing/#report-bugs",
+            "text": "Report bugs at  https://github.com/kylebarron/medicare_utils/issues .  If you are reporting a bug, please include:   Your operating system name and version.  Any details about your local setup that might be helpful in\n    troubleshooting.  Detailed steps to reproduce the bug.",
+            "title": "Report Bugs"
+        },
+        {
+            "location": "/contributing/#fix-bugs",
+            "text": "Look through the GitHub issues for bugs. Anything tagged with \"bug\"\nand \"help wanted\" is open to whoever wants to implement it.",
+            "title": "Fix Bugs"
+        },
+        {
+            "location": "/contributing/#implement-features",
+            "text": "Look through the GitHub issues for features. Anything tagged with\n\"enhancement\" and \"help wanted\" is open to whoever wants to\nimplement it.",
+            "title": "Implement Features"
+        },
+        {
+            "location": "/contributing/#write-documentation",
+            "text": "medicare_utils could always use more documentation, whether as part of\nthe official medicare_utils docs, in docstrings, or even on the web in\nblog posts, articles, and such.",
+            "title": "Write Documentation"
+        },
+        {
+            "location": "/contributing/#submit-feedback",
+            "text": "The best way to send feedback is to file an issue at https://github.com/kylebarron/medicare_utils/issues .  If you are proposing a feature:   Explain in detail how it would work.  Keep the scope as narrow as possible, to make it easier to\n    implement.  Remember that this is a volunteer-driven project, and that\n    contributions are welcome :)",
+            "title": "Submit Feedback"
+        },
+        {
+            "location": "/contributing/#get-started",
+            "text": "Ready to contribute? Here\\'s how to set up medicare_utils for local\ndevelopment.   Fork the medicare_utils repo on GitHub.   Clone your fork locally:  1 $ git clone git@github.com:your_name_here/medicare_utils.git     Install your local copy into a virtualenv. Assuming you have\n    virtualenvwrapper installed, this is how you set up your fork for\n    local development:  1\n2\n3 $ mkvirtualenv medicare_utils\n$  cd  medicare_utils/\n$ python setup.py develop     Create a branch for local development:  1 $ git checkout -b name-of-your-bugfix-or-feature   Now you can make your changes locally.    When you\\'re done making changes, check that your changes pass\n    flake8 and the tests, including testing other Python versions with\n    tox:  1\n2\n3 $ flake8 medicare_utils tests\n$ python setup.py  test  or py.test\n$ tox   To get flake8 and tox, just pip install them into your virtualenv.    Commit your changes and push your branch to GitHub:  1\n2\n3 $ git add .\n$ git commit -m  \"Your detailed description of your changes.\" \n$ git push origin name-of-your-bugfix-or-feature     Submit a pull request through the GitHub website.",
+            "title": "Get Started!"
+        },
+        {
+            "location": "/contributing/#pull-request-guidelines",
+            "text": "Before you submit a pull request, check that it meets these guidelines:   The pull request should include tests.  If the pull request adds functionality, the docs should be updated.\n    Put your new functionality into a function with a docstring, and add\n    the feature to the list in README.rst.  The pull request should work for Python 3.5 and 3.6, and\n    for PyPy. Check\n     https://travis-ci.org/kylebarron/medicare_utils/pull_requests  and\n    make sure that the tests pass for all supported Python versions.",
+            "title": "Pull Request Guidelines"
+        },
+        {
+            "location": "/contributing/#tips",
+            "text": "To run a subset of tests:  1 $ python -m unittest tests.test_medicare_utils",
+            "title": "Tips"
+        },
+        {
+            "location": "/contributing/#deploying",
+            "text": "A reminder for the maintainers on how to deploy. Make sure all your\nchanges are committed (including an entry in HISTORY.rst). Then run:  1\n2\n3 $ bumpversion patch  # possible: major / minor / patch \n$ git push\n$ git push --tags   Travis will then deploy to PyPI if tests pass.",
+            "title": "Deploying"
+        },
+        {
+            "location": "/history/",
+            "text": "History\n\u00b6\n\n\n0.0.1 (2018-03-01)\n\u00b6\n\n\n\n\nFirst release on PyPI.",
+            "title": "History"
+        },
+        {
+            "location": "/history/#history",
+            "text": "",
+            "title": "History"
+        },
+        {
+            "location": "/history/#001-2018-03-01",
+            "text": "First release on PyPI.",
+            "title": "0.0.1 (2018-03-01)"
+        },
+        {
+            "location": "/license/",
+            "text": "MIT License\n\n\nCopyright \u00a9 2018, Kyle Barron\n\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.",
+            "title": "License"
+        }
+    ]
+}
