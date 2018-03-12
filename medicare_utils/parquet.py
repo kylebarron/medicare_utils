@@ -359,18 +359,6 @@ def convert_file(
     msg += f'\n\ttime: {(time() - t0) / 60:.2f} min'
     print(msg)
 
-    if parquet_engine == 'pyarrow':
-        row = pd.read_stata(infile, iterator=True).get_chunk(1)
-        if rename_dict is not None:
-            row.rename(index=str, columns=rename_dict, inplace=True)
-        row = row.astype(dtypes)
-
-        if manual_schema:
-            schema = create_parquet_schema(row.dtypes)
-        else:
-            schema = pa.Table.from_pandas(row, preserve_index=False).schema
-        writer = pq.ParquetWriter(outfile, schema)
-
     itr = pd.read_stata(infile, chunksize=nrow_rg)
     i = 0
     for df in itr:
@@ -391,6 +379,14 @@ def convert_file(
         print(msg)
 
         if parquet_engine == 'pyarrow':
+            if i == 1:
+                if manual_schema:
+                    schema = create_parquet_schema(df.dtypes)
+                else:
+                    schema = pa.Table.from_pandas(
+                        df, preserve_index=False).schema
+                writer = pq.ParquetWriter(outfile, schema)
+
             writer.write_table(pa.Table.from_pandas(df, preserve_index=False))
         elif parquet_engine == 'fastparquet':
             if i == 1:
@@ -631,10 +627,10 @@ def create_parquet_schema(dtypes):
             fields.append(pa.field(varname, pa.uint64()))
         elif vartype == np.bool_:
             fields.append(pa.field(varname, pa.bool_()))
+        elif (vartype == object) | (vartype.name == 'category'):
+            fields.append(pa.field(varname, pa.string()))
         elif np.issubdtype(vartype, np.datetime64):
             fields.append(pa.field(varname, pa.timestamp('ns')))
-        elif vartype == object:
-            fields.append(pa.field(varname, pa.string()))
 
     assert len(dtypes) == len(fields)
     schema = pa.schema(fields)
