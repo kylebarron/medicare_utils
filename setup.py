@@ -17,6 +17,7 @@ requirements = [
     'natsort >= 5.2.0',
     'numpy >= 1.14.1',
     'pandas >= 0.22.0',
+    'pyarrow >= 0.8.0',
     'requests >= 2.18.4',
 ]
 
