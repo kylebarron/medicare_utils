@@ -101,6 +101,9 @@ def convert_med(
         year,
         data_type,
         rg_size=2.5,
+        parquet_engine='pyarrow',
+        compression_type='SNAPPY',
+        manual_schema=False,
         med_dta='/disk/aging/medicare/data',
         med_pq='/homes/nber/barronk/agebulk1/raw',
         xw_dir='/disk/agedisk2/medicare.work/doyle-DUA18266/jroth'):
@@ -292,7 +295,10 @@ def convert_med(
         infile=infile,
         outfile=outfile,
         rename_dict=rename_dict,
-        rg_size=rg_size)
+        rg_size=rg_size,
+        parquet_engine=parquet_engine,
+        compression_type=compression_type,
+        manual_schema=manual_schema)
 
 
 def convert_file(
@@ -300,7 +306,7 @@ def convert_file(
         outfile,
         rename_dict=None,
         rg_size=2.5,
-        parquet_engine='fastparquet',
+        parquet_engine='pyarrow',
         compression_type='SNAPPY',
         manual_schema=False):
     """Convert arbitrary file to Parquet format
