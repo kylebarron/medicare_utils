@@ -353,7 +353,11 @@ def convert_file(
     msg += f'\n\ttime: {(time() - t0) / 60:.2f} min'
     print(msg)
 
-    dtypes = scan_file(infile)
+    if parquet_engine == 'pyarrow':
+        dtypes = scan_file(infile, categorical=False)
+    elif parquet_engine == 'fastparquet':
+        dtypes = scan_file(infile, categorical=True)
+
     if rename_dict is not None:
         for old_name, new_name in rename_dict.items():
             try:
@@ -439,7 +443,7 @@ def convert_dates(df, datecols):
     return df
 
 
-def scan_file(infile, chunksize=100000, cat_threshold=0.1):
+def scan_file(infile, categorical=True, chunksize=100000, cat_threshold=0.1):
     """Scan dta file to find minimal dtypes to hold data in
 
     For each of the chunks of df:
@@ -450,6 +454,7 @@ def scan_file(infile, chunksize=100000, cat_threshold=0.1):
 
     Args:
         infile: dta file to scan
+        categorical: whether to change strings to categorical
         chunksize: number of rows of infile to read at a time
         cat_threshold: maximum fraction of unique values in order
             to convert to categorical
@@ -497,16 +502,21 @@ def scan_file(infile, chunksize=100000, cat_threshold=0.1):
                     for key in start_cols['int_cols']},
             'max': {key: None
                     for key in start_cols['int_cols']}},
-        'cat_cols': {
+        'float_cols': start_cols['float_cols']}
+    if categorical:
+        end_cols['cat_cols'] = {
             'names': start_cols['str_cols'],
             'cats': {key: set()
-                     for key in start_cols['str_cols']}},
-        'str_cols': [],
-        'float_cols': start_cols['float_cols']}
+                     for key in start_cols['str_cols']}}
+        end_cols['str_cols'] = []
+    else:
+        end_cols['cat_cols'] = {}
+        end_cols['str_cols'] = start_cols['str_cols']
 
     tokeep = []
     tokeep.extend(start_cols['int_cols'])
-    tokeep.extend(start_cols['str_cols'])
+    if categorical:
+        tokeep.extend(start_cols['str_cols'])
     itr = pd.read_stata(infile, columns=tokeep, chunksize=chunksize)
 
     i = 0
@@ -538,23 +548,24 @@ def scan_file(infile, chunksize=100000, cat_threshold=0.1):
                 elif maxval > end_cols['int_cols']['max'][col]:
                     end_cols['int_cols']['max'][col] = maxval
 
-        # Scan str vars for categories
-        cat_cols = end_cols['cat_cols']['names'].copy()
-        for col in cat_cols:
-            num_unique_values = len(df[col].unique())
-            num_total_values = len(df[col])
+        if categorical:
+            # Scan str vars for categories
+            cat_cols = end_cols['cat_cols']['names'].copy()
+            for col in cat_cols:
+                num_unique_values = len(df[col].unique())
+                num_total_values = len(df[col])
 
-            if num_unique_values / num_total_values < cat_threshold:
-                # Then stays as category
-                # Add category values
-                unique_vals = df[col].unique().tolist()
-                end_cols['cat_cols']['cats'][col].update(unique_vals)
-            else:
-                print(f'{col} is now a string')
-                # Becomes regular string column
-                end_cols['str_cols'].append(col)
-                end_cols['cat_cols']['cats'].pop(col)
-                end_cols['cat_cols']['names'].remove(col)
+                if num_unique_values / num_total_values < cat_threshold:
+                    # Then stays as category
+                    # Add category values
+                    unique_vals = df[col].unique().tolist()
+                    end_cols['cat_cols']['cats'][col].update(unique_vals)
+                else:
+                    print(f'{col} is now a string')
+                    # Becomes regular string column
+                    end_cols['str_cols'].append(col)
+                    end_cols['cat_cols']['cats'].pop(col)
+                    end_cols['cat_cols']['names'].remove(col)
 
         # Not currently scanning date or float vars
 
@@ -590,8 +601,10 @@ def scan_file(infile, chunksize=100000, cat_threshold=0.1):
     for col in end_cols['float_cols']:
         dtypes_dict[col] = np.float64
 
-    for col in end_cols['cat_cols']['names']:
-        dtypes_dict[col] = CategoricalDtype(end_cols['cat_cols']['cats'][col])
+    if categorical:
+        for col in end_cols['cat_cols']['names']:
+            dtypes_dict[col] = CategoricalDtype(
+                end_cols['cat_cols']['cats'][col])
 
     return dtypes_dict
 
