@@ -312,6 +312,12 @@ class MedicareDF(object):
             keep_vars = [keep_vars]
 
         # Get list of variables to import for each year
+        if 'age' in keep_vars:
+            print('Warning: Can\'t export age variable, exporting',
+                  'bene_id instead')
+            keep_vars.remove('age')
+            keep_vars.append('bene_dob')
+
         tokeep_regex = []
         tokeep_regex.extend([r'^(ehic)$', r'^(bene_id)$'])
         if gender is not None:
@@ -389,13 +395,12 @@ class MedicareDF(object):
             if ages is not None:
                 pl = pl.loc[pl['age'].isin(ages)]
 
-                if 'age' not in keep_vars:
-                    pl.drop('age', axis=1, inplace=True)
+                pl.drop('age', axis=1, inplace=True)
 
                 nobs_dropped[year]['age'] = 1 - (len(pl) / nobs)
                 nobs = len(pl)
 
-            pl.columns = [f'{x}_{year}' for x in pl.columns]
+            pl.columns = [f'{x}{year}' for x in pl.columns]
 
             extracted_dfs.append(pl)
 
@@ -425,30 +430,13 @@ class MedicareDF(object):
                 pl = extracted_dfs[0].join(
                     extracted_dfs[1:], how=join_across_years)
 
-        # Create single variable across years for any non month-oriented
-        # variables (i.e. buyin and hmo status)
-
-        # columns that don't vary by month:
-        year_cols = [x for x in pl if not re.search(r'\d{2}_\d{4}$', x)]
-
-        # unique names of columns that don't vary by month:
-        year_cols_stub = list(set([x[:-5] for x in year_cols]))
-
-        dtypes = dict(pl.dtypes)
-        for col in year_cols_stub:
-            # Generate stub column with same dtype as col
-            dtype = dtypes[f'{col}_{min(self.years)}']
-            pl[col] = np.NaN
-            pl[col] = pl[col].astype(dtype)
-
-            for year in self.years:
-                pl[col] = pl[col].combine_first(pl[f'{col}_{year}'])
-                pl.drop(f'{col}_{year}', axis=1, inplace=True)
-
-            pl[col] = pl[col].astype(dtype)
-
         if (((buyin_val is not None) and (buyin_months == 'age_year'))
                 or ((hmo_val is not None) and (hmo_months == 'age_year'))):
+
+            pl['bene_dob'] = pd.NaT
+            for year in self.years:
+                pl['bene_dob'] = pl['bene_dob'].combine_first(pl[f'bene_dob{year}'])
+                pl.drop(f'bene_dob{year}', axis=1, inplace=True)
 
             pl['dob_month'] = pl['bene_dob'].dt.month
 
@@ -473,7 +461,7 @@ class MedicareDF(object):
                     for month in range(1, 13):
                         buyin_cols = []
                         for colname in pl.columns:
-                            match = re.search(r'buyin(\d{2})_(\d{4})', colname)
+                            match = re.search(r'buyin(\d{2})(\d{4})', colname)
                             if match is not None:
                                 # Match month
                                 m_month = int(match[1])
@@ -495,7 +483,7 @@ class MedicareDF(object):
                 buyin_match_cols = [x for x in pl if regex(x)]
                 pl = pl.loc[pl[buyin_match_cols].all(axis=1)]
 
-                regex = re.compile(r'^buyin\d{2}_\d{4}$').search
+                regex = re.compile(r'^buyin\d{2}\d{4}$').search
                 cols_todrop = [x for x in pl if regex(x)]
                 cols_todrop.extend(buyin_match_cols)
                 pl.drop(cols_todrop, axis=1, inplace=True)
@@ -529,7 +517,7 @@ class MedicareDF(object):
                     for month in range(1, 13):
                         hmo_cols = []
                         for colname in pl.columns:
-                            match = re.search(r'hmoind(\d{2})_(\d{4})', colname)
+                            match = re.search(r'hmoind(\d{2})(\d{4})', colname)
                             if match is not None:
                                 # Match month
                                 m_month = int(match[1])
@@ -551,7 +539,7 @@ class MedicareDF(object):
                 hmo_match_cols = [x for x in pl if regex(x)]
                 pl = pl.loc[pl[hmo_match_cols].all(axis=1)]
 
-                regex = re.compile(r'^hmoind\d{2}_\d{4}$').search
+                regex = re.compile(r'^hmoind\d{2}\d{4}$').search
                 cols_todrop = [x for x in pl if regex(x)]
                 cols_todrop.extend(hmo_match_cols)
                 pl.drop(cols_todrop, axis=1, inplace=True)
@@ -571,6 +559,22 @@ class MedicareDF(object):
 
             if 'bene_dob' not in keep_vars:
                 pl.drop('bene_dob', axis=1, inplace=True)
+
+        # Create single variable across years for any non month-oriented vars
+        # Columns that vary by year:
+        regex = re.compile(r'(?!_).\d{4}$').search
+        year_cols = [x for x in pl if regex(x)]
+
+        # unique names of columns that vary by year:
+        year_cols_stub = list(set([x[:-4] for x in year_cols]))
+
+        pl = pd.wide_to_long(pl.reset_index(),
+                        stubnames=year_cols_stub,
+                        i='bene_id',
+                        j='year')
+
+        pl = pl.reset_index('year').drop('year', axis=1)
+        pl = pl[~pl.index.duplicated(keep='first')]
 
         self.nobs_dropped = nobs_dropped
         self.pl = pl
