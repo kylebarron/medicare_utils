@@ -545,10 +545,10 @@ class MedicareDF(object):
                 pl.drop(cols_todrop, axis=1, inplace=True)
 
             elif hmo_months == 'all':
-                hmo_cols = [x for x in pl if re.search(r'^buyin\d{2}', x)]
+                hmo_cols = [x for x in pl if re.search(r'^hmoind\d{2}', x)]
                 pl = pl.loc[(pl[hmo_cols].isin(hmo_val)).all(axis=1)]
 
-                regex = re.compile(r'^buyin\d{2}_\d{4}$').search
+                regex = re.compile(r'^hmoind\d{2}_\d{4}$').search
                 cols_todrop = [x for x in pl if regex(x)]
                 pl = pl.drop(cols_todrop, axis=1)
 
