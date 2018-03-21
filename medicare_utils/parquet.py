@@ -160,22 +160,22 @@ def convert_med(
     if data_type == 'bsfab':
         varnames = None
         infile = f'{med_dta}/{pct}pct/bsf/{year}/1/bsfab{year}.dta'
-        outfile = f'{med_pq}/pq/{pct}pct/bsf/bsfab{year}.parquet'
+        outfile = f'{med_pq}/{pct}pct/bsf/bsfab{year}.parquet'
 
     elif data_type == 'bsfcc':
         varnames = None
         infile = f'{med_dta}/{pct}pct/bsf/{year}/1/bsfcc{year}.dta'
-        outfile = f'{med_pq}/pq/{pct}pct/bsf/bsfcc{year}.parquet'
+        outfile = f'{med_pq}/{pct}pct/bsf/bsfcc{year}.parquet'
 
     elif data_type == 'bsfcu':
         varnames = None
         infile = f'{med_dta}/{pct}pct/bsf/{year}/1/bsfcu{year}.dta'
-        outfile = f'{med_pq}/pq/{pct}pct/bsf/bsfcu{year}.parquet'
+        outfile = f'{med_pq}/{pct}pct/bsf/bsfcu{year}.parquet'
 
     elif data_type == 'bsfd':
         varnames = None
         infile = f'{med_dta}/{pct}pct/bsf/{year}/1/bsfd{year}.dta'
-        outfile = f'{med_pq}/pq/{pct}pct/bsf/bsfd{year}.parquet'
+        outfile = f'{med_pq}/{pct}pct/bsf/bsfd{year}.parquet'
 
     elif data_type == 'carc':
         try:
@@ -187,7 +187,7 @@ def convert_med(
             infile = f'{med_dta}/{pct}pct/car/{year}/carc{year}.dta'
         else:
             infile = f'{med_dta}/{pct}pct/car/{year}/car{year}.dta'
-        outfile = f'{med_pq}/pq/{pct}pct/car/carc{year}.parquet'
+        outfile = f'{med_pq}/{pct}pct/car/carc{year}.parquet'
 
     elif data_type == 'carl':
         assert year >= 2002
@@ -197,7 +197,7 @@ def convert_med(
             varnames = None
 
         infile = f'{med_dta}/{pct}pct/car/{year}/carl{year}.dta'
-        outfile = f'{med_pq}/pq/{pct}pct/car/carl{year}.parquet'
+        outfile = f'{med_pq}/{pct}pct/car/carl{year}.parquet'
 
     elif data_type == 'den':
         try:
@@ -206,7 +206,7 @@ def convert_med(
             varnames = None
 
         infile = f'{med_dta}/{pct}pct/den/{year}/den{year}.dta'
-        outfile = f'{med_pq}/pq/{pct}pct/den/den{year}.parquet'
+        outfile = f'{med_pq}/{pct}pct/den/den{year}.parquet'
 
     elif data_type == 'dmec':
         try:
@@ -215,7 +215,7 @@ def convert_med(
             varnames = None
 
         infile = f'{med_dta}/{pct}pct/dme/{year}/dmec{year}.dta'
-        outfile = f'{med_pq}/pq/{pct}pct/dme/dmec{year}.parquet'
+        outfile = f'{med_pq}/{pct}pct/dme/dmec{year}.parquet'
 
     elif data_type == 'dmel':
         try:
@@ -224,7 +224,7 @@ def convert_med(
             varnames = None
 
         infile = f'{med_dta}/{pct}pct/dme/{year}/dmel{year}.dta'
-        outfile = f'{med_pq}/pq/{pct}pct/dme/dmel{year}.parquet'
+        outfile = f'{med_pq}/{pct}pct/dme/dmel{year}.parquet'
 
     elif data_type == 'hhac':
         try:
@@ -233,7 +233,7 @@ def convert_med(
             varnames = None
 
         infile = f'{med_dta}/{pct}pct/hha/{year}/hhac{year}.dta'
-        outfile = f'{med_pq}/pq/{pct}pct/hha/hhac{year}.parquet'
+        outfile = f'{med_pq}/{pct}pct/hha/hhac{year}.parquet'
 
     elif data_type == 'hhar':
         try:
@@ -242,7 +242,7 @@ def convert_med(
             varnames = None
 
         infile = f'{med_dta}/{pct}pct/hha/{year}/hhar{year}.dta'
-        outfile = f'{med_pq}/pq/{pct}pct/hha/hhar{year}.parquet'
+        outfile = f'{med_pq}/{pct}pct/hha/hhar{year}.parquet'
 
     elif data_type == 'hosc':
         try:
@@ -251,7 +251,7 @@ def convert_med(
             varnames = None
 
         infile = f'{med_dta}/{pct}pct/hos/{year}/hosc{year}.dta'
-        outfile = f'{med_pq}/pq/{pct}pct/hos/hosc{year}.parquet'
+        outfile = f'{med_pq}/{pct}pct/hos/hosc{year}.parquet'
 
     elif data_type == 'hosr':
         try:
@@ -260,7 +260,7 @@ def convert_med(
             varnames = None
 
         infile = f'{med_dta}/{pct}pct/hos/{year}/hosr{year}.dta'
-        outfile = f'{med_pq}/pq/{pct}pct/hos/hosr{year}.parquet'
+        outfile = f'{med_pq}/{pct}pct/hos/hosr{year}.parquet'
 
     elif data_type == 'ipc':
         try:
@@ -272,7 +272,7 @@ def convert_med(
             infile = f'{med_dta}/{pct}pct/ip/{year}/ipc{year}.dta'
         else:
             infile = f'{med_dta}/{pct}pct/ip/{year}/ip{year}.dta'
-        outfile = f'{med_pq}/pq/{pct}pct/ip/ipc{year}.parquet'
+        outfile = f'{med_pq}/{pct}pct/ip/ipc{year}.parquet'
 
     elif data_type == 'ipr':
         assert year >= 2002
@@ -282,7 +282,7 @@ def convert_med(
             varnames = None
 
         infile = f'{med_dta}/{pct}pct/ip/{year}/ipr{year}.dta'
-        outfile = f'{med_pq}/pq/{pct}pct/ip/ipr{year}.parquet'
+        outfile = f'{med_pq}/{pct}pct/ip/ipr{year}.parquet'
 
     elif data_type == 'med':
         try:
@@ -291,7 +291,7 @@ def convert_med(
             varnames = None
 
         infile = f'{med_dta}/{pct}pct/med/{year}/med{year}.dta'
-        outfile = f'{med_pq}/pq/{pct}pct/med/med{year}.parquet'
+        outfile = f'{med_pq}/{pct}pct/med/med{year}.parquet'
 
     elif data_type == 'opc':
         try:
@@ -300,7 +300,7 @@ def convert_med(
             varnames = None
 
         infile = f'{med_dta}/{pct}pct/op/{year}/opc{year}.dta'
-        outfile = f'{med_pq}/pq/{pct}pct/op/opc{year}.parquet'
+        outfile = f'{med_pq}/{pct}pct/op/opc{year}.parquet'
 
     elif data_type == 'opr':
         try:
@@ -309,7 +309,7 @@ def convert_med(
             varnames = None
 
         infile = f'{med_dta}/{pct}pct/op/{year}/opr{year}.dta'
-        outfile = f'{med_pq}/pq/{pct}pct/op/opr{year}.parquet'
+        outfile = f'{med_pq}/{pct}pct/op/opr{year}.parquet'
 
     elif data_type == 'snfc':
         try:
@@ -318,7 +318,7 @@ def convert_med(
             varnames = None
 
         infile = f'{med_dta}/{pct}pct/snf/{year}/snfc{year}.dta'
-        outfile = f'{med_pq}/pq/{pct}pct/snf/snfc{year}.parquet'
+        outfile = f'{med_pq}/{pct}pct/snf/snfc{year}.parquet'
 
     elif data_type == 'snfr':
         try:
@@ -327,7 +327,7 @@ def convert_med(
             varnames = None
 
         infile = f'{med_dta}/{pct}pct/snf/{year}/snfr{year}.dta'
-        outfile = f'{med_pq}/pq/{pct}pct/snf/snfr{year}.parquet'
+        outfile = f'{med_pq}/{pct}pct/snf/snfr{year}.parquet'
 
     else:
         raise NotImplementedError
