@@ -19,8 +19,8 @@ def main(
         n_jobs=6,
         med_dta='/disk/aging/medicare/data',
         med_pq='/homes/nber/barronk/agebulk1/raw',
-        xw_dir='/disk/agedisk2/medicare.work/doyle-DUA18266/jroth'):
-    """Main program: In parallel convert Stata files to parquet
+        xw_dir='/disk/aging/medicare/data/docs'):
+    """Main program: In parallel convert Medicare Stata files to parquet
 
     Args:
         pcts: string or list of strings of percent samples to convert
@@ -106,9 +106,9 @@ def convert_med(
         manual_schema=False,
         med_dta='/disk/aging/medicare/data',
         med_pq='/homes/nber/barronk/agebulk1/raw',
-        xw_dir='/disk/agedisk2/medicare.work/doyle-DUA18266/jroth'):
-    """Top-level function to convert a given percent sample, year, and
-    data type of file to parquet format.
+        xw_dir='/disk/aging/medicare/data/docs'):
+    """Top-level function to convert a single file of a given
+    percent sample, year, and data type of file to parquet format.
 
     Args:
         pct: percent sample to convert
@@ -161,14 +161,17 @@ def convert_med(
         varnames = None
         infile = f'{med_dta}/{pct}pct/bsf/{year}/1/bsfab{year}.dta'
         outfile = f'{med_pq}/pq/{pct}pct/bsf/bsfab{year}.parquet'
+
     elif data_type == 'bsfcc':
         varnames = None
         infile = f'{med_dta}/{pct}pct/bsf/{year}/1/bsfcc{year}.dta'
         outfile = f'{med_pq}/pq/{pct}pct/bsf/bsfcc{year}.parquet'
+
     elif data_type == 'bsfcu':
         varnames = None
         infile = f'{med_dta}/{pct}pct/bsf/{year}/1/bsfcu{year}.dta'
         outfile = f'{med_pq}/pq/{pct}pct/bsf/bsfcu{year}.parquet'
+
     elif data_type == 'bsfd':
         varnames = None
         infile = f'{med_dta}/{pct}pct/bsf/{year}/1/bsfd{year}.dta'
@@ -185,6 +188,7 @@ def convert_med(
         else:
             infile = f'{med_dta}/{pct}pct/car/{year}/car{year}.dta'
         outfile = f'{med_pq}/pq/{pct}pct/car/carc{year}.parquet'
+
     elif data_type == 'carl':
         assert year >= 2002
         try:
@@ -204,6 +208,60 @@ def convert_med(
         infile = f'{med_dta}/{pct}pct/den/{year}/den{year}.dta'
         outfile = f'{med_pq}/pq/{pct}pct/den/den{year}.parquet'
 
+    elif data_type == 'dmec':
+        try:
+            varnames = pd.read_stata(f'{xw_dir}/harmdmec.dta')
+        except PermissionError:
+            varnames = None
+
+        infile = f'{med_dta}/{pct}pct/dme/{year}/dmec{year}.dta'
+        outfile = f'{med_pq}/pq/{pct}pct/dme/dmec{year}.parquet'
+
+    elif data_type == 'dmel':
+        try:
+            varnames = pd.read_stata(f'{xw_dir}/harmdmel.dta')
+        except PermissionError:
+            varnames = None
+
+        infile = f'{med_dta}/{pct}pct/dme/{year}/dmel{year}.dta'
+        outfile = f'{med_pq}/pq/{pct}pct/dme/dmel{year}.parquet'
+
+    elif data_type == 'hhac':
+        try:
+            varnames = pd.read_stata(f'{xw_dir}/harmhhac.dta')
+        except PermissionError:
+            varnames = None
+
+        infile = f'{med_dta}/{pct}pct/hha/{year}/hhac{year}.dta'
+        outfile = f'{med_pq}/pq/{pct}pct/hha/hhac{year}.parquet'
+
+    elif data_type == 'hhar':
+        try:
+            varnames = pd.read_stata(f'{xw_dir}/harmhhar.dta')
+        except PermissionError:
+            varnames = None
+
+        infile = f'{med_dta}/{pct}pct/hha/{year}/hhar{year}.dta'
+        outfile = f'{med_pq}/pq/{pct}pct/hha/hhar{year}.parquet'
+
+    elif data_type == 'hosc':
+        try:
+            varnames = pd.read_stata(f'{xw_dir}/harmhosc.dta')
+        except PermissionError:
+            varnames = None
+
+        infile = f'{med_dta}/{pct}pct/hos/{year}/hosc{year}.dta'
+        outfile = f'{med_pq}/pq/{pct}pct/hos/hosc{year}.parquet'
+
+    elif data_type == 'hosr':
+        try:
+            varnames = pd.read_stata(f'{xw_dir}/harmhosr.dta')
+        except PermissionError:
+            varnames = None
+
+        infile = f'{med_dta}/{pct}pct/hos/{year}/hosr{year}.dta'
+        outfile = f'{med_pq}/pq/{pct}pct/hos/hosr{year}.parquet'
+
     elif data_type == 'ipc':
         try:
             varnames = pd.read_stata(f'{xw_dir}/harmipc.dta')
@@ -215,6 +273,7 @@ def convert_med(
         else:
             infile = f'{med_dta}/{pct}pct/ip/{year}/ip{year}.dta'
         outfile = f'{med_pq}/pq/{pct}pct/ip/ipc{year}.parquet'
+
     elif data_type == 'ipr':
         assert year >= 2002
         try:
@@ -251,6 +310,24 @@ def convert_med(
 
         infile = f'{med_dta}/{pct}pct/op/{year}/opr{year}.dta'
         outfile = f'{med_pq}/pq/{pct}pct/op/opr{year}.parquet'
+
+    elif data_type == 'snfc':
+        try:
+            varnames = pd.read_stata(f'{xw_dir}/harmsnfc.dta')
+        except PermissionError:
+            varnames = None
+
+        infile = f'{med_dta}/{pct}pct/snf/{year}/snfc{year}.dta'
+        outfile = f'{med_pq}/pq/{pct}pct/snf/snfc{year}.parquet'
+
+    elif data_type == 'snfr':
+        try:
+            varnames = pd.read_stata(f'{xw_dir}/harmsnfr.dta')
+        except PermissionError:
+            varnames = None
+
+        infile = f'{med_dta}/{pct}pct/snf/{year}/snfr{year}.dta'
+        outfile = f'{med_pq}/pq/{pct}pct/snf/snfr{year}.parquet'
 
     else:
         raise NotImplementedError
