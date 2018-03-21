@@ -180,7 +180,7 @@ def convert_med(
     elif data_type == 'carc':
         try:
             varnames = pd.read_stata(f'{xw_dir}/harmcarc.dta')
-        except PermissionError:
+        except (PermissionError, FileNotFoundError):
             varnames = None
 
         if year >= 2002:
@@ -193,7 +193,7 @@ def convert_med(
         assert year >= 2002
         try:
             varnames = pd.read_stata(f'{xw_dir}/harmcarl.dta')
-        except PermissionError:
+        except (PermissionError, FileNotFoundError):
             varnames = None
 
         infile = f'{med_dta}/{pct}pct/car/{year}/carl{year}.dta'
@@ -202,7 +202,7 @@ def convert_med(
     elif data_type == 'den':
         try:
             varnames = pd.read_stata(f'{xw_dir}/harmden.dta')
-        except PermissionError:
+        except (PermissionError, FileNotFoundError):
             varnames = None
 
         infile = f'{med_dta}/{pct}pct/den/{year}/den{year}.dta'
@@ -211,7 +211,7 @@ def convert_med(
     elif data_type == 'dmec':
         try:
             varnames = pd.read_stata(f'{xw_dir}/harmdmec.dta')
-        except PermissionError:
+        except (PermissionError, FileNotFoundError):
             varnames = None
 
         infile = f'{med_dta}/{pct}pct/dme/{year}/dmec{year}.dta'
@@ -220,7 +220,7 @@ def convert_med(
     elif data_type == 'dmel':
         try:
             varnames = pd.read_stata(f'{xw_dir}/harmdmel.dta')
-        except PermissionError:
+        except (PermissionError, FileNotFoundError):
             varnames = None
 
         infile = f'{med_dta}/{pct}pct/dme/{year}/dmel{year}.dta'
@@ -229,7 +229,7 @@ def convert_med(
     elif data_type == 'hhac':
         try:
             varnames = pd.read_stata(f'{xw_dir}/harmhhac.dta')
-        except PermissionError:
+        except (PermissionError, FileNotFoundError):
             varnames = None
 
         infile = f'{med_dta}/{pct}pct/hha/{year}/hhac{year}.dta'
@@ -238,7 +238,7 @@ def convert_med(
     elif data_type == 'hhar':
         try:
             varnames = pd.read_stata(f'{xw_dir}/harmhhar.dta')
-        except PermissionError:
+        except (PermissionError, FileNotFoundError):
             varnames = None
 
         infile = f'{med_dta}/{pct}pct/hha/{year}/hhar{year}.dta'
@@ -247,7 +247,7 @@ def convert_med(
     elif data_type == 'hosc':
         try:
             varnames = pd.read_stata(f'{xw_dir}/harmhosc.dta')
-        except PermissionError:
+        except (PermissionError, FileNotFoundError):
             varnames = None
 
         infile = f'{med_dta}/{pct}pct/hos/{year}/hosc{year}.dta'
@@ -256,7 +256,7 @@ def convert_med(
     elif data_type == 'hosr':
         try:
             varnames = pd.read_stata(f'{xw_dir}/harmhosr.dta')
-        except PermissionError:
+        except (PermissionError, FileNotFoundError):
             varnames = None
 
         infile = f'{med_dta}/{pct}pct/hos/{year}/hosr{year}.dta'
@@ -265,7 +265,7 @@ def convert_med(
     elif data_type == 'ipc':
         try:
             varnames = pd.read_stata(f'{xw_dir}/harmipc.dta')
-        except PermissionError:
+        except (PermissionError, FileNotFoundError):
             varnames = None
 
         if year >= 2002:
@@ -278,7 +278,7 @@ def convert_med(
         assert year >= 2002
         try:
             varnames = pd.read_stata(f'{xw_dir}/harmipr.dta')
-        except PermissionError:
+        except (PermissionError, FileNotFoundError):
             varnames = None
 
         infile = f'{med_dta}/{pct}pct/ip/{year}/ipr{year}.dta'
@@ -287,7 +287,7 @@ def convert_med(
     elif data_type == 'med':
         try:
             varnames = pd.read_stata(f'{xw_dir}/harmmed.dta')
-        except PermissionError:
+        except (PermissionError, FileNotFoundError):
             varnames = None
 
         infile = f'{med_dta}/{pct}pct/med/{year}/med{year}.dta'
@@ -296,7 +296,7 @@ def convert_med(
     elif data_type == 'opc':
         try:
             varnames = pd.read_stata(f'{xw_dir}/harmopc.dta')
-        except PermissionError:
+        except (PermissionError, FileNotFoundError):
             varnames = None
 
         infile = f'{med_dta}/{pct}pct/op/{year}/opc{year}.dta'
@@ -305,7 +305,7 @@ def convert_med(
     elif data_type == 'opr':
         try:
             varnames = pd.read_stata(f'{xw_dir}/harmopr.dta')
-        except PermissionError:
+        except (PermissionError, FileNotFoundError):
             varnames = None
 
         infile = f'{med_dta}/{pct}pct/op/{year}/opr{year}.dta'
@@ -314,7 +314,7 @@ def convert_med(
     elif data_type == 'snfc':
         try:
             varnames = pd.read_stata(f'{xw_dir}/harmsnfc.dta')
-        except PermissionError:
+        except (PermissionError, FileNotFoundError):
             varnames = None
 
         infile = f'{med_dta}/{pct}pct/snf/{year}/snfc{year}.dta'
@@ -323,7 +323,7 @@ def convert_med(
     elif data_type == 'snfr':
         try:
             varnames = pd.read_stata(f'{xw_dir}/harmsnfr.dta')
-        except PermissionError:
+        except (PermissionError, FileNotFoundError):
             varnames = None
 
         infile = f'{med_dta}/{pct}pct/snf/{year}/snfr{year}.dta'
