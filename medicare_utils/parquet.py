@@ -6,6 +6,7 @@ import inspect
 import pkg_resources
 import pandas as pd
 import numpy as np
+import subprocess
 from pandas.api.types import CategoricalDtype
 from time import time
 from joblib import Parallel, delayed
@@ -377,6 +378,8 @@ def convert_med(
         compression_type=compression_type,
         manual_schema=manual_schema)
 
+infile = '/mnt/fast_nvme-projects/npi-geocode/data/openaddress/us/all.csv'
+outfile = '/mnt/fast_nvme-projects/npi-geocode/data/openaddress/us/all.parquet'
 
 def convert_file(
         infile,
@@ -417,7 +420,12 @@ def convert_file(
     if n_rg == 0:
         n_rg += 1
 
-    nrow_total = pd.read_stata(infile, iterator=True).nobs
+    if infile_type == 'dta':
+        nrow_total = pd.read_stata(infile, iterator=True).nobs
+    elif infile_type == 'csv':
+        out = subprocess.run(['wc', '-l', infile], stdout=subprocess.PIPE).stdout
+        nrow_total = int(re.search(r'^(\d+)\s+', out.decode('utf8'))[1])
+
     nrow_rg = math.ceil(nrow_total / n_rg)
     gb_per_rg = file_size / n_rg
 
@@ -432,9 +440,9 @@ def convert_file(
     print(msg)
 
     if parquet_engine == 'pyarrow':
-        dtypes = scan_file(infile, categorical=False)
+        dtypes = scan_dta_file(infile, categorical=False)
     elif parquet_engine == 'fastparquet':
-        dtypes = scan_file(infile, categorical=True)
+        dtypes = scan_dta_file(infile, categorical=True)
 
     if rename_dict is not None:
         for old_name, new_name in rename_dict.items():
@@ -521,7 +529,20 @@ def convert_dates(df, datecols):
     return df
 
 
-def scan_file(infile, categorical=True, chunksize=100000, cat_threshold=0.1):
+def scan_csv_file(infile, categorical=True, chunksize=100000, cat_threshold=0.1):
+    itr = pd.read_csv(infile, iterator=True)
+    df = itr.get_chunk(chunksize)
+
+    dtypes = dict(df.dtypes)
+    dtypes['NUMBER']
+    dtypes
+
+    df
+    df.dtypes
+
+
+
+def scan_dta_file(infile, categorical=True, chunksize=100000, cat_threshold=0.1):
     """Scan dta file to find minimal dtypes to hold data in
 
     For each of the chunks of df:
@@ -540,37 +561,59 @@ def scan_file(infile, categorical=True, chunksize=100000, cat_threshold=0.1):
     Returns:
         dictionary with variable names and dtyplist
     """
-    itr = pd.read_stata(infile, iterator=True)
-    varlist_df = pd.DataFrame({
-        'format': itr.fmtlist,
-        'name': itr.varlist,
-        'col_size': itr.col_sizes,
-        'dtype': itr.dtyplist,
-        'label': list(itr.variable_labels().values())})
 
-    start_cols = {}
+    infile_stub = re.search(r'/?([^/]+?)\.([a-z0-9]+)$', infile)
+    infile_stub, infile_type = infile_stub[1], infile_stub[2]
 
-    date_fmts = ('%tc', '%tC', '%td', '%d', '%tw', '%tm', '%tq', '%th', '%ty')
-    date_cols = varlist_df['format'].apply(lambda x: x.startswith(date_fmts))
-    date_cols = varlist_df[date_cols]['name'].values.tolist()
-    start_cols['date_cols'] = date_cols
+    if infile_type == 'dta':
+        itr = pd.read_stata(infile, iterator=True)
+        varlist_df = pd.DataFrame({
+            'format': itr.fmtlist,
+            'name': itr.varlist,
+            'col_size': itr.col_sizes,
+            'dtype': itr.dtyplist,
+            'label': list(itr.variable_labels().values())})
 
-    int_cols = varlist_df['dtype'].apply(
-        lambda x: np.issubdtype(x, np.integer) if inspect.isclass(x) else False)
-    int_cols = varlist_df[int_cols]['name'].values.tolist()
-    int_cols = sorted(list(set(int_cols) - set(date_cols)))
-    start_cols['int_cols'] = int_cols
+        start_cols = {}
 
-    regex = r'%.+s'
-    str_cols = varlist_df['format'].apply(lambda x: bool(re.search(regex, x)))
-    str_cols = varlist_df[str_cols]['name'].values.tolist()
-    start_cols['str_cols'] = str_cols
+        date_fmts = ('%tc', '%tC', '%td', '%d', '%tw', '%tm', '%tq', '%th', '%ty')
+        date_cols = varlist_df['format'].apply(lambda x: x.startswith(date_fmts))
+        date_cols = varlist_df[date_cols]['name'].values.tolist()
+        start_cols['date_cols'] = date_cols
 
-    float_cols = varlist_df['dtype'].apply(
-        lambda x: np.issubdtype(x, np.floating) if inspect.isclass(x) else False
-    )
-    float_cols = varlist_df[float_cols]['name'].values.tolist()
-    start_cols['float_cols'] = float_cols
+        int_cols = varlist_df['dtype'].apply(
+            lambda x: np.issubdtype(x, np.integer) if inspect.isclass(x) else False)
+        int_cols = varlist_df[int_cols]['name'].values.tolist()
+        int_cols = sorted(list(set(int_cols) - set(date_cols)))
+        start_cols['int_cols'] = int_cols
+
+        regex = r'%.+s'
+        str_cols = varlist_df['format'].apply(lambda x: bool(re.search(regex, x)))
+        str_cols = varlist_df[str_cols]['name'].values.tolist()
+        start_cols['str_cols'] = str_cols
+
+        float_cols = varlist_df['dtype'].apply(
+            lambda x: np.issubdtype(x, np.floating) if inspect.isclass(x) else False
+        )
+        float_cols = varlist_df[float_cols]['name'].values.tolist()
+        start_cols['float_cols'] = float_cols
+
+    elif infile_type == 'csv':
+        df = pd.read_csv(infile, iterator=True).get_chunk(chunksize)
+        dtypes = dict(df.dtypes)
+
+        start_cols = {}
+
+        int_cols = [key for key, val in dtypes.items() if np.issubdtype(val, np.integer)]
+
+        dtypes['NUMBER'] == 'object'
+        dtypes['NUMBER'] == 'object'
+        [val for key, val in dtypes.items()]
+
+        df.select_dtypes()
+
+        dtypes
+
 
     end_cols = {
         'date_cols': start_cols['date_cols'],
@@ -581,6 +624,7 @@ def scan_file(infile, categorical=True, chunksize=100000, cat_threshold=0.1):
             'max': {key: None
                     for key in start_cols['int_cols']}},
         'float_cols': start_cols['float_cols']}
+
     if categorical:
         end_cols['cat_cols'] = {
             'names': start_cols['str_cols'],
@@ -595,7 +639,11 @@ def scan_file(infile, categorical=True, chunksize=100000, cat_threshold=0.1):
     tokeep.extend(start_cols['int_cols'])
     if categorical:
         tokeep.extend(start_cols['str_cols'])
-    itr = pd.read_stata(infile, columns=tokeep, chunksize=chunksize)
+
+    if infile_type == 'dta':
+        itr = pd.read_stata(infile, columns=tokeep, chunksize=chunksize)
+    elif infile_type == 'dta':
+        itr = pd.read_csv(infile, columns=tokeep, chunksize=chunksize)
 
     i = 0
     for df in itr:
