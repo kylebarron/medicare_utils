@@ -42,7 +42,7 @@ class npi(object):
                 with open(join(expanduser('~'), '.medicare_utils.json')) as f:
                     self.conf = json.load(f)
 
-                self.load()
+                # self.load()
             except FileNotFoundError:
                 msg = 'Must download data on first use.'
                 msg += ' Use download=True and give path to save data.'
@@ -711,6 +711,7 @@ class npi(object):
             'Healthcare Provider Taxonomy Group_15':
                 'str'}
 
+        print('Downloading latest NPI file.')
         with requests.get(href, stream=True) as r:
             with io.BytesIO() as b:
                 total_length = int(r.headers.get('content-length'))
@@ -719,7 +720,7 @@ class npi(object):
                     if chunk:
                         b.write(chunk)
 
-                print('\nFinished downloading NPI file\n')
+                print('\nFinished downloading NPI file.')
                 with ZipFile(b, 'r') as z:
                     files = [x for x in z.namelist() if x.endswith('.csv')]
                     regex = re.compile(r'fileheader', re.IGNORECASE).search
@@ -728,9 +729,9 @@ class npi(object):
                     file = files[0]
 
                     with z.open(file) as f:
-                        msg = 'Reading NPI csv data into pandas. '
-                        msg += 'This may take several minutes, but'
-                        msg += 'only has to be done once.'
+                        msg = 'Reading NPI csv data into pandas.'
+                        msg += ' This may take several minutes, but'
+                        msg += ' only has to be done once.'
                         print(msg)
                         df = pd.read_csv(
                             f,
