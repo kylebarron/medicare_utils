@@ -14,7 +14,6 @@ with open('CHANGELOG.md') as history_file:
 requirements = [
     'fastparquet >= 0.1.4',
     'joblib >= 0.11',
-    'natsort >= 5.2.0',
     'numpy >= 1.14.1',
     'pandas >= 0.22.0',
     'pyarrow >= 0.9.0',

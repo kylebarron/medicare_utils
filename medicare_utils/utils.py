@@ -5,9 +5,10 @@ import re
 import pandas as pd
 import fastparquet as fp
 import numpy as np
-import pyarrow as pa
 import pyarrow.parquet as pq
 
+def pq_vars(ParquetFile):
+    return ParquetFile.schema.names
 
 def fpath(percent: str, year: int, data_type: str, dta: bool=False,
           med_dta: str='/disk/aging/medicare/data',
@@ -915,13 +916,3 @@ class MedicareDF(object):
                         pl.loc[idx, code] = True
 
         self.pl = pl
-
-
-def pq_vars(ParquetFile):
-    import re
-    from natsort import natsorted
-
-    varnames = str(ParquetFile.schema).split('\n')
-    varnames = [m[1] for m in (re.search(r'(\w+):', x) for x in varnames) if m]
-    varnames = natsorted(varnames)
-    return varnames
