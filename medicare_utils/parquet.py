@@ -422,11 +422,12 @@ def convert_file(
     gb_per_rg = file_size / n_rg
 
     msg = f'Row groups:\n\t{n_rg}\n\tof size {gb_per_rg:.2f} GB'
-    msg += f'\n\tinfile: {infile_stub}'
+    msg += f'\n\tinfile: {infile_stub}.{infile_type}'
     msg += f'\n\ttime: {(time() - t0) / 60:.2f} min'
     print(msg)
 
-    msg = f'Beginning scanning dtypes of file\n\tinfile: {infile_stub}'
+    msg = f'Beginning scanning dtypes of file'
+    msg += f'\n\tinfile: {infile_stub}.{infile_type}'
     msg += f'\n\ttime: {(time() - t0) / 60:.2f} min'
     print(msg)
 
