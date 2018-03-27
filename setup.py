@@ -17,8 +17,10 @@ requirements = [
     'natsort >= 5.2.0',
     'numpy >= 1.14.1',
     'pandas >= 0.22.0',
-    'pyarrow >= 0.8.0',
+    'pyarrow >= 0.9.0',
     'requests >= 2.18.4',
+    'requests-html >= 0.9.0',
+    'tqdm >= 4.19.9',
 ]
 
 setup_requirements = []
