@@ -716,7 +716,7 @@ class npi(object):
             with io.BytesIO() as b:
                 total_length = int(r.headers.get('content-length'))
                 for chunk in tqdm(r.iter_content(chunk_size=1024),
-                                  total=(total_length/1024) + 1):
+                                  total=(total_length / 1024) + 1):
                     if chunk:
                         b.write(chunk)
 
@@ -738,12 +738,10 @@ class npi(object):
                             dtype=dtypes,
                             engine='c',
                             parse_dates=[
-                                'Provider Enumeration Date',
-                                'Last Update Date',
+                                'Provider Enumeration Date', 'Last Update Date',
                                 'NPI Deactivation Date',
                                 'NPI Reactivation Date'],
                             keep_default_na=True)
-
 
         def convert_to_snake_case(string):
             string = re.sub(r'\s+\(.+\)\s*$', '', string).lower()
