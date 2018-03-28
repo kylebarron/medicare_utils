@@ -4,16 +4,22 @@ import json
 import requests
 import numpy as np
 import pandas as pd
+import pyarrow.parquet as pq
 from tqdm import tqdm
 from requests_html import HTMLSession
 from zipfile import ZipFile
 from os.path import join, expanduser
+from multiprocessing import cpu_count
 
 
 class npi(object):
     """A class to work with NPI codes"""
 
-    def __init__(self, download: bool=False, path: str=''):
+    def __init__(
+            self, columns=None, regex=None, download: bool = False,
+            path: str = ''):
+        self.num_cpu = cpu_count()
+
         if download:
             if path == '':
                 raise ValueError('If download is True, path must be given')
@@ -41,12 +47,12 @@ class npi(object):
             try:
                 with open(join(expanduser('~'), '.medicare_utils.json')) as f:
                     self.conf = json.load(f)
-
-                # self.load()
             except FileNotFoundError:
                 msg = 'Must download data on first use.'
                 msg += ' Use download=True and give path to save data.'
                 raise FileNotFoundError(msg)
+
+        self.load(columns=columns, regex=regex)
 
     def download(self):
         # Get latest NPPES NPI file
@@ -750,7 +756,41 @@ class npi(object):
         df.columns = [convert_to_snake_case(x) for x in df.columns]
 
         path = join(self.conf['npi']['data_path'], 'npi.parquet')
-        df.to_parquet(path, engine='pyarrow')
+        df.to_parquet(path, engine='pyarrow', preserve_index=False)
+
+    def load(self, columns=None, regex=None):
+        if type(columns) == str:
+            columns = [columns]
+
+        path = self.conf['npi']['data_path'] + 'npi.parquet'
+        pf = pq.ParquetFile(path)
+        pf_cols = pf.schema.names
+
+        if (columns is None) and (regex is None):
+            cols = [
+                'npi', 'entity_type_code', 'provider_organization_name',
+                'provider_business_practice_location_address_city_name',
+                'provider_business_practice_location_address_state_name',
+                'provider_enumeration_date', 'last_update_date',
+                'npi_deactivation_date', 'npi_reactivation_date',
+                'provider_gender_code', 'is_sole_proprietor',
+                'is_organization_subpart']
+        else:
+            cols = ['npi']
+            if columns is not None:
+                invalid_col_names = [x for x in columns if x not in pf_cols]
+                if invalid_col_names != []:
+                    msg = f'columns provided are invalid: {invalid_col_names}'
+                    raise ValueError(msg)
+
+                cols.extend(columns)
+
+            if regex is not None:
+                cols.extend([x for x in pf_cols if re.search(regex, x)])
+
+        nthreads = min(self.num_cpu, len(cols))
+        df = pf.read(columns=cols, nthreads=nthreads).to_pandas()
+        self.df = df.set_index('npi')
 
 
 class hcpcs(object):
