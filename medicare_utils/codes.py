@@ -41,7 +41,7 @@ class npi(object):
                 json.dump(conf, f)
 
             self.conf = conf
-            self.download()
+            self._download()
 
         else:
             try:
@@ -54,7 +54,7 @@ class npi(object):
 
         self.load(columns=columns, regex=regex)
 
-    def download(self):
+    def _download(self):
         # Get latest NPPES NPI file
         session = HTMLSession()
         page = session.get('http://download.cms.gov/nppes/NPI_Files.html')
