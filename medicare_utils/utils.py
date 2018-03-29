@@ -6,6 +6,8 @@ import pandas as pd
 import fastparquet as fp
 import numpy as np
 import pyarrow.parquet as pq
+from time import time
+from os.path import isfile
 
 def pq_vars(ParquetFile):
     return ParquetFile.schema.names
@@ -48,8 +50,6 @@ def fpath(percent: str, year: int, data_type: str, dta: bool=False,
     Raises:
         NameError if data_type is not one of the above
     """
-
-    from os.path import isfile
 
     if type(data_type) != str:
         raise TypeError('data_type must be str')
@@ -269,7 +269,6 @@ class MedicareDF(object):
             verbose = True
 
         if verbose:
-            from time import time
             t0 = time()
             msg = 'Starting cohort retrieval\n'
             msg += f'\t- percent sample: {self.percent}\n'
