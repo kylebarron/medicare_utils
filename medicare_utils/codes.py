@@ -794,8 +794,45 @@ class npi(object):
 class hcpcs(object):
     """A class to work with HCPCS codes"""
 
-    def __init__(self, year):
-        self.codes = self._download(year)
+    def __init__(self, year: int, path: str = ''):
+        self.num_cpu = cpu_count()
+
+        # Check for ~/.medicare_utils.json file
+        try:
+            with open(Path.home() / '.medicare_utils.json') as f:
+                conf = json.load(f)
+
+            if path != '':
+                conf['hcpcs'] = conf.get('hcpcs', {})
+                conf['hcpcs']['data_path'] = path
+
+                with open(Path.home() / '.medicare_utils.json', 'w') as f:
+                    json.dump(conf, f)
+        except FileNotFoundError:
+            if path == '':
+                msg = 'path to store data must be given on first use'
+                raise FileNotFoundError(msg)
+
+            conf = {'hcpcs': {'data_path': path}}
+
+            with open(Path.home() / '.medicare_utils.json', 'w') as f:
+                json.dump(conf, f)
+
+        self.conf = conf
+
+        hcpcs_path = Path(conf['hcpcs']['data_path']) / 'hcpcs.parquet'
+        try:
+            pq.ParquetFile(hcpcs_path)
+        except:
+            all_hcpcs = []
+            for year in range(2003, 2019):
+                all_hcpcs.append(self._download(year))
+
+            df = pd.concat(all_hcpcs, axis=0)
+            df.to_parquet(hcpcs_path, engine='pyarrow')
+
+        df = pd.read_parquet(hcpcs_path, engine='pyarrow')
+        self.codes = df.loc[df['year'] == year]
 
     def _download(self, year: int):
         """Download HCPCS codes for a given year
@@ -1002,7 +1039,7 @@ class hcpcs(object):
         df = df.dropna(axis=0, how='any')
         rename_dict = {'HCPCS': 'hcpcs_cd', 'DESCRIPTION': 'desc'}
         df = df.rename(index=str, columns=rename_dict)
-        df = df.set_index('hcpcs_cd')
+        df['year'] = year
         return df
 
 
