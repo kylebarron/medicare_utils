@@ -6,9 +6,9 @@ import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
 from tqdm import tqdm
+from pathlib import Path
 from requests_html import HTMLSession
 from zipfile import ZipFile
-from os.path import join, expanduser
 from multiprocessing import cpu_count
 
 
@@ -26,7 +26,7 @@ class npi(object):
 
             # Write path location to ~/.medicare_utils.json
             try:
-                with open(join(expanduser('~'), '.medicare_utils.json')) as f:
+                with open(Path.home() / '.medicare_utils.json') as f:
                     conf = json.load(f)
 
                 if type(conf['npi']) == dict:
@@ -37,7 +37,7 @@ class npi(object):
             except FileNotFoundError:
                 conf = {'npi': {'data_path': path}}
 
-            with open(join(expanduser('~'), '.medicare_utils.json'), 'w') as f:
+            with open(Path.home() / '.medicare_utils.json', 'w') as f:
                 json.dump(conf, f)
 
             self.conf = conf
@@ -45,7 +45,7 @@ class npi(object):
 
         else:
             try:
-                with open(join(expanduser('~'), '.medicare_utils.json')) as f:
+                with open(Path.home() / '.medicare_utils.json') as f:
                     self.conf = json.load(f)
             except FileNotFoundError:
                 msg = 'Must download data on first use.'
@@ -755,8 +755,8 @@ class npi(object):
 
         df.columns = [convert_to_snake_case(x) for x in df.columns]
 
-        path = join(self.conf['npi']['data_path'], 'npi.parquet')
-        df.to_parquet(path, engine='pyarrow', preserve_index=False)
+        path = Path(self.conf['npi']['data_path']) / 'npi.parquet'
+        df.to_parquet(path, engine='pyarrow')
 
     def load(self, columns=None, regex=None):
         if type(columns) == str:
