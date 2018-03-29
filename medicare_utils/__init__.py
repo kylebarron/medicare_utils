@@ -6,6 +6,6 @@ __author__ = """Kyle Barron"""
 __email__ = 'barronk@mit.edu'
 __version__ = '0.0.1'
 
-from .codes import icd9, hcpcs
+from .codes import icd9, hcpcs, npi
 from .utils import fpath, MedicareDF, pq_vars
 from . import parquet
