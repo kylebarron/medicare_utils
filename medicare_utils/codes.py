@@ -29,10 +29,8 @@ class npi(object):
                 with open(Path.home() / '.medicare_utils.json') as f:
                     conf = json.load(f)
 
-                if type(conf['npi']) == dict:
-                    conf['npi']['data_path'] = path
-                else:
-                    conf['npi'] = {'data_path': path}
+                conf['npi'] = conf.get('npi', {})
+                conf['npi']['data_path'] = path
 
             except FileNotFoundError:
                 conf = {'npi': {'data_path': path}}
