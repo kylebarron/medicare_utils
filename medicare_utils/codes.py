@@ -52,7 +52,7 @@ class npi(object):
                 msg += ' Use download=True and give path to save data.'
                 raise FileNotFoundError(msg)
 
-        self.load(columns=columns, regex=regex)
+        self.codes = self.load(columns=columns, regex=regex)
 
     def _download(self):
         # Get latest NPPES NPI file
@@ -790,7 +790,7 @@ class npi(object):
 
         nthreads = min(self.num_cpu, len(cols))
         df = pf.read(columns=cols, nthreads=nthreads).to_pandas()
-        self.df = df.set_index('npi')
+        return df.set_index('npi')
 
 
 class hcpcs(object):
