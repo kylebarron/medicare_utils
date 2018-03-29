@@ -1046,8 +1046,104 @@ class hcpcs(object):
 class icd9(object):
     """A class to work with ICD9 codes"""
 
-    def __init__(self, year: int, long: bool = True):
-        self.diag, self.proc = self._download(year, long)
+    def __init__(self, year: int, long: bool = True, path: str = ''):
+        self.num_cpu = cpu_count()
+
+        # Check for ~/.medicare_utils.json file
+        try:
+            with open(Path.home() / '.medicare_utils.json') as f:
+                conf = json.load(f)
+
+            if path != '':
+                conf['icd9'] = conf.get('icd9', {})
+                conf['icd9']['data_path'] = path
+
+                with open(Path.home() / '.medicare_utils.json', 'w') as f:
+                    json.dump(conf, f)
+        except FileNotFoundError:
+            if path == '':
+                msg = 'path to store data must be given on first use'
+                raise FileNotFoundError(msg)
+
+            conf = {'icd9': {'data_path': path}}
+
+            with open(Path.home() / '.medicare_utils.json', 'w') as f:
+                json.dump(conf, f)
+
+        self.conf = conf
+
+        icd9_proc_path = Path(conf['icd9']['data_path']) / 'icd9_proc.parquet'
+        icd9_diag_path = Path(conf['icd9']['data_path']) / 'icd9_diag.parquet'
+        try:
+            pq.ParquetFile(icd9_proc_path)
+            pq.ParquetFile(icd9_diag_path)
+        except:
+            all_icd9_proc_short = []
+            all_icd9_diag_short = []
+            for yr in range(2006, 2016):
+                diag, proc = self._download(year=yr, long=False)
+                all_icd9_proc_short.append(proc)
+                all_icd9_diag_short.append(diag)
+
+            df_proc_short = pd.concat(all_icd9_proc_short, axis=0)
+            df_diag_short = pd.concat(all_icd9_diag_short, axis=0)
+            df_proc_short = df_proc_short.rename(
+                index=str, columns={'desc': 'desc_short'})
+            df_diag_short = df_diag_short.rename(
+                index=str, columns={'desc': 'desc_short'})
+
+            all_icd9_proc_long = []
+            all_icd9_diag_long = []
+            for yr in range(2006, 2016):
+                diag, proc = self._download(year=yr, long=True)
+                all_icd9_proc_long.append(proc)
+                all_icd9_diag_long.append(diag)
+
+            df_proc_long = pd.concat(all_icd9_proc_long, axis=0)
+            df_diag_long = pd.concat(all_icd9_diag_long, axis=0)
+            df_proc_long = df_proc_long.rename(
+                index=str, columns={'desc': 'desc_long'})
+            df_diag_long = df_diag_long.rename(
+                index=str, columns={'desc': 'desc_long'})
+
+            proc = df_proc_short.merge(
+                df_proc_long,
+                how='inner',
+                on=['icd_prcdr_cd', 'year'],
+                validate='1:1')
+            diag = df_diag_short.merge(
+                df_diag_long,
+                how='inner',
+                on=['icd_dgns_cd', 'year'],
+                validate='1:1')
+
+            assert len(proc) == len(df_proc_short) == len(df_proc_long)
+            assert len(diag) == len(df_diag_short) == len(df_diag_long)
+
+            proc.to_parquet(icd9_proc_path, engine='pyarrow')
+            diag.to_parquet(icd9_diag_path, engine='pyarrow')
+
+        proc_cols = ['icd_prcdr_cd', 'year']
+        diag_cols = ['icd_dgns_cd', 'year']
+        if long:
+            proc_cols.append('desc_long')
+            diag_cols.append('desc_long')
+        else:
+            proc_cols.append('desc_short')
+            diag_cols.append('desc_short')
+
+        proc = pd.read_parquet(
+            icd9_proc_path, engine='pyarrow', columns=proc_cols)
+        diag = pd.read_parquet(
+            icd9_diag_path, engine='pyarrow', columns=diag_cols)
+
+        proc = proc[proc['year'] == year]
+        diag = diag[diag['year'] == year]
+
+        proc = proc.set_index('icd_prcdr_cd')
+        diag = diag.set_index('icd_dgns_cd')
+        self.proc = proc
+        self.diag = diag
 
     def _download(self, year: int, long: bool):
 
@@ -1311,6 +1407,6 @@ class icd9(object):
 
         proc = proc.dropna(axis=0, how='any')
         diag = diag.dropna(axis=0, how='any')
-        proc = proc.set_index('icd_prcdr_cd')
-        diag = diag.set_index('icd_dgns_cd')
+        diag['year'] = year
+        proc['year'] = year
         return diag, proc
