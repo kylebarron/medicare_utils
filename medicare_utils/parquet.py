@@ -9,6 +9,8 @@ import numpy as np
 from pandas.api.types import CategoricalDtype
 from time import time
 from joblib import Parallel, delayed
+
+from .utils import fpath
 pkg_resources.require("pandas>=0.21.0")
 
 
@@ -150,187 +152,16 @@ def convert_med(
     if type(year) != int:
         raise TypeError('year must be int')
 
-    allowed_data_types = [
-        'bsfab', 'bsfcc', 'bsfcu', 'bsfd', 'carc', 'carl', 'den', 'dmec',
-        'dmel', 'hhac', 'hhar', 'hosc', 'hosr', 'ipc', 'ipr', 'med', 'opc',
-        'opr', 'snfc', 'snfr', 'xw']
-    if data_type not in allowed_data_types:
-        raise ValueError(f'data_type must be one of:\n{allowed_data_types}')
+    infile = fpath(percent=pct, year=year, data_type=data_type, dta=True)
+    outfile = fpath(percent=pct, year=year, data_type=data_type, dta=False)
 
-    if data_type == 'bsfab':
+    if data_type.startswith('bsf'):
         varnames = None
-        infile = f'{med_dta}/{pct}pct/bsf/{year}/1/bsfab{year}.dta'
-        outfile = f'{med_pq}/{pct}pct/bsf/bsfab{year}.parquet'
-
-    elif data_type == 'bsfcc':
-        varnames = None
-        infile = f'{med_dta}/{pct}pct/bsf/{year}/1/bsfcc{year}.dta'
-        outfile = f'{med_pq}/{pct}pct/bsf/bsfcc{year}.parquet'
-
-    elif data_type == 'bsfcu':
-        varnames = None
-        infile = f'{med_dta}/{pct}pct/bsf/{year}/1/bsfcu{year}.dta'
-        outfile = f'{med_pq}/{pct}pct/bsf/bsfcu{year}.parquet'
-
-    elif data_type == 'bsfd':
-        varnames = None
-        infile = f'{med_dta}/{pct}pct/bsf/{year}/1/bsfd{year}.dta'
-        outfile = f'{med_pq}/{pct}pct/bsf/bsfd{year}.parquet'
-
-    elif data_type == 'carc':
-        try:
-            varnames = pd.read_stata(f'{xw_dir}/harmcarc.dta')
-        except (PermissionError, FileNotFoundError):
-            varnames = None
-
-        if year >= 2002:
-            infile = f'{med_dta}/{pct}pct/car/{year}/carc{year}.dta'
-        else:
-            infile = f'{med_dta}/{pct}pct/car/{year}/car{year}.dta'
-        outfile = f'{med_pq}/{pct}pct/car/carc{year}.parquet'
-
-    elif data_type == 'carl':
-        assert year >= 2002
-        try:
-            varnames = pd.read_stata(f'{xw_dir}/harmcarl.dta')
-        except (PermissionError, FileNotFoundError):
-            varnames = None
-
-        infile = f'{med_dta}/{pct}pct/car/{year}/carl{year}.dta'
-        outfile = f'{med_pq}/{pct}pct/car/carl{year}.parquet'
-
-    elif data_type == 'den':
-        try:
-            varnames = pd.read_stata(f'{xw_dir}/harmden.dta')
-        except (PermissionError, FileNotFoundError):
-            varnames = None
-
-        infile = f'{med_dta}/{pct}pct/den/{year}/den{year}.dta'
-        outfile = f'{med_pq}/{pct}pct/den/den{year}.parquet'
-
-    elif data_type == 'dmec':
-        try:
-            varnames = pd.read_stata(f'{xw_dir}/harmdmec.dta')
-        except (PermissionError, FileNotFoundError):
-            varnames = None
-
-        infile = f'{med_dta}/{pct}pct/dme/{year}/dmec{year}.dta'
-        outfile = f'{med_pq}/{pct}pct/dme/dmec{year}.parquet'
-
-    elif data_type == 'dmel':
-        try:
-            varnames = pd.read_stata(f'{xw_dir}/harmdmel.dta')
-        except (PermissionError, FileNotFoundError):
-            varnames = None
-
-        infile = f'{med_dta}/{pct}pct/dme/{year}/dmel{year}.dta'
-        outfile = f'{med_pq}/{pct}pct/dme/dmel{year}.parquet'
-
-    elif data_type == 'hhac':
-        try:
-            varnames = pd.read_stata(f'{xw_dir}/harmhhac.dta')
-        except (PermissionError, FileNotFoundError):
-            varnames = None
-
-        infile = f'{med_dta}/{pct}pct/hha/{year}/hhac{year}.dta'
-        outfile = f'{med_pq}/{pct}pct/hha/hhac{year}.parquet'
-
-    elif data_type == 'hhar':
-        try:
-            varnames = pd.read_stata(f'{xw_dir}/harmhhar.dta')
-        except (PermissionError, FileNotFoundError):
-            varnames = None
-
-        infile = f'{med_dta}/{pct}pct/hha/{year}/hhar{year}.dta'
-        outfile = f'{med_pq}/{pct}pct/hha/hhar{year}.parquet'
-
-    elif data_type == 'hosc':
-        try:
-            varnames = pd.read_stata(f'{xw_dir}/harmhosc.dta')
-        except (PermissionError, FileNotFoundError):
-            varnames = None
-
-        infile = f'{med_dta}/{pct}pct/hos/{year}/hosc{year}.dta'
-        outfile = f'{med_pq}/{pct}pct/hos/hosc{year}.parquet'
-
-    elif data_type == 'hosr':
-        try:
-            varnames = pd.read_stata(f'{xw_dir}/harmhosr.dta')
-        except (PermissionError, FileNotFoundError):
-            varnames = None
-
-        infile = f'{med_dta}/{pct}pct/hos/{year}/hosr{year}.dta'
-        outfile = f'{med_pq}/{pct}pct/hos/hosr{year}.parquet'
-
-    elif data_type == 'ipc':
-        try:
-            varnames = pd.read_stata(f'{xw_dir}/harmipc.dta')
-        except (PermissionError, FileNotFoundError):
-            varnames = None
-
-        if year >= 2002:
-            infile = f'{med_dta}/{pct}pct/ip/{year}/ipc{year}.dta'
-        else:
-            infile = f'{med_dta}/{pct}pct/ip/{year}/ip{year}.dta'
-        outfile = f'{med_pq}/{pct}pct/ip/ipc{year}.parquet'
-
-    elif data_type == 'ipr':
-        assert year >= 2002
-        try:
-            varnames = pd.read_stata(f'{xw_dir}/harmipr.dta')
-        except (PermissionError, FileNotFoundError):
-            varnames = None
-
-        infile = f'{med_dta}/{pct}pct/ip/{year}/ipr{year}.dta'
-        outfile = f'{med_pq}/{pct}pct/ip/ipr{year}.parquet'
-
-    elif data_type == 'med':
-        try:
-            varnames = pd.read_stata(f'{xw_dir}/harmmed.dta')
-        except (PermissionError, FileNotFoundError):
-            varnames = None
-
-        infile = f'{med_dta}/{pct}pct/med/{year}/med{year}.dta'
-        outfile = f'{med_pq}/{pct}pct/med/med{year}.parquet'
-
-    elif data_type == 'opc':
-        try:
-            varnames = pd.read_stata(f'{xw_dir}/harmopc.dta')
-        except (PermissionError, FileNotFoundError):
-            varnames = None
-
-        infile = f'{med_dta}/{pct}pct/op/{year}/opc{year}.dta'
-        outfile = f'{med_pq}/{pct}pct/op/opc{year}.parquet'
-
-    elif data_type == 'opr':
-        try:
-            varnames = pd.read_stata(f'{xw_dir}/harmopr.dta')
-        except (PermissionError, FileNotFoundError):
-            varnames = None
-
-        infile = f'{med_dta}/{pct}pct/op/{year}/opr{year}.dta'
-        outfile = f'{med_pq}/{pct}pct/op/opr{year}.parquet'
-
-    elif data_type == 'snfc':
-        try:
-            varnames = pd.read_stata(f'{xw_dir}/harmsnfc.dta')
-        except (PermissionError, FileNotFoundError):
-            varnames = None
-
-        infile = f'{med_dta}/{pct}pct/snf/{year}/snfc{year}.dta'
-        outfile = f'{med_pq}/{pct}pct/snf/snfc{year}.parquet'
-
-    elif data_type == 'snfr':
-        try:
-            varnames = pd.read_stata(f'{xw_dir}/harmsnfr.dta')
-        except (PermissionError, FileNotFoundError):
-            varnames = None
-
-        infile = f'{med_dta}/{pct}pct/snf/{year}/snfr{year}.dta'
-        outfile = f'{med_pq}/{pct}pct/snf/snfr{year}.parquet'
-
     else:
-        raise NotImplementedError
+        try:
+            varnames = pd.read_stata(f'{xw_dir}/harm{data_type}.dta')
+        except (PermissionError, FileNotFoundError):
+            varnames = None
 
     if varnames is not None:
         if year in set(varnames.year):
