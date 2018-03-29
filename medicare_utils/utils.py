@@ -14,7 +14,7 @@ def pq_vars(ParquetFile):
 
 def fpath(percent: str, year: int, data_type: str, dta: bool=False,
           med_dta: str='/disk/aging/medicare/data',
-          med_pq: str='/homes/nber/barronk/agebulk1/raw'):
+          med_pq: str='/homes/nber/barronk/agebulk1/raw/pq'):
     """Generate path to Medicare files
 
     Args:
@@ -63,85 +63,85 @@ def fpath(percent: str, year: int, data_type: str, dta: bool=False,
 
     if data_type == 'bsfab':
         dta_path = f'{med_dta}/{percent}pct/bsf/{year}/1/bsfab{year}.dta'
-        pq_path = f'{med_pq}/pq/{percent}pct/bsf/bsfab{year}.parquet'
+        pq_path = f'{med_pq}/{percent}pct/bsf/bsfab{year}.parquet'
     elif data_type == 'bsfcc':
         dta_path = f'{med_dta}/{percent}pct/bsf/{year}/1/bsfcc{year}.dta'
-        pq_path = f'{med_pq}/pq/{percent}pct/bsf/bsfcc{year}.parquet'
+        pq_path = f'{med_pq}/{percent}pct/bsf/bsfcc{year}.parquet'
     elif data_type == 'bsfcu':
         dta_path = f'{med_dta}/{percent}pct/bsf/{year}/1/bsfcu{year}.dta'
-        pq_path = f'{med_pq}/pq/{percent}pct/bsf/bsfcu{year}.parquet'
+        pq_path = f'{med_pq}/{percent}pct/bsf/bsfcu{year}.parquet'
     elif data_type == 'bsfd':
         dta_path = f'{med_dta}/{percent}pct/bsf/{year}/1/bsfd{year}.dta'
-        pq_path = f'{med_pq}/pq/{percent}pct/bsf/bsfd{year}.parquet'
+        pq_path = f'{med_pq}/{percent}pct/bsf/bsfd{year}.parquet'
 
     elif data_type == 'carc':
         if year >= 2002:
             dta_path = f'{med_dta}/{percent}pct/car/{year}/carc{year}.dta'
         else:
             dta_path = f'{med_dta}/{percent}pct/car/{year}/car{year}.dta'
-        pq_path = f'{med_pq}/pq/{percent}pct/car/carc{year}.parquet'
+        pq_path = f'{med_pq}/{percent}pct/car/carc{year}.parquet'
     elif data_type == 'carl':
         assert year >= 2002
         dta_path = f'{med_dta}/{percent}pct/car/{year}/carl{year}.dta'
-        pq_path = f'{med_pq}/pq/{percent}pct/car/carl{year}.parquet'
+        pq_path = f'{med_pq}/{percent}pct/car/carl{year}.parquet'
 
     elif data_type == 'den':
         dta_path = f'{med_dta}/{percent}pct/den/{year}/den{year}.dta'
-        pq_path = f'{med_pq}/pq/{percent}pct/den/den{year}.parquet'
+        pq_path = f'{med_pq}/{percent}pct/den/den{year}.parquet'
 
     elif data_type == 'dmec':
         dta_path = f'{med_dta}/{percent}pct/dme/{year}/dmec{year}.dta'
-        pq_path = f'{med_pq}/pq/{percent}pct/dme/dmec{year}.parquet'
+        pq_path = f'{med_pq}/{percent}pct/dme/dmec{year}.parquet'
     elif data_type == 'dmel':
         dta_path = f'{med_dta}/{percent}pct/dme/{year}/dmel{year}.dta'
-        pq_path = f'{med_pq}/pq/{percent}pct/dme/dmel{year}.parquet'
+        pq_path = f'{med_pq}/{percent}pct/dme/dmel{year}.parquet'
 
     elif data_type == 'hhac':
         dta_path = f'{med_dta}/{percent}pct/hha/{year}/hhac{year}.dta'
-        pq_path = f'{med_pq}/pq/{percent}pct/hha/hhac{year}.parquet'
+        pq_path = f'{med_pq}/{percent}pct/hha/hhac{year}.parquet'
     elif data_type == 'hhar':
         dta_path = f'{med_dta}/{percent}pct/hha/{year}/hhar{year}.dta'
-        pq_path = f'{med_pq}/pq/{percent}pct/hha/hhar{year}.parquet'
+        pq_path = f'{med_pq}/{percent}pct/hha/hhar{year}.parquet'
 
     elif data_type == 'hosc':
         dta_path = f'{med_dta}/{percent}pct/hos/{year}/hosc{year}.dta'
-        pq_path = f'{med_pq}/pq/{percent}pct/hos/hosc{year}.parquet'
+        pq_path = f'{med_pq}/{percent}pct/hos/hosc{year}.parquet'
     elif data_type == 'hosr':
         dta_path = f'{med_dta}/{percent}pct/hos/{year}/hosr{year}.dta'
-        pq_path = f'{med_pq}/pq/{percent}pct/hos/hosr{year}.parquet'
+        pq_path = f'{med_pq}/{percent}pct/hos/hosr{year}.parquet'
 
     elif data_type == 'ipc':
         if year >= 2002:
             dta_path = f'{med_dta}/{percent}pct/ip/{year}/ipc{year}.dta'
         else:
             dta_path = f'{med_dta}/{percent}pct/ip/{year}/ip{year}.dta'
-        pq_path = f'{med_pq}/pq/{percent}pct/ip/ipc{year}.parquet'
+        pq_path = f'{med_pq}/{percent}pct/ip/ipc{year}.parquet'
     elif data_type == 'ipr':
         assert year >= 2002
         dta_path = f'{med_dta}/{percent}pct/ip/{year}/ipr{year}.dta'
-        pq_path = f'{med_pq}/pq/{percent}pct/ip/ipr{year}.parquet'
+        pq_path = f'{med_pq}/{percent}pct/ip/ipr{year}.parquet'
 
     elif data_type == 'med':
         dta_path = f'{med_dta}/{percent}pct/med/{year}/med{year}.dta'
-        pq_path = f'{med_pq}/pq/{percent}pct/med/med{year}.parquet'
+        pq_path = f'{med_pq}/{percent}pct/med/med{year}.parquet'
 
     elif data_type == 'opc':
         dta_path = f'{med_dta}/{percent}pct/op/{year}/opc{year}.dta'
-        pq_path = f'{med_pq}/pq/{percent}pct/op/opc{year}.parquet'
+        pq_path = f'{med_pq}/{percent}pct/op/opc{year}.parquet'
     elif data_type == 'opr':
         dta_path = f'{med_dta}/{percent}pct/op/{year}/opr{year}.dta'
-        pq_path = f'{med_pq}/pq/{percent}pct/op/opr{year}.parquet'
+        pq_path = f'{med_pq}/{percent}pct/op/opr{year}.parquet'
 
     elif data_type == 'snfc':
         dta_path = f'{med_dta}/{percent}pct/snf/{year}/snfc{year}.dta'
-        pq_path = f'{med_pq}/pq/{percent}pct/snf/snfc{year}.parquet'
+        pq_path = f'{med_pq}/{percent}pct/snf/snfc{year}.parquet'
     elif data_type == 'snfr':
         dta_path = f'{med_dta}/{percent}pct/snf/{year}/snfr{year}.dta'
-        pq_path = f'{med_pq}/pq/{percent}pct/snf/snfr{year}.parquet'
+        pq_path = f'{med_pq}/{percent}pct/snf/snfr{year}.parquet'
 
     elif data_type == 'xw':
         dta_path = f'{med_dta}/{percent}pct/xw/{year}/ehicbenex_one{year}.dta'
-        pq_path = f'{med_pq}/pq/{percent}pct/xw/ehicbenex_one{year}.parquet'
+        pq_path = f'{med_pq}/{percent}pct/xw/ehicbenex_one{year}.parquet'
 
     if dta:
         if isfile(dta_path):
