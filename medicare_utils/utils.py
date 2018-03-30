@@ -243,7 +243,10 @@ class MedicareDF(object):
             verbose=False):
         """Get cohort in standardized way
 
-        Merges in such a way that age has to be within `ages` in any such year
+        Merges in such a way that age has to be within `ages` in any such year.
+        Creates '.pl' attribute with patient-level data in the form of a
+        pandas DataFrame. Index of returned DataFrame is always 'bene_id'.
+        In pre-2006 years, 'ehic' will always be returned as a column.
 
         Args:
             gender (str): 'M', 'F', 'Male', 'Female', or None (keep both)
@@ -262,7 +265,10 @@ class MedicareDF(object):
             verbose (bool): Print status of program
 
         Returns:
-            Adds DataFrame of extracted cohort to instance
+            Creates attributes:
+            - 'pl' with patient-level data in pandas DataFrame.
+            - 'nobs_dropped' with dict of percent of observations dropped
+                due to each filter.
         """
 
         if self.verbose:
@@ -368,9 +374,10 @@ class MedicareDF(object):
                 pl = pf.read(
                     columns=tokeep_vars[year],
                     nthreads=self.parquet_nthreads).to_pandas()
-            else:
+            elif self.parquet_engine == 'fastparquet':
                 pf = fp.ParquetFile(fpath(self.percent, year, 'bsfab'))
                 pl = pf.to_pandas(columns=tokeep_vars[year], index='bene_id')
+
             nobs = len(pl)
             nobs_dropped[year] = {}
 
@@ -404,7 +411,7 @@ class MedicareDF(object):
 
             extracted_dfs.append(pl)
 
-        if verbose & len(extracted_dfs) > 1:
+        if verbose & (len(extracted_dfs) > 1):
             msg = 'Merging together beneficiary files\n'
             msg += f'\t- years: {self.years}\n'
             msg += f'\t- merge type: {join_across_years}\n'
