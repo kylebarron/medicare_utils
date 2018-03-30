@@ -568,13 +568,15 @@ class MedicareDF(object):
         # unique names of columns that vary by year:
         year_cols_stub = list(set([x[:-4] for x in year_cols]))
 
-        pl = pd.wide_to_long(pl.reset_index(),
-                        stubnames=year_cols_stub,
-                        i='bene_id',
-                        j='year')
+        if year_cols != []:
+            pl = pd.wide_to_long(
+                pl.reset_index(),
+                stubnames=year_cols_stub,
+                i='bene_id',
+                j='year')
 
-        pl = pl.reset_index('year').drop('year', axis=1)
-        pl = pl[~pl.index.duplicated(keep='first')]
+            pl = pl.reset_index('year').drop('year', axis=1)
+            pl = pl[~pl.index.duplicated(keep='first')]
 
         self.nobs_dropped = nobs_dropped
         self.pl = pl
