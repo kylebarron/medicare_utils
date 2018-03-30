@@ -404,7 +404,7 @@ class MedicareDF(object):
 
             extracted_dfs.append(pl)
 
-        if verbose:
+        if verbose & len(extracted_dfs) > 1:
             msg = 'Merging together beneficiary files\n'
             msg += f'\t- years: {self.years}\n'
             msg += f'\t- merge type: {join_across_years}\n'
