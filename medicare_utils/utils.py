@@ -430,6 +430,8 @@ class MedicareDF(object):
                 pl = extracted_dfs[0].join(
                     extracted_dfs[1:], how=join_across_years)
 
+        pl.index.name = 'bene_id'
+
         if (((buyin_val is not None) and (buyin_months == 'age_year'))
                 or ((hmo_val is not None) and (hmo_months == 'age_year'))):
 
