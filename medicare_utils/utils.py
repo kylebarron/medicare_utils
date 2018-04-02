@@ -367,7 +367,7 @@ class MedicareDF(object):
 
         if keep_vars is not None:
             for var in keep_vars:
-                tokeep_regex.append(rf'^({var})$')
+                tokeep_regex.append(r'^({})$'.format(var))
 
         tokeep_regex = '|'.join(tokeep_regex)
 
@@ -898,7 +898,7 @@ class MedicareDF(object):
             regex_string.append(icd9_proc_regex)
 
         for var in keep_vars:
-            regex_string.append(rf'^{var}$')
+            regex_string.append(r'^{}$'.format(var))
 
         regex_string = '|'.join(regex_string)
         regex = re.compile(regex_string).search
