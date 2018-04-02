@@ -1067,8 +1067,17 @@ class MedicareDF(object):
 
         return cl
 
+    def search_for_codes_pl(
+            self,
+            data_types,
+            hcpcs=None,
+            icd9_diag=None,
+            icd9_proc=None,
+            collapse_codes=False):
 
-        pl = self.pl
+        cl = self.cl
+        if self.pl is not None:
+            pl = self.pl
 
         if collapse_codes:
             bene_id_idx = cl.index[cl['match'] == True]  # noqa
@@ -1121,4 +1130,4 @@ class MedicareDF(object):
                         idx = cl.index[cl[code] == True]  # noqa
                         pl.loc[idx, code] = True
 
-        self.pl = pl
+        return pl
