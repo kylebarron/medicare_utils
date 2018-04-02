@@ -22,7 +22,9 @@ requirements = [
     'tqdm >= 4.19.9',
 ]
 
-setup_requirements = []
+setup_requirements = [
+    'setuptools>=38.6.0'
+]
 
 test_requirements = []
 
@@ -43,6 +45,7 @@ setup(
     install_requires=requirements,
     license="MIT license",
     long_description=readme + '\n\n' + history,
+    long_description_content_type='text/markdown',
     include_package_data=True,
     keywords='medicare_utils',
     name='medicare_utils',
