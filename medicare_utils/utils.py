@@ -14,9 +14,14 @@ from multiprocessing import cpu_count
 def pq_vars(ParquetFile):
     return ParquetFile.schema.names
 
-def fpath(percent: str, year: int, data_type: str, dta: bool=False,
-          med_dta: str='/disk/aging/medicare/data',
-          med_pq: str='/homes/nber/barronk/agebulk1/raw/pq'):
+
+def fpath(
+        percent: str,
+        year: int,
+        data_type: str,
+        dta: bool = False,
+        med_dta: str = '/disk/aging/medicare/data',
+        med_pq: str = '/homes/nber/barronk/agebulk1/raw/pq'):
     """Generate path to Medicare files
 
     Args:
@@ -157,8 +162,13 @@ def fpath(percent: str, year: int, data_type: str, dta: bool=False,
 class MedicareDF(object):
     """A class to organize Medicare operations"""
 
-    def __init__(self, percent, years, verbose=False, parquet_engine='pyarrow',
-                 parquet_nthreads=None):
+    def __init__(
+            self,
+            percent,
+            years,
+            verbose=False,
+            parquet_engine='pyarrow',
+            parquet_nthreads=None):
         """Return a MedicareDF object
 
         Attributes:
@@ -325,8 +335,10 @@ class MedicareDF(object):
 
         # Get list of variables to import for each year
         if 'age' in keep_vars:
-            print('Warning: Can\'t export age variable, exporting',
-                  'bene_id instead')
+            msg = 'Warning: Can\'t export age variable, exporting',
+            msg += 'bene_id instead'
+            print(msg)
+
             keep_vars.remove('age')
             keep_vars.append('bene_dob')
 
@@ -452,7 +464,8 @@ class MedicareDF(object):
 
             pl['bene_dob'] = pd.NaT
             for year in self.years:
-                pl['bene_dob'] = pl['bene_dob'].combine_first(pl[f'bene_dob{year}'])
+                pl['bene_dob'] = pl['bene_dob'].combine_first(
+                    pl[f'bene_dob{year}'])
                 pl.drop(f'bene_dob{year}', axis=1, inplace=True)
 
             pl['dob_month'] = pl['bene_dob'].dt.month
