@@ -210,6 +210,9 @@ class MedicareDF(object):
 
         self.parquet_nthreads = parquet_nthreads
 
+        self.pl = None
+        self.cl = None
+
     def _get_variables_to_import(self, year, data_type, import_vars):
         """Get list of variable names to import from given file
 
@@ -645,6 +648,184 @@ class MedicareDF(object):
 
     def search_for_codes(
             self,
+            data_types,
+            hcpcs=None,
+            icd9_diag=None,
+            icd9_proc=None,
+            keep_vars={},
+            collapse_codes=False,
+            convert_ehic=True):
+        """Search in given claim-level dataset(s) for HCPCS and/or ICD9 codes
+
+        Note: Each code given must be distinct, or collapse_codes must be True
+
+        Args:
+            data_types (str or list[str]): carc, carl, ipc, ipr, med, opc, opr
+            hcpcs (str, compiled regex, list[str], list[compiled regex]):
+                List of HCPCS codes to look for
+            icd9_diag (str, compiled regex, list[str], list[compiled regex]):
+                List of ICD-9 diagnosis codes to look for
+            icd9_proc (str, compiled regex, list[str], list[compiled regex]):
+                List of ICD-9 procedure codes to look for
+            keep_vars (dict[data_type: list[str]]): dict of column names to return
+            collapse_codes (bool): If True, returns a single column "match";
+                else it returns a column for each code provided
+            convert_ehic (bool): If True, merges on 'bene_id' for years < 2006
+
+        Returns:
+            DataFrame with bene_id and bool columns for each code to search for
+        """
+
+        if self.verbose:
+            verbose = True
+
+        if type(data_types) is str:
+            data_types = [data_types]
+
+        data_types = set(data_types)
+
+        ok_data_types = ['carc', 'carl', 'ipc', 'ipr', 'med', 'opc', 'opr']
+        ok_hcpcs_data_types = ['carl', 'ipr', 'opr']
+        ok_diag_data_types = ['carc', 'carl', 'ipc', 'med', 'opc']
+        ok_proc_data_types = ['ipc', 'med', 'opc']
+
+        # Instantiate all data types in the keep_vars dict
+        for data_type in ok_data_types:
+            keep_vars[data_type] = keep_vars.get(data_type, [])
+
+        # Check that all data types provided to search through exist
+        if not data_types.issubset(ok_data_types):
+            invalid_vals = list(data_types.difference(ok_data_types))
+            msg = f'{invalid_vals} does not match any dataset. '
+            msg += 'Allowed data_types are:\n'
+            msg += f'{ok_data_types}'
+            raise ValueError(msg)
+
+        # Check types of codes given, i.e. that all are strings or
+        # compiled regexes, and print which codes are searched in which dataset
+        if verbose:
+            msg = 'Will check the following codes\n'
+            msg += f'\t- years: {self.years}\n'
+
+        if hcpcs is not None:
+            hcpcs = self._check_code_types(hcpcs)
+            if verbose:
+                msg += f'\t- HCPCS codes: {hcpcs}\n'
+                msg += '\t  in data types: '
+                msg += f'{list(data_types.intersection(ok_hcpcs_data_types))}\n'
+
+        if icd9_diag is not None:
+            icd9_diag = self._check_code_types(icd9_diag)
+            if verbose:
+                msg += f'\t- ICD-9 diagnosis codes: {icd9_diag}\n'
+                msg += '\t  in data types: '
+                msg += f'{list(data_types.intersection(ok_diag_data_types))}\n'
+
+        if icd9_proc is not None:
+            icd9_proc = self._check_code_types(icd9_proc)
+            if verbose:
+                msg += f'\t- ICD-9 procedure codes: {icd9_proc}\n'
+                msg += '\t  in data types: '
+                msg += f'{list(data_types.intersection(ok_proc_data_types))}\n'
+
+        if verbose:
+            print(msg)
+
+        data = {}
+        for data_type in data_types:
+            data[data_type] = {}
+            for year in self.years:
+                data[data_type][year] = self._search_for_codes_single_year(
+                    year=year,
+                    data_type=data_type,
+                    hcpcs=(hcpcs if data_type in ok_hcpcs_data_types else None),
+                    icd9_diag=(
+                        icd9_diag if data_type in ok_diag_data_types else None),
+                    icd9_proc=(
+                        icd9_proc if data_type in ok_proc_data_types else None),
+                    keep_vars=keep_vars[data_type],
+                    collapse_codes=collapse_codes)
+
+        years_ehic = [x for x in self.years if x < 2006]
+        years_bene_id = [x for x in self.years if x >= 2006]
+
+        # Concatenate ehic data (2005 and earlier)
+        if (convert_ehic) and (min(self.years) < 2006):
+
+            # If self.pl exists, then cl data frames use only those ids
+            # So I can merge using that
+            if self.pl is not None:
+                for data_type in data_types:
+                    df = pd.concat([
+                        data[data_type][year] for year in years_ehic])
+                    df = df.merge(
+                        self.pl, how='left', left_index=True, right_on='ehic')
+
+                    data[data_type]['ehic'] = df
+
+            else:
+                for year in years_ehic:
+                    # Read in all bsfab data
+                    if self.parquet_engine == 'pyarrow':
+                        pf = pq.ParquetFile(fpath(self.percent, year, 'bsfab'))
+                        pl = pf.read(
+                            columns=['ehic', 'bene_id'],
+                            nthreads=2).to_pandas().set_index('ehic')
+                    elif self.parquet_engine == 'fastparquet':
+                        pf = fp.ParquetFile(fpath(self.percent, year, 'bsfab'))
+                        pl = pf.to_pandas(columns=['bene_id'], index='ehic')
+
+                    # Join bene_ids onto data using ehic
+                    for data_type in data_types:
+                        data[data_type][year] = data[data_type][year].join(
+                            pl, how='left').reset_index().set_index('bene_id')
+
+                for data_type in data_types:
+                    data[data_type]['ehic'] = pd.concat([
+                        data[data_type][year] for year in years_ehic])
+
+        elif min(self.years) < 2006:
+            for data_type in data_types:
+                data[data_type]['ehic'] = pd.concat([
+                    data[data_type][year] for year in years_ehic])
+
+        for data_type in data_types:
+            # Delete single-year ehic data
+            for year in years_ehic:
+                data[data_type][year] = None
+
+            # Concatenate bene_id data (2006 and later)
+            data[data_type]['bene_id'] = pd.concat([
+                data[data_type][year] for year in years_bene_id])
+
+            # Delete single-year bene_id data
+            for year in years_bene_id:
+                data[data_type][year] = None
+
+            # Concatenate ehic data with bene_id data
+            if data[data_type]['ehic'].index.name == data[data_type][
+                    'bene_id'].index.name:
+                data[data_type]['all'] = pd.concat([
+                    data[data_type]['ehic'], data[data_type]['bene_id']])
+
+                data[data_type]['ehic'] = None
+                data[data_type]['bene_id'] = None
+
+            else:
+                data[data_type]['all'] = pd.concat([
+                    data[data_type]['ehic'].reset_index(),
+                    data[data_type]['bene_id'].reset_index()],
+                                                   ignore_index=True)
+
+                data[data_type]['ehic'] = None
+                data[data_type]['bene_id'] = None
+
+            data[data_type] = data[data_type]['all']
+
+        self.cl = data
+
+    def _search_for_codes_single_year(
+            self,
             year,
             data_type,
             hcpcs=None,
@@ -652,8 +833,7 @@ class MedicareDF(object):
             icd9_proc=None,
             keep_vars=[],
             collapse_codes=False):
-        """Search in given claim-level dataset for HCPCS/ICD9 codes
-        NOTE: Will want to remove year?
+        """Search in a single claim-level dataset for HCPCS/ICD9 codes
 
         Note: Each code given must be distinct, or collapse_codes must be True
 
@@ -674,43 +854,19 @@ class MedicareDF(object):
             DataFrame with bene_id and bool columns for each code to search for
         """
 
-        if data_type not in ['carc', 'carl', 'ipc', 'ipr', 'med', 'opc', 'opr']:
-            msg = 'data_type provided that does not match any dataset'
-            raise ValueError(msg)
+        if year < 2006:
+            pl_id_col = 'ehic'
+        else:
+            pl_id_col = 'bene_id'
 
-        if hcpcs is not None:
-            # If variable is not in data_type file, raise error
-            if data_type in ['carc', 'ipc', 'med', 'opc']:
-                msg = 'data_type was supplied that does not have HCPCS columns'
-                raise ValueError(msg)
-
-            hcpcs = self._check_code_types(hcpcs)
-
-        if icd9_diag is not None:
-            # If variable is not in data_type file, raise error
-            if data_type in ['ipr', 'opr']:
-                msg = 'data_type was supplied that does not have columns'
-                msg += ' for ICD-9 diagnosis codes'
-                raise ValueError(msg)
-
-            icd9_diag = self._check_code_types(icd9_diag)
-
-        if icd9_proc is not None:
-            # If variable is not in data_type file, raise error
-            if data_type in ['carc', 'carl', 'ipr', 'opr']:
-                msg = 'data_type was supplied that does not have columns'
-                msg += ' for ICD-9 procedure codes'
-                raise ValueError(msg)
-
-            icd9_proc = self._check_code_types(icd9_proc)
-
-        if type(collapse_codes) != bool:
-            raise TypeError('collapse_codes must be boolean')
-
-        try:
-            bene_ids_to_filter = self.pl.index
-        except AttributeError:
-            bene_ids_to_filter = None
+        # Assumes bene_id or ehic is index name or name of a column
+        if self.pl is not None:
+            if pl_id_col == self.pl.index.name:
+                pl_ids_to_filter = self.pl.index
+            else:
+                pl_ids_to_filter = self.pl[pl_id_col].values
+        else:
+            pl_ids_to_filter = None
 
         # Determine which variables to extract
         regex_string = []
@@ -721,6 +877,7 @@ class MedicareDF(object):
             cl_id_regex = r'^clm_id$|^claimindex$'
             regex_string.append(cl_id_regex)
 
+        regex_string.append(r'^bene_id$')
         regex_string.append(r'^ehic$')
 
         if hcpcs is not None:
@@ -748,7 +905,7 @@ class MedicareDF(object):
         all_cols = fp.ParquetFile(fpath(self.percent, year, data_type)).columns
         cols = [x for x in all_cols if regex(x)]
 
-        cl_id_col = [x for x in cols if re.search(cl_id_regex, x)]
+        # cl_id_col = [x for x in cols if re.search(cl_id_regex, x)]
         if hcpcs is not None:
             hcpcs_cols = [x for x in cols if re.search(hcpcs_regex, x)]
         else:
@@ -777,16 +934,16 @@ class MedicareDF(object):
                 .set_index(pl_id_col) for i in range(pf.num_row_groups))
         elif self.parquet_engine == 'fastparquet':
             pf = fp.ParquetFile(fpath(self.percent, year, data_type))
-            itr = pf.iter_row_groups(columns=cols, index='bene_id')
+            itr = pf.iter_row_groups(columns=cols, index=pl_id_col)
 
-        # cl = pf.to_pandas(columns=cols, index='bene_id')
         for cl in itr:
-            if bene_ids_to_filter is not None:
-                cl = cl.join(
-                    pd.DataFrame(index=bene_ids_to_filter), how='inner')
+            if pl_ids_to_filter is not None:
+                index_name = cl.index.name
+                cl = cl.join(pd.DataFrame(index=pl_ids_to_filter), how='inner')
+                cl.index.name = index_name
 
-            if cl.index.name == 'bene_id':
-                cl = cl.reset_index().set_index(cl_id_col)
+            # if cl.index.name == 'bene_id':
+            #     cl = cl.reset_index().set_index(cl_id_col)
 
             if collapse_codes:
                 cl['match'] = False
@@ -799,7 +956,7 @@ class MedicareDF(object):
                                     axis=1), 'match'] = True
                         else:
                             cl.loc[(cl[hcpcs_cols] == code
-                                    ).any(axis=1), 'match'] = True
+                                   ).any(axis=1), 'match'] = True
 
                     cl.drop(hcpcs_cols, axis=1, inplace=True)
 
@@ -811,7 +968,7 @@ class MedicareDF(object):
                                     axis=1), 'match'] = True
                         else:
                             cl.loc[(cl[icd9_diag_cols] == code
-                                    ).any(axis=1), 'match'] = True
+                                   ).any(axis=1), 'match'] = True
 
                     cl.drop(icd9_diag_cols, axis=1, inplace=True)
 
@@ -823,7 +980,7 @@ class MedicareDF(object):
                                     axis=1), 'match'] = True
                         else:
                             cl.loc[(cl[icd9_proc_cols] == code
-                                    ).any(axis=1), 'match'] = True
+                                   ).any(axis=1), 'match'] = True
 
                     cl.drop(icd9_proc_cols, axis=1, inplace=True)
 
@@ -890,15 +1047,23 @@ class MedicareDF(object):
                 all_cl.append(cl)
 
         cl = pd.concat(all_cl, axis=0)
-        # Merge back onto bene_ids_to_filter so that claim-level df
-        # has same index values as person-level df
-        cl = cl.reset_index().merge(
-            pd.DataFrame(index=bene_ids_to_filter),
-            how='outer',
-            left_on='bene_id',
-            right_index=True).set_index('bene_id')
+        cl['year'] = np.uint16(year)
 
-        self.cl = cl
+        # Merge back onto pl_ids_to_filter so that claim-level df
+        # has same index values as person-level df
+        # cl = cl.join(
+        #     pd.DataFrame(index=pl_ids_to_filter),
+        #     how='outer')
+
+        # Revert to the following if change index back to cl_id_col
+        # cl = cl.reset_index().merge(
+        #     pd.DataFrame(index=pl_ids_to_filter),
+        #     how='outer',
+        #     left_on=pl_id_col,
+        #     right_index=True).set_index(pl_id_col)
+
+        return cl
+
 
         pl = self.pl
 
