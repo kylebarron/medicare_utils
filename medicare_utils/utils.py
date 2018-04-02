@@ -749,6 +749,9 @@ class MedicareDF(object):
         years_ehic = [x for x in self.years if x < 2006]
         years_bene_id = [x for x in self.years if x >= 2006]
 
+        if (min(self.years) < 2006) and (max(self.years) >= 2006):
+            convert_ehic = True
+
         # Concatenate ehic data (2005 and earlier)
         if (convert_ehic) and (min(self.years) < 2006):
 
