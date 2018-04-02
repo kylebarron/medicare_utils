@@ -693,6 +693,9 @@ class MedicareDF(object):
         for data_type in ok_data_types:
             keep_vars[data_type] = keep_vars.get(data_type, [])
 
+            if type(keep_vars[data_type]) is str:
+                keep_vars[data_type] = [keep_vars[data_type]]
+
         # Check that all data types provided to search through exist
         if not data_types.issubset(ok_data_types):
             invalid_vals = list(data_types.difference(ok_data_types))
