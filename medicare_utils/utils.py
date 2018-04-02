@@ -679,6 +679,9 @@ class MedicareDF(object):
         if self.verbose:
             verbose = True
 
+        if verbose:
+            t0 = time()
+
         if type(data_types) is str:
             data_types = [data_types]
 
@@ -738,6 +741,26 @@ class MedicareDF(object):
         for data_type in data_types:
             data[data_type] = {}
             for year in self.years:
+                if verbose:
+                    msg = 'Starting search for codes\n'
+                    msg += f'\t- year: {year}\n'
+                    msg += f'\t- data type: {data_type}\n'
+                    if data_type in ok_hcpcs_data_types:
+                        if hcpcs is not None:
+                            msg += f'\t- HCPCS codes: {hcpcs}\n'
+                    if data_type in ok_diag_data_types:
+                        if icd9_diag is not None:
+                            msg += f'\t- ICD-9 diagnosis codes: {icd9_diag}\n'
+                    if data_type in ok_proc_data_types:
+                        if icd9_proc is not None:
+                            msg += f'\t- ICD-9 procedure codes: {icd9_proc}\n'
+                    if keep_vars[data_type] != []:
+                        msg += '\t- Keeping variables: '
+                        msg += f'{keep_vars[data_type]}\n'
+                    msg += '\t- time elapsed: '
+                    msg += f'{(time() - t0) / 60:.2f} minutes\n'
+                    print(msg)
+
                 data[data_type][year] = self._search_for_codes_single_year(
                     year=year,
                     data_type=data_type,
@@ -748,6 +771,13 @@ class MedicareDF(object):
                         icd9_proc if data_type in ok_proc_data_types else None),
                     keep_vars=keep_vars[data_type],
                     collapse_codes=collapse_codes)
+
+        if verbose:
+            msg = 'Concatenating matched codes across years\n'
+            msg += f'\t- years: {self.years}\n'
+            msg += f'\t- data types: {data_types}\n'
+            msg += f'\t- time elapsed: {(time() - t0) / 60:.2f} minutes\n'
+            print(msg)
 
         years_ehic = [x for x in self.years if x < 2006]
         years_bene_id = [x for x in self.years if x >= 2006]
