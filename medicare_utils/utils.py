@@ -832,6 +832,7 @@ class MedicareDF(object):
                 all_cl.append(cl)
 
             else:
+                all_created_cols = []
                 if hcpcs:
                     for code in hcpcs:
                         if isinstance(code, re._pattern_type):
@@ -839,11 +840,13 @@ class MedicareDF(object):
                             idx = cl.index[cl[hcpcs_cols].apply(
                                 lambda col: col.str.contains(code)).any(axis=1)]
                             cl.loc[idx, code.pattern] = True
+                            all_created_cols.append(code.pattern)
 
                         else:
                             cl[code] = False
                             idx = cl.index[(cl[hcpcs_cols] == code).any(axis=1)]
                             cl.loc[idx, code] = True
+                            all_created_cols.append(code)
 
                     cl.drop(hcpcs_cols, axis=1, inplace=True)
 
@@ -854,12 +857,14 @@ class MedicareDF(object):
                             idx = cl.index[cl[icd9_diag_cols].apply(
                                 lambda col: col.str.contains(code)).any(axis=1)]
                             cl.loc[idx, code.pattern] = True
+                            all_created_cols.append(code.pattern)
 
                         else:
                             cl[code] = False
                             idx = cl.index[(
                                 cl[icd9_diag_cols] == code).any(axis=1)]
                             cl.loc[idx, code] = True
+                            all_created_cols.append(code)
 
                     cl.drop(icd9_diag_cols, axis=1, inplace=True)
 
@@ -870,15 +875,18 @@ class MedicareDF(object):
                             idx = cl.index[cl[icd9_proc_cols].apply(
                                 lambda col: col.str.contains(code)).any(axis=1)]
                             cl.loc[idx, code.pattern] = True
+                            all_created_cols.append(code.pattern)
 
                         else:
                             cl[code] = False
                             idx = cl.index[(
                                 cl[icd9_proc_cols] == code).any(axis=1)]
                             cl.loc[idx, code] = True
+                            all_created_cols.append(code)
 
                     cl.drop(icd9_proc_cols, axis=1, inplace=True)
 
+                cl['match'] = (cl[all_created_cols] == True).any(axis=1)
                 all_cl.append(cl)
 
         cl = pd.concat(all_cl, axis=0)
