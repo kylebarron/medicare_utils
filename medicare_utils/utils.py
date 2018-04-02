@@ -8,6 +8,8 @@ import numpy as np
 import pyarrow.parquet as pq
 from time import time
 from os.path import isfile
+from multiprocessing import cpu_count
+
 
 def pq_vars(ParquetFile):
     return ParquetFile.schema.names
@@ -192,6 +194,10 @@ class MedicareDF(object):
             raise ValueError('parquet_engine must be pyarrow or fastparquet')
 
         self.parquet_engine = parquet_engine
+
+        if parquet_nthreads is None:
+            parquet_nthreads = cpu_count()
+
         self.parquet_nthreads = parquet_nthreads
 
     def _get_variables_to_import(self, year, data_type, import_vars):
@@ -373,7 +379,9 @@ class MedicareDF(object):
                 pf = pq.ParquetFile(fpath(self.percent, year, 'bsfab'))
                 pl = pf.read(
                     columns=tokeep_vars[year],
-                    nthreads=self.parquet_nthreads).to_pandas()
+                    nthreads=min(len(tokeep_vars[year]),
+                                 self.parquet_nthreads)).to_pandas().set_index(
+                                     'bene_id')
             elif self.parquet_engine == 'fastparquet':
                 pf = fp.ParquetFile(fpath(self.percent, year, 'bsfab'))
                 pl = pf.to_pandas(columns=tokeep_vars[year], index='bene_id')
@@ -752,10 +760,9 @@ class MedicareDF(object):
                 pf.read_row_group(
                     i,
                     columns=cols,
-                    nthreads=self.parquet_nthreads
-                ).to_pandas().set_index('bene_id')
-                for i in range(pf.num_row_groups))
-        else:
+                    nthreads=min(len(cols), self.parquet_nthreads)).to_pandas()
+                .set_index(pl_id_col) for i in range(pf.num_row_groups))
+        elif self.parquet_engine == 'fastparquet':
             pf = fp.ParquetFile(fpath(self.percent, year, data_type))
             itr = pf.iter_row_groups(columns=cols, index='bene_id')
 
