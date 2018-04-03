@@ -332,26 +332,59 @@ class MedicareDF(object):
                 raise ValueError(msg)
         if type(ages) == int:
             ages = [ages]
-        if type(races) == str:
-            races = [races]
 
-        if type(buyin_val) == str:
-            buyin_val = [buyin_val]
+        race_codebook = {
+            'Unknown': '0',
+            'White': '1',
+            'Black': '2',
+            'Other': '3',
+            'Asian': '4',
+            'Hispanic': '5',
+            'North American Native': '6',
+            'UNKNOWN': '0',
+            'NON-HISPANIC WHITE': '1',
+            'BLACK (OR AFRICAN-AMERICAN)': '2',
+            'OTHER': '3',
+            'ASIAN/PACIFIC ISLANDER': '4',
+            'HISPANIC': '5',
+            'AMERICAN INDIAN / ALASKA NATIVE': '6'}
 
-        if buyin_val is not None:
-            allowed_buyin_months = ['all', 'age_year']
-            if buyin_months not in allowed_buyin_months:
-                msg = f'buyin_months must be one of: {allowed_buyin_months}'
-                raise ValueError(msg)
+        race_col = 'rti_race_cd' if rti_race else 'race'
 
-        if type(hmo_val) == str:
-            hmo_val = [hmo_val]
+        if type(races) == int:
+            races = [str(races)]
+        elif type(races) == str:
+            regex = re.compile(races, re.IGNORECASE).search
+            races = [val for key, val in race_codebook.items() if regex(key)]
+            races = list(set(races))
+            assert len(races) == 1
+        elif type(races) == list:
+            assert all((type(x) == str) or (type(x) == int) for x in races)
 
-        if hmo_val is not None:
-            allowed_hmo_months = ['all', 'age_year']
-            if hmo_months not in allowed_hmo_months:
-                msg = f'hmo_months must be one of: {allowed_hmo_months}'
-                raise ValueError(msg)
+            races_new = []
+            for race in races:
+                if type(race) == str:
+                    regex = re.compile(race, re.IGNORECASE).search
+                    race = [val for key, val in race_codebook.items() if regex(key)]
+                    race = list(set(race))
+                    assert len(race) == 1
+                    races_new.append(race[0])
+                else:
+                    races_new.append(str(race))
+
+            races = races_new
+
+        buyin_val = [buyin_val] if type(buyin_val) == str else buyin_val
+        allowed_buyin_months = ['all', 'age_year', None]
+        if buyin_months not in allowed_buyin_months:
+            msg = f'buyin_months must be one of: {allowed_buyin_months[:2]}'
+            raise ValueError(msg)
+
+        hmo_val = [hmo_val] if type(hmo_val) == str else hmo_val
+        allowed_hmo_months = ['all', 'age_year', None]
+        if hmo_months not in allowed_hmo_months:
+            msg = f'hmo_months must be one of: {allowed_hmo_months[:2]}'
+            raise ValueError(msg)
 
         allowed_join_across_years = [
             'default', 'left', 'inner', 'outer', 'right']
@@ -360,8 +393,7 @@ class MedicareDF(object):
             msg += f' {allowed_join_across_years}'
             raise ValueError(msg)
 
-        if type(keep_vars) == str:
-            keep_vars = [keep_vars]
+        keep_vars = [keep_vars] if type(keep_vars) == str else keep_vars
 
         # Get list of variables to import for each year
         if 'age' in keep_vars:
@@ -379,10 +411,7 @@ class MedicareDF(object):
         if ages is not None:
             tokeep_regex.append(r'^(age)$')
         if races is not None:
-            if rti_race:
-                tokeep_regex.append(r'^(rti_race_cd)$')
-            else:
-                tokeep_regex.append(r'^(race)$')
+            tokeep_regex.append(r'^({})$'.format(race_col))
         if buyin_val is not None:
             tokeep_regex.append(r'^(buyin\d{2})$')
             if buyin_months == 'age_year':
@@ -455,6 +484,15 @@ class MedicareDF(object):
                 pl.drop('age', axis=1, inplace=True)
 
                 nobs_dropped[year]['age'] = 1 - (len(pl) / nobs)
+                nobs = len(pl)
+
+            if races is not None:
+                pl = pl.loc[pl[race_col].isin(races)]
+
+                if race_col not in keep_vars:
+                    pl.drop(race_col, axis=1, inplace=True)
+
+                nobs_dropped[year]['race'] = 1 - (len(pl) / nobs)
                 nobs = len(pl)
 
             pl.columns = [f'{x}{year}' for x in pl.columns]
