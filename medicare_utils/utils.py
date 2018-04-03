@@ -882,7 +882,7 @@ class MedicareDF(object):
                     data[data_type]['ehic'] = pd.concat([
                         data[data_type][year] for year in years_ehic])
 
-        elif not (convert_ehic) and (min(self.years) < 2006):
+        elif (not convert_ehic) and (min(self.years) < 2006):
             for data_type in data_types:
                 data[data_type]['ehic'] = pd.concat([
                     data[data_type][year] for year in years_ehic])
