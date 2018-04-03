@@ -284,7 +284,7 @@ class MedicareDF(object):
             buyin_months=None,
             hmo_val=None,
             hmo_months=None,
-            join_across_years='default',
+            join='default',
             keep_vars=[],
             verbose=False):
         """Get cohort in standardized way
@@ -304,9 +304,9 @@ class MedicareDF(object):
             buyin_val (list[str], str): The values `buyin\d\d` can take
             buyin_months (str): 'All', 'age_year'
                 If 'age_year', years cannot be int
-            join_across_years (str): method for joining across years
+            join (str): method for joining across years
                 Default is "outer" join for all years up to N-1, "left" for N
-                Otherwise must be "left", "inner", "outer", "right"
+                Otherwise must be "left", "inner", "outer"
             keep_vars (list[str]): Variable names to keep in final output
             verbose (bool): Print status of program
 
@@ -386,11 +386,9 @@ class MedicareDF(object):
             msg = f'hmo_months must be one of: {allowed_hmo_months[:2]}'
             raise ValueError(msg)
 
-        allowed_join_across_years = [
-            'default', 'left', 'inner', 'outer', 'right']
-        if join_across_years not in allowed_join_across_years:
-            msg = 'join_across_years must be one of:'
-            msg += f' {allowed_join_across_years}'
+        allowed_join = ['default', 'left', 'inner', 'outer']
+        if join not in allowed_join:
+            msg = f'join must be one of: {allowed_join}'
             raise ValueError(msg)
 
         keep_vars = [keep_vars] if type(keep_vars) == str else keep_vars
@@ -502,7 +500,7 @@ class MedicareDF(object):
         if verbose & (len(extracted_dfs) > 1):
             msg = 'Merging together beneficiary files\n'
             msg += f'\t- years: {self.years}\n'
-            msg += f'\t- merge type: {join_across_years}\n'
+            msg += f'\t- merge type: {join}\n'
             msg += f'\t- time elapsed: {(time() - t0) / 60:.2f} minutes\n'
             print(msg)
 
@@ -511,19 +509,17 @@ class MedicareDF(object):
         if len(extracted_dfs) == 1:
             pl = extracted_dfs[0]
         elif len(extracted_dfs) == 2:
-            if join_across_years == 'default':
+            if join == 'default':
                 pl = extracted_dfs[0].join(extracted_dfs[1], how='left')
             else:
-                pl = extracted_dfs[0].join(
-                    extracted_dfs[1], how=join_across_years)
+                pl = extracted_dfs[0].join(extracted_dfs[1], how=join)
         else:
-            if join_across_years == 'default':
+            if join == 'default':
                 pl = extracted_dfs[0].join(
                     extracted_dfs[1:-1], how='outer').join(
                         extracted_dfs[-1], how='left')
             else:
-                pl = extracted_dfs[0].join(
-                    extracted_dfs[1:], how=join_across_years)
+                pl = extracted_dfs[0].join(extracted_dfs[1:], how=join)
 
         pl.index.name = 'bene_id'
 
