@@ -844,6 +844,17 @@ class MedicareDF(object):
         years_ehic = [x for x in self.years if x < 2006]
         years_bene_id = [x for x in self.years if x >= 2006]
 
+        # Don't go through ehic process if data is only post 2006
+        if years_ehic == []:
+            for data_type in data_types:
+                data[data_type]['all'] = pd.concat([data[data_type][year] for year in years_bene_id])
+                for year in years_ehic:
+                    data[data_type][year] = None
+                data[data_type] = data[data_type]['all']
+
+            self.cl = data
+            return
+
         if (min(self.years) < 2006) and (max(self.years) >= 2006):
             convert_ehic = True
 
