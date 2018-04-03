@@ -11,6 +11,10 @@ from os.path import isfile
 from multiprocessing import cpu_count
 
 
+allowed_pcts = ['0001', '01', '05', '20', '100']
+pct_dict = {0.01: '0001', 1: '01', 5: '05', 20: '20', 100: '100'}
+
+
 def pq_vars(ParquetFile):
     return ParquetFile.schema.names
 
@@ -60,6 +64,23 @@ def fpath(
 
     if type(data_type) != str:
         raise TypeError('data_type must be str')
+
+    try:
+        year = int(year)
+    except ValueError:
+        raise TypeError('year must be int')
+
+    if (type(percent) == float) or (type(percent) == int):
+        try:
+            percent = pct_dict[percent]
+        except KeyError:
+            msg = 'percent provided is not valid\n'
+            msg += f'Valid arguments are: {list(pct_dict.keys())}'
+            raise ValueError(msg)
+    elif type(percent) == str:
+        if percent not in allowed_pcts:
+            msg = f'percent must be one of: {allowed_pcts}'
+            raise ValueError(msg)
 
     allowed_data_types = [
         'bsfab', 'bsfcc', 'bsfcu', 'bsfd', 'carc', 'carl', 'den', 'dmec',
@@ -172,22 +193,28 @@ class MedicareDF(object):
         """Return a MedicareDF object
 
         Attributes:
-            percent (str): percent sample of data to use
+            percent (str, int, or float): percent sample of data to use
             years (list[int]): years of data to use
             verbose (bool): Print status of program
             parquet_engine (str): 'pyarrow' or 'fastparquet'
             parquet_nthreads (int): number of threads to use when reading file
         """
 
-        allowed_pcts = ['0001', '01', '05', '20', '100']
+        if (type(percent) == float) or (type(percent) == int):
+            try:
+                self.percent = pct_dict[percent]
+            except KeyError:
+                msg = 'percent provided is not valid\n'
+                msg += f'Valid arguments are: {list(pct_dict.keys())}'
+                raise ValueError(msg)
+        elif type(percent) == str:
+            if percent not in allowed_pcts:
+                msg = f'percent must be one of: {allowed_pcts}'
+                raise ValueError(msg)
 
-        if type(percent) != str:
-            raise TypeError('percent must be str')
-        elif percent not in allowed_pcts:
-            msg = f'percent must be one of: {allowed_pcts}'
-            raise ValueError(msg)
-        else:
             self.percent = percent
+        else:
+            raise TypeError('percent must be str or number')
 
         if type(years) == int:
             years = [years]
