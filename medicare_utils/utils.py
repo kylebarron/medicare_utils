@@ -715,7 +715,8 @@ class MedicareDF(object):
             icd9_proc=None,
             keep_vars={},
             collapse_codes=False,
-            convert_ehic=True):
+            convert_ehic=True,
+            verbose=False):
         """Search in given claim-level dataset(s) for HCPCS and/or ICD9 codes
 
         Note: Each code given must be distinct, or collapse_codes must be True
