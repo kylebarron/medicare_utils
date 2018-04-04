@@ -190,7 +190,9 @@ class MedicareDF(object):
             years,
             verbose=False,
             parquet_engine='pyarrow',
-            parquet_nthreads=None):
+            parquet_nthreads=None,
+            dta_path: str = '/disk/aging/medicare/data',
+            pq_path: str = '/homes/nber/barronk/agebulk1/raw/pq'):
         """Return a MedicareDF object
 
         Attributes:
@@ -241,6 +243,19 @@ class MedicareDF(object):
         self.pl = None
         self.cl = None
 
+        self.dta_path = dta_path
+        self.pq_path = pq_path
+
+    def fpath(
+        self,
+        percent: str,
+        year: int,
+        data_type: str,
+        dta: bool = False):
+
+        return fpath(percent=percent, year=year, data_type=data_type,
+                     dta=dta, dta_path=self.dta_path, pq_path=self.pq_path)
+
     def _get_variables_to_import(self, year, data_type, import_vars):
         """Get list of variable names to import from given file
 
@@ -262,7 +277,7 @@ class MedicareDF(object):
 
         import_vars = list(set(import_vars))
 
-        cols = fp.ParquetFile(fpath(self.percent, year, data_type)).columns
+        cols = fp.ParquetFile(self.fpath(self.percent, year, data_type)).columns
         tokeep_list = []
 
         for var in import_vars[:]:
@@ -428,7 +443,13 @@ class MedicareDF(object):
 
         tokeep_vars = {}
         for year in self.years:
-            cols = fp.ParquetFile(fpath(self.percent, year, 'bsfab')).columns
+            if self.parquet_engine == 'pyarrow':
+                pf = pq.ParquetFile(self.fpath(self.percent, year, 'bsfab'))
+                cols = pf.schema.names
+            elif self.parquet_engine == 'fastparquet':
+                pf = fp.ParquetFile(self.fpath(self.percent, year, 'bsfab'))
+                cols = pf.columns
+
             tokeep_vars[year] = [x for x in cols if re.search(tokeep_regex, x)]
 
         # Now perform extraction
@@ -446,14 +467,14 @@ class MedicareDF(object):
                 print(msg)
 
             if self.parquet_engine == 'pyarrow':
-                pf = pq.ParquetFile(fpath(self.percent, year, 'bsfab'))
+                pf = pq.ParquetFile(self.fpath(self.percent, year, 'bsfab'))
                 pl = pf.read(
                     columns=tokeep_vars[year],
                     nthreads=min(len(tokeep_vars[year]),
                                  self.parquet_nthreads)).to_pandas().set_index(
                                      'bene_id')
             elif self.parquet_engine == 'fastparquet':
-                pf = fp.ParquetFile(fpath(self.percent, year, 'bsfab'))
+                pf = fp.ParquetFile(self.fpath(self.percent, year, 'bsfab'))
                 pl = pf.to_pandas(columns=tokeep_vars[year], index='bene_id')
 
             nobs = len(pl)
@@ -877,12 +898,12 @@ class MedicareDF(object):
                 for year in years_ehic:
                     # Read in all bsfab data
                     if self.parquet_engine == 'pyarrow':
-                        pf = pq.ParquetFile(fpath(self.percent, year, 'bsfab'))
+                        pf = pq.ParquetFile(self.fpath(self.percent, year, 'bsfab'))
                         pl = pf.read(
                             columns=['ehic', 'bene_id'],
                             nthreads=2).to_pandas().set_index('ehic')
                     elif self.parquet_engine == 'fastparquet':
-                        pf = fp.ParquetFile(fpath(self.percent, year, 'bsfab'))
+                        pf = fp.ParquetFile(self.fpath(self.percent, year, 'bsfab'))
                         pl = pf.to_pandas(columns=['bene_id'], index='ehic')
 
                     # Join bene_ids onto data using ehic
@@ -1012,7 +1033,7 @@ class MedicareDF(object):
 
         regex_string = '|'.join(regex_string)
         regex = re.compile(regex_string).search
-        all_cols = fp.ParquetFile(fpath(self.percent, year, data_type)).columns
+        all_cols = fp.ParquetFile(self.fpath(self.percent, year, data_type)).columns
         cols = [x for x in all_cols if regex(x)]
 
         # cl_id_col = [x for x in cols if re.search(cl_id_regex, x)]
@@ -1035,7 +1056,7 @@ class MedicareDF(object):
         all_cl = []
 
         if self.parquet_engine == 'pyarrow':
-            pf = pq.ParquetFile(fpath(self.percent, year, data_type))
+            pf = pq.ParquetFile(self.fpath(self.percent, year, data_type))
             itr = (
                 pf.read_row_group(
                     i,
@@ -1043,7 +1064,7 @@ class MedicareDF(object):
                     nthreads=min(len(cols), self.parquet_nthreads)).to_pandas()
                 .set_index(pl_id_col) for i in range(pf.num_row_groups))
         elif self.parquet_engine == 'fastparquet':
-            pf = fp.ParquetFile(fpath(self.percent, year, data_type))
+            pf = fp.ParquetFile(self.fpath(self.percent, year, data_type))
             itr = pf.iter_row_groups(columns=cols, index=pl_id_col)
 
         for cl in itr:
