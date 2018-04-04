@@ -9,7 +9,7 @@ import pyarrow.parquet as pq
 from time import time
 from os.path import isfile
 from multiprocessing import cpu_count
-
+from pathlib import Path
 
 allowed_pcts = ['0001', '01', '05', '20', '100']
 pct_dict = {0.01: '0001', 1: '01', 5: '05', 20: '20', 100: '100'}
@@ -88,6 +88,9 @@ def fpath(
         'opr', 'snfc', 'snfr', 'xw']
     if data_type not in allowed_data_types:
         raise ValueError(f'data_type must be one of:\n{allowed_data_types}')
+
+    dta_path = str(Path(dta_path).expanduser().resolve())
+    pq_path = str(Path(pq_path).expanduser().resolve())
 
     if data_type == 'bsfab':
         dta_path = f'{dta_path}/{percent}pct/bsf/{year}/1/bsfab{year}.dta'
