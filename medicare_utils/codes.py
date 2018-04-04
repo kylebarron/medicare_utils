@@ -16,8 +16,12 @@ class npi(object):
     """A class to work with NPI codes"""
 
     def __init__(
-            self, columns=None, regex=None, download: bool = False,
-            path: str = ''):
+            self,
+            columns=None,
+            regex=None,
+            download: bool = False,
+            path: str = '',
+            load: bool = True):
         self.num_cpu = cpu_count()
 
         if download:
@@ -50,7 +54,8 @@ class npi(object):
                 msg += ' Use download=True and give path to save data.'
                 raise FileNotFoundError(msg)
 
-        self.codes = self.load(columns=columns, regex=regex)
+        if load:
+            self.codes = self.load(columns=columns, regex=regex)
 
     def _download(self):
         # Get link of latest NPPES NPI file
