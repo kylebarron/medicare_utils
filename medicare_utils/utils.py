@@ -20,7 +20,7 @@ def pq_vars(ParquetFile):
 
 
 def fpath(
-        percent: str,
+        percent,
         year: int,
         data_type: str,
         dta: bool = False,
@@ -62,6 +62,7 @@ def fpath(
         NameError if data_type is not one of the above
     """
 
+    # Check types
     if type(data_type) != str:
         raise TypeError('data_type must be str')
 
