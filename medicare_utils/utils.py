@@ -741,9 +741,8 @@ class MedicareDF(object):
         else:
             raise TypeError('Provided non string or regex to get_pattern()')
 
-    @staticmethod
     def create_rename_dict(
-            hcpcs=None, icd9_diag=None, icd9_proc=None, rename={}):
+            self, hcpcs=None, icd9_diag=None, icd9_proc=None, rename={}):
         """
         Make dictionary where the keys are codes/pattern strings and values are
         new column names
