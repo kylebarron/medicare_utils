@@ -915,7 +915,7 @@ class MedicareDF(object):
 
         all_codes = [self.get_pattern(x) for x in all_codes]
         msg = 'Code patterns given must be unique'
-        assert all_codes == list(set(all_codes)), msg
+        assert len(all_codes) == len(set(all_codes)), msg
 
         rename = self.create_rename_dict(
             hcpcs=hcpcs,
