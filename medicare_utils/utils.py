@@ -176,10 +176,7 @@ def fpath(
         pq_path = f'{pq_path}/{percent}pct/xw/ehicbenex_one{year}.parquet'
 
     if dta:
-        if isfile(dta_path):
-            return dta_path
-        else:
-            raise FileNotFoundError
+        return dta_path
     else:
         return pq_path
 
