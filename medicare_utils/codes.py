@@ -28,6 +28,8 @@ class npi(object):
             if path == '':
                 raise ValueError('If download is True, path must be given')
 
+            path = Path(path).expanduser().resolve()
+
             # Write path location to ~/.medicare_utils.json
             try:
                 with open(Path.home() / '.medicare_utils.json') as f:
@@ -169,6 +171,7 @@ class hcpcs(object):
                 conf = json.load(f)
 
             if path != '':
+                path = Path(path).expanduser().resolve()
                 conf['hcpcs'] = conf.get('hcpcs', {})
                 conf['hcpcs']['data_path'] = path
 
@@ -421,6 +424,7 @@ class icd9(object):
                 conf = json.load(f)
 
             if path != '':
+                path = Path(path).expanduser().resolve()
                 conf['icd9'] = conf.get('icd9', {})
                 conf['icd9']['data_path'] = path
 
