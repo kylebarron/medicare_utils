@@ -102,9 +102,10 @@ class npi(object):
                     csv = csv[0]
 
                     with z.open(csv) as f:
-                        msg = 'Reading NPI csv data into pandas.'
-                        msg += ' This may take several minutes, but'
-                        msg += ' only has to be done once.'
+                        msg = 'Converting NPI csv data to Parquet format.'
+                        msg += ' This takes around 20 minutes, but'
+                        msg += ' only has to be done once, and then has very'
+                        msg += ' fast read speeds.'
                         print(msg)
                         df = pd.read_csv(
                             f,
@@ -123,6 +124,8 @@ class npi(object):
         df.columns = [convert_to_snake_case(x) for x in df.columns]
 
         df.to_parquet(path / 'npi.parquet', engine='pyarrow')
+
+        print('Finished Parquet conversion.')
 
     def load(self, columns=None, regex=None):
         if type(columns) == str:
