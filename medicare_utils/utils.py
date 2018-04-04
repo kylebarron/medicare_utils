@@ -7,7 +7,6 @@ import fastparquet as fp
 import numpy as np
 import pyarrow.parquet as pq
 from time import time
-from os.path import isfile
 from multiprocessing import cpu_count
 from pathlib import Path
 
