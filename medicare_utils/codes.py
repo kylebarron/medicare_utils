@@ -53,7 +53,7 @@ class npi(object):
         self.codes = self.load(columns=columns, regex=regex)
 
     def _download(self):
-        # Get latest NPPES NPI file
+        # Get link of latest NPPES NPI file
         session = HTMLSession()
         page = session.get('http://download.cms.gov/nppes/NPI_Files.html')
         a = page.html.find('a')
@@ -63,6 +63,7 @@ class npi(object):
         assert len(a) == 1
         href = list(a[0].absolute_links)[0]
 
+        # Define dtypes for csv import
         dtypes = {
             'NPI':
                 np.int64,
@@ -716,6 +717,12 @@ class npi(object):
                 'str'}
 
         print('Downloading latest NPI file.')
+        # r: requests object
+        # b: buffer in memory to hold requests object
+        #   this is necessary because ZipFile expects file-like object
+        # z: ZipFile object
+        # f: individual files within ZipFile
+        path = Path(self.conf['npi']['data_path'])
         with requests.get(href, stream=True) as r:
             with io.BytesIO() as b:
                 total_length = int(r.headers.get('content-length'))
@@ -726,13 +733,21 @@ class npi(object):
 
                 print('\nFinished downloading NPI file.')
                 with ZipFile(b, 'r') as z:
-                    files = [x for x in z.namelist() if x.endswith('.csv')]
-                    regex = re.compile(r'fileheader', re.IGNORECASE).search
-                    files = [x for x in files if not regex(x)]
-                    assert len(files) == 1
-                    file = files[0]
+                    # Copy Readme and Code Values PDFs to data folder
+                    pdfs = [x for x in z.namelist() if x.endswith('.pdf')]
+                    for pdf in pdfs:
+                        pdf_bytes = z.read(pdf)
+                        with open(path / pdf, 'wb') as f:
+                            f.write(pdf_bytes)
 
-                    with z.open(file) as f:
+                    # Find data file
+                    csvs = [x for x in z.namelist() if x.endswith('.csv')]
+                    regex = re.compile(r'fileheader', re.IGNORECASE).search
+                    csv = [x for x in csvs if not regex(x)]
+                    assert len(csv) == 1
+                    csv = csv[0]
+
+                    with z.open(csv) as f:
                         msg = 'Reading NPI csv data into pandas.'
                         msg += ' This may take several minutes, but'
                         msg += ' only has to be done once.'
@@ -753,8 +768,7 @@ class npi(object):
 
         df.columns = [convert_to_snake_case(x) for x in df.columns]
 
-        path = Path(self.conf['npi']['data_path']) / 'npi.parquet'
-        df.to_parquet(path, engine='pyarrow')
+        df.to_parquet(path / 'npi.parquet', engine='pyarrow')
 
     def load(self, columns=None, regex=None):
         if type(columns) == str:
