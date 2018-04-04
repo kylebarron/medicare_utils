@@ -246,15 +246,15 @@ class MedicareDF(object):
         self.dta_path = dta_path
         self.pq_path = pq_path
 
-    def fpath(
-        self,
-        percent: str,
-        year: int,
-        data_type: str,
-        dta: bool = False):
+    def fpath(self, percent: str, year: int, data_type: str, dta: bool = False):
 
-        return fpath(percent=percent, year=year, data_type=data_type,
-                     dta=dta, dta_path=self.dta_path, pq_path=self.pq_path)
+        return fpath(
+            percent=percent,
+            year=year,
+            data_type=data_type,
+            dta=dta,
+            dta_path=self.dta_path,
+            pq_path=self.pq_path)
 
     def _get_variables_to_import(self, year, data_type, import_vars):
         """Get list of variable names to import from given file
@@ -381,7 +381,8 @@ class MedicareDF(object):
             for race in races:
                 if type(race) == str:
                     regex = re.compile(race, re.IGNORECASE).search
-                    race = [val for key, val in race_codebook.items() if regex(key)]
+                    race = [
+                        val for key, val in race_codebook.items() if regex(key)]
                     race = list(set(race))
                     assert len(race) == 1
                     races_new.append(race[0])
@@ -743,10 +744,7 @@ class MedicareDF(object):
 
     @staticmethod
     def create_rename_dict(
-            hcpcs=None,
-            icd9_diag=None,
-            icd9_proc=None,
-            rename={}):
+            hcpcs=None, icd9_diag=None, icd9_proc=None, rename={}):
         """
         Make dictionary where the keys are codes/pattern strings and values are
         new column names
@@ -784,7 +782,7 @@ class MedicareDF(object):
                 val = rename['hcpcs'][i]
                 rename_new[key] = val
         elif type(rename.get('hcpcs')) == dict:
-                rename_new = {**rename_new, **rename['hcpcs']}
+            rename_new = {**rename_new, **rename['hcpcs']}
         elif rename.get('hcpcs') == None:
             pass
         else:
@@ -796,7 +794,7 @@ class MedicareDF(object):
                 val = rename['icd9_diag'][i]
                 rename_new[key] = val
         elif type(rename.get('icd9_diag')) == dict:
-                rename_new = {**rename_new, **rename['icd9_diag']}
+            rename_new = {**rename_new, **rename['icd9_diag']}
         elif rename.get('icd9_diag') == None:
             pass
         else:
@@ -808,7 +806,7 @@ class MedicareDF(object):
                 val = rename['icd9_proc'][i]
                 rename_new[key] = val
         elif type(rename.get('icd9_proc')) == dict:
-                rename_new = {**rename_new, **rename['icd9_proc']}
+            rename_new = {**rename_new, **rename['icd9_proc']}
         elif rename.get('icd9_proc') == None:
             pass
         else:
@@ -825,7 +823,10 @@ class MedicareDF(object):
             icd9_proc=None,
             keep_vars={},
             collapse_codes=False,
-            rename={'hcpcs': None, 'icd9_diag': None, 'icd9_proc': None},
+            rename={
+                'hcpcs': None,
+                'icd9_diag': None,
+                'icd9_proc': None},
             convert_ehic=True,
             verbose=False):
         """Search in given claim-level dataset(s) for HCPCS and/or ICD9 codes
@@ -973,7 +974,8 @@ class MedicareDF(object):
         # Don't go through ehic process if data is only post 2006
         if years_ehic == []:
             for data_type in data_types:
-                data[data_type]['all'] = pd.concat([data[data_type][year] for year in years_bene_id])
+                data[data_type]['all'] = pd.concat([
+                    data[data_type][year] for year in years_bene_id])
                 for year in years_ehic:
                     data[data_type][year] = None
                 data[data_type] = data[data_type]['all']
@@ -1002,12 +1004,14 @@ class MedicareDF(object):
                 for year in years_ehic:
                     # Read in all bsfab data
                     if self.parquet_engine == 'pyarrow':
-                        pf = pq.ParquetFile(self.fpath(self.percent, year, 'bsfab'))
+                        pf = pq.ParquetFile(
+                            self.fpath(self.percent, year, 'bsfab'))
                         pl = pf.read(
                             columns=['ehic', 'bene_id'],
                             nthreads=2).to_pandas().set_index('ehic')
                     elif self.parquet_engine == 'fastparquet':
-                        pf = fp.ParquetFile(self.fpath(self.percent, year, 'bsfab'))
+                        pf = fp.ParquetFile(
+                            self.fpath(self.percent, year, 'bsfab'))
                         pl = pf.to_pandas(columns=['bene_id'], index='ehic')
 
                     # Join bene_ids onto data using ehic
@@ -1140,7 +1144,8 @@ class MedicareDF(object):
 
         regex_string = '|'.join(regex_string)
         regex = re.compile(regex_string).search
-        all_cols = fp.ParquetFile(self.fpath(self.percent, year, data_type)).columns
+        all_cols = fp.ParquetFile(self.fpath(self.percent, year,
+                                             data_type)).columns
         cols = [x for x in all_cols if regex(x)]
 
         # cl_id_col = [x for x in cols if re.search(cl_id_regex, x)]
