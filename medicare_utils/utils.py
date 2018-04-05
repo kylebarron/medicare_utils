@@ -699,7 +699,7 @@ class MedicareDF(object):
 
     @staticmethod
     def _check_code_types(var):
-        """Check type of hcpcs, icd9_diag, icd9_proc codes
+        """Check type of hcpcs, icd9_dx, icd9_sg codes
 
         Args:
             var: variable to check types of
@@ -742,7 +742,7 @@ class MedicareDF(object):
             raise TypeError('Provided non string or regex to get_pattern()')
 
     def create_rename_dict(
-            self, hcpcs=None, icd9_diag=None, icd9_proc=None, rename={}):
+            self, hcpcs=None, icd9_dx=None, icd9_sg=None, rename={}):
         """
         Make dictionary where the keys are codes/pattern strings and values are
         new column names
@@ -753,10 +753,10 @@ class MedicareDF(object):
 
         if type(rename.get('hcpcs')) == list:
             assert len(rename.get('hcpcs')) == len(hcpcs), msg
-        if type(rename.get('icd9_diag')) == list:
-            assert len(rename.get('icd9_diag')) == len(icd9_diag), msg
-        if type(rename.get('icd9_proc')) == list:
-            assert len(rename.get('icd9_proc')) == len(icd9_proc), msg
+        if type(rename.get('icd9_dx')) == list:
+            assert len(rename.get('icd9_dx')) == len(icd9_dx), msg
+        if type(rename.get('icd9_sg')) == list:
+            assert len(rename.get('icd9_sg')) == len(icd9_sg), msg
 
         # Generate a key with empty value for every variable
         rename_new = {}
@@ -764,12 +764,12 @@ class MedicareDF(object):
             for item in hcpcs:
                 rename_new[self.get_pattern(item)] = ''
 
-        if icd9_diag is not None:
-            for item in icd9_diag:
+        if icd9_dx is not None:
+            for item in icd9_dx:
                 rename_new[self.get_pattern(item)] = ''
 
-        if icd9_proc is not None:
-            for item in icd9_proc:
+        if icd9_sg is not None:
+            for item in icd9_sg:
                 rename_new[self.get_pattern(item)] = ''
 
         # Now fill in rename_new using rename
@@ -786,26 +786,26 @@ class MedicareDF(object):
         else:
             raise TypeError(msg)
 
-        if type(rename.get('icd9_diag')) == list:
-            for i in range(len(rename['icd9_diag'])):
-                key = self.get_pattern(icd9_diag[i])
-                val = rename['icd9_diag'][i]
+        if type(rename.get('icd9_dx')) == list:
+            for i in range(len(rename['icd9_dx'])):
+                key = self.get_pattern(icd9_dx[i])
+                val = rename['icd9_dx'][i]
                 rename_new[key] = val
-        elif type(rename.get('icd9_diag')) == dict:
-            rename_new = {**rename_new, **rename['icd9_diag']}
-        elif rename.get('icd9_diag') == None:
+        elif type(rename.get('icd9_dx')) == dict:
+            rename_new = {**rename_new, **rename['icd9_dx']}
+        elif rename.get('icd9_dx') == None:
             pass
         else:
             raise TypeError(msg)
 
-        if type(rename.get('icd9_proc')) == list:
-            for i in range(len(rename['icd9_proc'])):
-                key = self.get_pattern(icd9_proc[i])
-                val = rename['icd9_proc'][i]
+        if type(rename.get('icd9_sg')) == list:
+            for i in range(len(rename['icd9_sg'])):
+                key = self.get_pattern(icd9_sg[i])
+                val = rename['icd9_sg'][i]
                 rename_new[key] = val
-        elif type(rename.get('icd9_proc')) == dict:
-            rename_new = {**rename_new, **rename['icd9_proc']}
-        elif rename.get('icd9_proc') == None:
+        elif type(rename.get('icd9_sg')) == dict:
+            rename_new = {**rename_new, **rename['icd9_sg']}
+        elif rename.get('icd9_sg') == None:
             pass
         else:
             raise TypeError(msg)
@@ -817,14 +817,14 @@ class MedicareDF(object):
             self,
             data_types,
             hcpcs=None,
-            icd9_diag=None,
-            icd9_proc=None,
+            icd9_dx=None,
+            icd9_sg=None,
             keep_vars={},
             collapse_codes=False,
             rename={
                 'hcpcs': None,
-                'icd9_diag': None,
-                'icd9_proc': None},
+                'icd9_dx': None,
+                'icd9_sg': None},
             convert_ehic=True,
             verbose=False):
         """Search in given claim-level dataset(s) for HCPCS and/or ICD9 codes
@@ -835,9 +835,9 @@ class MedicareDF(object):
             data_types (str or list[str]): carc, carl, ipc, ipr, med, opc, opr
             hcpcs (str, compiled regex, list[str], list[compiled regex]):
                 List of HCPCS codes to look for
-            icd9_diag (str, compiled regex, list[str], list[compiled regex]):
+            icd9_dx (str, compiled regex, list[str], list[compiled regex]):
                 List of ICD-9 diagnosis codes to look for
-            icd9_proc (str, compiled regex, list[str], list[compiled regex]):
+            icd9_sg (str, compiled regex, list[str], list[compiled regex]):
                 List of ICD-9 procedure codes to look for
             keep_vars (dict[data_type: list[str]]): dict of column names to return
             collapse_codes (bool): If True, returns a single column "match";
@@ -861,8 +861,8 @@ class MedicareDF(object):
 
         ok_data_types = ['carc', 'carl', 'ipc', 'ipr', 'med', 'opc', 'opr']
         ok_hcpcs_data_types = ['carl', 'ipr', 'opr']
-        ok_diag_data_types = ['carc', 'carl', 'ipc', 'med', 'opc']
-        ok_proc_data_types = ['ipc', 'med', 'opc']
+        ok_dx_data_types = ['carc', 'carl', 'ipc', 'med', 'opc']
+        ok_sg_data_types = ['ipc', 'med', 'opc']
 
         # Instantiate all data types in the keep_vars dict
         for data_type in ok_data_types:
@@ -894,21 +894,21 @@ class MedicareDF(object):
                 msg += '\t  in data types: '
                 msg += f'{list(data_types.intersection(ok_hcpcs_data_types))}\n'
 
-        if icd9_diag is not None:
-            icd9_diag = self._check_code_types(icd9_diag)
-            all_codes.extend(icd9_diag)
+        if icd9_dx is not None:
+            icd9_dx = self._check_code_types(icd9_dx)
+            all_codes.extend(icd9_dx)
             if verbose:
-                msg += f'\t- ICD-9 diagnosis codes: {icd9_diag}\n'
+                msg += f'\t- ICD-9 diagnosis codes: {icd9_dx}\n'
                 msg += '\t  in data types: '
-                msg += f'{list(data_types.intersection(ok_diag_data_types))}\n'
+                msg += f'{list(data_types.intersection(ok_dx_data_types))}\n'
 
-        if icd9_proc is not None:
-            icd9_proc = self._check_code_types(icd9_proc)
-            all_codes.extend(icd9_proc)
+        if icd9_sg is not None:
+            icd9_sg = self._check_code_types(icd9_sg)
+            all_codes.extend(icd9_sg)
             if verbose:
-                msg += f'\t- ICD-9 procedure codes: {icd9_proc}\n'
+                msg += f'\t- ICD-9 procedure codes: {icd9_sg}\n'
                 msg += '\t  in data types: '
-                msg += f'{list(data_types.intersection(ok_proc_data_types))}\n'
+                msg += f'{list(data_types.intersection(ok_sg_data_types))}\n'
 
         if verbose:
             print(msg)
@@ -918,10 +918,7 @@ class MedicareDF(object):
         assert len(all_codes) == len(set(all_codes)), msg
 
         rename = self.create_rename_dict(
-            hcpcs=hcpcs,
-            icd9_diag=icd9_diag,
-            icd9_proc=icd9_proc,
-            rename=rename)
+            hcpcs=hcpcs, icd9_dx=icd9_dx, icd9_sg=icd9_sg, rename=rename)
 
         data = {}
         for data_type in data_types:
@@ -934,12 +931,12 @@ class MedicareDF(object):
                     if data_type in ok_hcpcs_data_types:
                         if hcpcs is not None:
                             msg += f'\t- HCPCS codes: {hcpcs}\n'
-                    if data_type in ok_diag_data_types:
-                        if icd9_diag is not None:
-                            msg += f'\t- ICD-9 diagnosis codes: {icd9_diag}\n'
-                    if data_type in ok_proc_data_types:
-                        if icd9_proc is not None:
-                            msg += f'\t- ICD-9 procedure codes: {icd9_proc}\n'
+                    if data_type in ok_dx_data_types:
+                        if icd9_dx is not None:
+                            msg += f'\t- ICD-9 diagnosis codes: {icd9_dx}\n'
+                    if data_type in ok_sg_data_types:
+                        if icd9_sg is not None:
+                            msg += f'\t- ICD-9 procedure codes: {icd9_sg}\n'
                     if keep_vars[data_type] != []:
                         msg += '\t- Keeping variables: '
                         msg += f'{keep_vars[data_type]}\n'
@@ -951,10 +948,10 @@ class MedicareDF(object):
                     year=year,
                     data_type=data_type,
                     hcpcs=(hcpcs if data_type in ok_hcpcs_data_types else None),
-                    icd9_diag=(
-                        icd9_diag if data_type in ok_diag_data_types else None),
-                    icd9_proc=(
-                        icd9_proc if data_type in ok_proc_data_types else None),
+                    icd9_dx=(
+                        icd9_dx if data_type in ok_dx_data_types else None),
+                    icd9_sg=(
+                        icd9_sg if data_type in ok_sg_data_types else None),
                     keep_vars=keep_vars[data_type],
                     collapse_codes=collapse_codes,
                     rename=rename)
@@ -1066,8 +1063,8 @@ class MedicareDF(object):
             year,
             data_type,
             hcpcs=None,
-            icd9_diag=None,
-            icd9_proc=None,
+            icd9_dx=None,
+            icd9_sg=None,
             keep_vars=[],
             rename={},
             collapse_codes=False):
@@ -1080,9 +1077,9 @@ class MedicareDF(object):
             data_type (str): One of carc, carl, ipc, ipr, med, opc, opr
             hcpcs (str, compiled regex, list[str], list[compiled regex]):
                 List of HCPCS codes to look for
-            icd9_diag (str, compiled regex, list[str], list[compiled regex]):
+            icd9_dx (str, compiled regex, list[str], list[compiled regex]):
                 List of ICD-9 diagnosis codes to look for
-            icd9_proc (str, compiled regex, list[str], list[compiled regex]):
+            icd9_sg (str, compiled regex, list[str], list[compiled regex]):
                 List of ICD-9 procedure codes to look for
             keep_vars (list[str]): list of column names to return
             rename (dict): dictionary where keys are codes to match, and values
@@ -1124,18 +1121,18 @@ class MedicareDF(object):
             hcpcs_regex = r'^hcpcs_cd$'
             regex_string.append(hcpcs_regex)
 
-        if icd9_diag is not None:
+        if icd9_dx is not None:
             if data_type == 'carl':
-                icd9_diag_regex = r'icd_dgns_cd\d*$'
+                icd9_dx_regex = r'icd_dgns_cd\d*$'
             elif data_type == 'med':
-                icd9_diag_regex = r'^dgnscd\d+$$'
+                icd9_dx_regex = r'^dgnscd\d+$$'
             else:
-                icd9_diag_regex = r'^icd_dgns_cd\d+$'
-            regex_string.append(icd9_diag_regex)
+                icd9_dx_regex = r'^icd_dgns_cd\d+$'
+            regex_string.append(icd9_dx_regex)
 
-        if icd9_proc is not None:
-            icd9_proc_regex = r'^icd_prcdr_cd\d+$'
-            regex_string.append(icd9_proc_regex)
+        if icd9_sg is not None:
+            icd9_sg_regex = r'^icd_prcdr_cd\d+$'
+            regex_string.append(icd9_sg_regex)
 
         for var in keep_vars:
             regex_string.append(r'^{}$'.format(var))
@@ -1152,15 +1149,15 @@ class MedicareDF(object):
         else:
             hcpcs_cols = None
 
-        if icd9_diag is not None:
-            icd9_diag_cols = [x for x in cols if re.search(icd9_diag_regex, x)]
+        if icd9_dx is not None:
+            icd9_dx_cols = [x for x in cols if re.search(icd9_dx_regex, x)]
         else:
-            icd9_diag_cols = None
+            icd9_dx_cols = None
 
-        if icd9_proc is not None:
-            icd9_proc_cols = [x for x in cols if re.search(icd9_proc_regex, x)]
+        if icd9_sg is not None:
+            icd9_sg_cols = [x for x in cols if re.search(icd9_sg_regex, x)]
         else:
-            icd9_proc_cols = None
+            icd9_sg_cols = None
 
         # This holds the df's from each iteration over the claim-level dataset
         all_cl = []
@@ -1201,29 +1198,29 @@ class MedicareDF(object):
 
                     cl.drop(hcpcs_cols, axis=1, inplace=True)
 
-                if icd9_diag:
-                    for code in icd9_diag:
+                if icd9_dx:
+                    for code in icd9_dx:
                         if isinstance(code, re._pattern_type):
-                            cl.loc[cl[icd9_diag_cols].apply(
+                            cl.loc[cl[icd9_dx_cols].apply(
                                 lambda col: col.str.contains(code)).any(
                                     axis=1), 'match'] = True
                         else:
-                            cl.loc[(cl[icd9_diag_cols] == code
+                            cl.loc[(cl[icd9_dx_cols] == code
                                    ).any(axis=1), 'match'] = True
 
-                    cl.drop(icd9_diag_cols, axis=1, inplace=True)
+                    cl.drop(icd9_dx_cols, axis=1, inplace=True)
 
-                if icd9_proc:
-                    for code in icd9_proc:
+                if icd9_sg:
+                    for code in icd9_sg:
                         if isinstance(code, re._pattern_type):
-                            cl.loc[cl[icd9_proc_cols].apply(
+                            cl.loc[cl[icd9_sg_cols].apply(
                                 lambda col: col.str.contains(code)).any(
                                     axis=1), 'match'] = True
                         else:
-                            cl.loc[(cl[icd9_proc_cols] == code
+                            cl.loc[(cl[icd9_sg_cols] == code
                                    ).any(axis=1), 'match'] = True
 
-                    cl.drop(icd9_proc_cols, axis=1, inplace=True)
+                    cl.drop(icd9_sg_cols, axis=1, inplace=True)
 
                 # Unsure whether to keep only true matches
                 # cl = cl.loc[cl['match']]
@@ -1248,11 +1245,11 @@ class MedicareDF(object):
 
                     cl.drop(hcpcs_cols, axis=1, inplace=True)
 
-                if icd9_diag:
-                    for code in icd9_diag:
+                if icd9_dx:
+                    for code in icd9_dx:
                         if isinstance(code, re._pattern_type):
                             cl[code.pattern] = False
-                            idx = cl.index[cl[icd9_diag_cols].apply(
+                            idx = cl.index[cl[icd9_dx_cols].apply(
                                 lambda col: col.str.contains(code)).any(axis=1)]
                             cl.loc[idx, code.pattern] = True
                             all_created_cols.append(code.pattern)
@@ -1260,17 +1257,17 @@ class MedicareDF(object):
                         else:
                             cl[code] = False
                             idx = cl.index[(
-                                cl[icd9_diag_cols] == code).any(axis=1)]
+                                cl[icd9_dx_cols] == code).any(axis=1)]
                             cl.loc[idx, code] = True
                             all_created_cols.append(code)
 
-                    cl.drop(icd9_diag_cols, axis=1, inplace=True)
+                    cl.drop(icd9_dx_cols, axis=1, inplace=True)
 
-                if icd9_proc:
-                    for code in icd9_proc:
+                if icd9_sg:
+                    for code in icd9_sg:
                         if isinstance(code, re._pattern_type):
                             cl[code.pattern] = False
-                            idx = cl.index[cl[icd9_proc_cols].apply(
+                            idx = cl.index[cl[icd9_sg_cols].apply(
                                 lambda col: col.str.contains(code)).any(axis=1)]
                             cl.loc[idx, code.pattern] = True
                             all_created_cols.append(code.pattern)
@@ -1278,11 +1275,11 @@ class MedicareDF(object):
                         else:
                             cl[code] = False
                             idx = cl.index[(
-                                cl[icd9_proc_cols] == code).any(axis=1)]
+                                cl[icd9_sg_cols] == code).any(axis=1)]
                             cl.loc[idx, code] = True
                             all_created_cols.append(code)
 
-                    cl.drop(icd9_proc_cols, axis=1, inplace=True)
+                    cl.drop(icd9_sg_cols, axis=1, inplace=True)
 
                 cl['match'] = (cl[all_created_cols] == True).any(axis=1)
 
@@ -1312,8 +1309,8 @@ class MedicareDF(object):
             self,
             data_types,
             hcpcs=None,
-            icd9_diag=None,
-            icd9_proc=None,
+            icd9_dx=None,
+            icd9_sg=None,
             collapse_codes=False):
 
         cl = self.cl
@@ -1343,8 +1340,8 @@ class MedicareDF(object):
                         idx = cl.index[cl[code] == True]  # noqa
                         pl.loc[idx, code] = True
 
-            if icd9_diag:
-                for code in icd9_diag:
+            if icd9_dx:
+                for code in icd9_dx:
                     if isinstance(code, re._pattern_type):
                         if code.pattern not in pl.columns:
                             pl[code.pattern] = False
@@ -1357,8 +1354,8 @@ class MedicareDF(object):
                         idx = cl.index[cl[code] == True]  # noqa
                         pl.loc[idx, code] = True
 
-            if icd9_proc:
-                for code in icd9_proc:
+            if icd9_sg:
+                for code in icd9_sg:
                     if isinstance(code, re._pattern_type):
                         if code.pattern not in pl.columns:
                             pl[code.pattern] = False
