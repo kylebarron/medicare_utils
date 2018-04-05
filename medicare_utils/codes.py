@@ -196,17 +196,20 @@ class hcpcs(object):
         try:
             pq.ParquetFile(hcpcs_path)
         except:
-            all_hcpcs = []
-            for year in range(2003, 2019):
-                all_hcpcs.append(self._download(year))
-
-            df = pd.concat(all_hcpcs, axis=0)
-            df.to_parquet(hcpcs_path, engine='pyarrow')
+            self.download(hcpcs_path=hcpcs_path)
 
         df = pd.read_parquet(hcpcs_path, engine='pyarrow')
         self.codes = df.loc[df['year'] == year]
 
-    def _download(self, year: int):
+    def _download(self, hcpcs_path):
+        all_hcpcs = []
+        for year in range(2003, 2019):
+            all_hcpcs.append(self._download(year))
+
+        df = pd.concat(all_hcpcs, axis=0)
+        df.to_parquet(hcpcs_path, engine='pyarrow')
+
+    def _download_single_year(self, year: int):
         """Download HCPCS codes for a given year
 
         Args:
@@ -451,50 +454,8 @@ class icd9(object):
             pq.ParquetFile(icd9_proc_path)
             pq.ParquetFile(icd9_diag_path)
         except:
-            all_icd9_proc_short = []
-            all_icd9_diag_short = []
-            for yr in range(2006, 2016):
-                diag, proc = self._download(year=yr, long=False)
-                all_icd9_proc_short.append(proc)
-                all_icd9_diag_short.append(diag)
-
-            df_proc_short = pd.concat(all_icd9_proc_short, axis=0)
-            df_diag_short = pd.concat(all_icd9_diag_short, axis=0)
-            df_proc_short = df_proc_short.rename(
-                index=str, columns={'desc': 'desc_short'})
-            df_diag_short = df_diag_short.rename(
-                index=str, columns={'desc': 'desc_short'})
-
-            all_icd9_proc_long = []
-            all_icd9_diag_long = []
-            for yr in range(2006, 2016):
-                diag, proc = self._download(year=yr, long=True)
-                all_icd9_proc_long.append(proc)
-                all_icd9_diag_long.append(diag)
-
-            df_proc_long = pd.concat(all_icd9_proc_long, axis=0)
-            df_diag_long = pd.concat(all_icd9_diag_long, axis=0)
-            df_proc_long = df_proc_long.rename(
-                index=str, columns={'desc': 'desc_long'})
-            df_diag_long = df_diag_long.rename(
-                index=str, columns={'desc': 'desc_long'})
-
-            proc = df_proc_short.merge(
-                df_proc_long,
-                how='inner',
-                on=['icd_prcdr_cd', 'year'],
-                validate='1:1')
-            diag = df_diag_short.merge(
-                df_diag_long,
-                how='inner',
-                on=['icd_dgns_cd', 'year'],
-                validate='1:1')
-
-            assert len(proc) == len(df_proc_short) == len(df_proc_long)
-            assert len(diag) == len(df_diag_short) == len(df_diag_long)
-
-            proc.to_parquet(icd9_proc_path, engine='pyarrow')
-            diag.to_parquet(icd9_diag_path, engine='pyarrow')
+            self._download(
+                icd9_proc_path=icd9_proc_path, icd9_diag_path=icd9_diag_path)
 
         proc_cols = ['icd_prcdr_cd', 'year']
         diag_cols = ['icd_dgns_cd', 'year']
@@ -518,7 +479,53 @@ class icd9(object):
         self.proc = proc
         self.diag = diag
 
-    def _download(self, year: int, long: bool):
+    def _download(self, icd9_proc_path, icd9_diag_path):
+        all_icd9_proc_short = []
+        all_icd9_diag_short = []
+        for yr in range(2006, 2016):
+            diag, proc = self._download_single_year(year=yr, long=False)
+            all_icd9_proc_short.append(proc)
+            all_icd9_diag_short.append(diag)
+
+        df_proc_short = pd.concat(all_icd9_proc_short, axis=0)
+        df_diag_short = pd.concat(all_icd9_diag_short, axis=0)
+        df_proc_short = df_proc_short.rename(
+            index=str, columns={'desc': 'desc_short'})
+        df_diag_short = df_diag_short.rename(
+            index=str, columns={'desc': 'desc_short'})
+
+        all_icd9_proc_long = []
+        all_icd9_diag_long = []
+        for yr in range(2006, 2016):
+            diag, proc = self._download_single_year(year=yr, long=True)
+            all_icd9_proc_long.append(proc)
+            all_icd9_diag_long.append(diag)
+
+        df_proc_long = pd.concat(all_icd9_proc_long, axis=0)
+        df_diag_long = pd.concat(all_icd9_diag_long, axis=0)
+        df_proc_long = df_proc_long.rename(
+            index=str, columns={'desc': 'desc_long'})
+        df_diag_long = df_diag_long.rename(
+            index=str, columns={'desc': 'desc_long'})
+
+        proc = df_proc_short.merge(
+            df_proc_long,
+            how='inner',
+            on=['icd_prcdr_cd', 'year'],
+            validate='1:1')
+        diag = df_diag_short.merge(
+            df_diag_long,
+            how='inner',
+            on=['icd_dgns_cd', 'year'],
+            validate='1:1')
+
+        assert len(proc) == len(df_proc_short) == len(df_proc_long)
+        assert len(diag) == len(df_diag_short) == len(df_diag_long)
+
+        proc.to_parquet(icd9_proc_path, engine='pyarrow')
+        diag.to_parquet(icd9_diag_path, engine='pyarrow')
+
+    def _download_single_year(self, year: int, long: bool):
 
         url = 'https://www.cms.gov/Medicare/Coding/ICD9ProviderDiagnosticCodes'
         url += '/Downloads/'
