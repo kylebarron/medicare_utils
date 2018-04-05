@@ -448,82 +448,82 @@ class icd9(object):
 
         self.conf = conf
 
-        icd9_proc_path = Path(conf['icd9']['data_path']) / 'icd9_proc.parquet'
-        icd9_diag_path = Path(conf['icd9']['data_path']) / 'icd9_diag.parquet'
+        icd9_sg_path = Path(conf['icd9']['data_path']) / 'icd9_sg.parquet'
+        icd9_dx_path = Path(conf['icd9']['data_path']) / 'icd9_dx.parquet'
         try:
-            pq.ParquetFile(icd9_proc_path)
-            pq.ParquetFile(icd9_diag_path)
+            pq.ParquetFile(icd9_sg_path)
+            pq.ParquetFile(icd9_dx_path)
         except:
             self._download(
-                icd9_proc_path=icd9_proc_path, icd9_diag_path=icd9_diag_path)
+                icd9_sg_path=icd9_sg_path, icd9_dx_path=icd9_dx_path)
 
-        proc_cols = ['icd_prcdr_cd', 'year']
-        diag_cols = ['icd_dgns_cd', 'year']
+        sg_cols = ['icd_prcdr_cd', 'year']
+        dx_cols = ['icd_dgns_cd', 'year']
         if long:
-            proc_cols.append('desc_long')
-            diag_cols.append('desc_long')
+            sg_cols.append('desc_long')
+            dx_cols.append('desc_long')
         else:
-            proc_cols.append('desc_short')
-            diag_cols.append('desc_short')
+            sg_cols.append('desc_short')
+            dx_cols.append('desc_short')
 
-        proc = pd.read_parquet(
-            icd9_proc_path, engine='pyarrow', columns=proc_cols)
-        diag = pd.read_parquet(
-            icd9_diag_path, engine='pyarrow', columns=diag_cols)
+        sg = pd.read_parquet(
+            icd9_sg_path, engine='pyarrow', columns=sg_cols)
+        dx = pd.read_parquet(
+            icd9_dx_path, engine='pyarrow', columns=dx_cols)
 
-        proc = proc[proc['year'] == year]
-        diag = diag[diag['year'] == year]
+        sg = sg[sg['year'] == year]
+        dx = dx[dx['year'] == year]
 
-        proc = proc.set_index('icd_prcdr_cd')
-        diag = diag.set_index('icd_dgns_cd')
-        self.proc = proc
-        self.diag = diag
+        sg = sg.set_index('icd_prcdr_cd')
+        dx = dx.set_index('icd_dgns_cd')
+        self.sg = sg
+        self.dx = dx
 
-    def _download(self, icd9_proc_path, icd9_diag_path):
-        all_icd9_proc_short = []
-        all_icd9_diag_short = []
+    def _download(self, icd9_sg_path, icd9_dx_path):
+        all_icd9_sg_short = []
+        all_icd9_dx_short = []
         for yr in range(2006, 2016):
-            diag, proc = self._download_single_year(year=yr, long=False)
-            all_icd9_proc_short.append(proc)
-            all_icd9_diag_short.append(diag)
+            dx, sg = self._download_single_year(year=yr, long=False)
+            all_icd9_sg_short.append(sg)
+            all_icd9_dx_short.append(dx)
 
-        df_proc_short = pd.concat(all_icd9_proc_short, axis=0)
-        df_diag_short = pd.concat(all_icd9_diag_short, axis=0)
-        df_proc_short = df_proc_short.rename(
+        df_sg_short = pd.concat(all_icd9_sg_short, axis=0)
+        df_dx_short = pd.concat(all_icd9_dx_short, axis=0)
+        df_sg_short = df_sg_short.rename(
             index=str, columns={'desc': 'desc_short'})
-        df_diag_short = df_diag_short.rename(
+        df_dx_short = df_dx_short.rename(
             index=str, columns={'desc': 'desc_short'})
 
-        all_icd9_proc_long = []
-        all_icd9_diag_long = []
+        all_icd9_sg_long = []
+        all_icd9_dx_long = []
         for yr in range(2006, 2016):
-            diag, proc = self._download_single_year(year=yr, long=True)
-            all_icd9_proc_long.append(proc)
-            all_icd9_diag_long.append(diag)
+            dx, sg = self._download_single_year(year=yr, long=True)
+            all_icd9_sg_long.append(sg)
+            all_icd9_dx_long.append(dx)
 
-        df_proc_long = pd.concat(all_icd9_proc_long, axis=0)
-        df_diag_long = pd.concat(all_icd9_diag_long, axis=0)
-        df_proc_long = df_proc_long.rename(
+        df_sg_long = pd.concat(all_icd9_sg_long, axis=0)
+        df_dx_long = pd.concat(all_icd9_dx_long, axis=0)
+        df_sg_long = df_sg_long.rename(
             index=str, columns={'desc': 'desc_long'})
-        df_diag_long = df_diag_long.rename(
+        df_dx_long = df_dx_long.rename(
             index=str, columns={'desc': 'desc_long'})
 
-        proc = df_proc_short.merge(
-            df_proc_long,
+        sg = df_sg_short.merge(
+            df_sg_long,
             how='inner',
             on=['icd_prcdr_cd', 'year'],
             validate='1:1')
-        diag = df_diag_short.merge(
-            df_diag_long,
+        dx = df_dx_short.merge(
+            df_dx_long,
             how='inner',
             on=['icd_dgns_cd', 'year'],
             validate='1:1')
 
-        assert len(proc) == len(df_proc_short) == len(df_proc_long)
-        assert len(diag) == len(df_diag_short) == len(df_diag_long)
+        assert len(sg) == len(df_sg_short) == len(df_sg_long)
+        assert len(dx) == len(df_dx_short) == len(df_dx_long)
 
-        proc.to_parquet(icd9_proc_path, engine='pyarrow')
-        diag.to_parquet(icd9_diag_path, engine='pyarrow')
+        sg.to_parquet(icd9_sg_path, engine='pyarrow')
+        dx.to_parquet(icd9_dx_path, engine='pyarrow')
 
     def _download_single_year(self, year: int, long: bool):
 
@@ -535,15 +535,15 @@ class icd9(object):
             content = requests.get(url).content
 
             z = ZipFile(io.BytesIO(content), 'r')
-            proc = z.read('I9SG_DESC.txt').decode('latin-1')
-            diag = z.read('I9DX_DESC.txt').decode('latin-1')
-            proc = pd.read_fwf(
-                io.StringIO(proc),
+            sg = z.read('I9SG_DESC.txt').decode('latin-1')
+            dx = z.read('I9DX_DESC.txt').decode('latin-1')
+            sg = pd.read_fwf(
+                io.StringIO(sg),
                 widths=[5, 200],
                 names=['icd_prcdr_cd', 'desc'],
                 dtype={'icd_prcdr_cd': 'str'})
-            diag = pd.read_fwf(
-                io.StringIO(diag),
+            dx = pd.read_fwf(
+                io.StringIO(dx),
                 widths=[5, 200],
                 names=['icd_dgns_cd', 'desc'],
                 dtype={'icd_dgns_cd': 'str'})
@@ -553,15 +553,15 @@ class icd9(object):
             content = requests.get(url).content
 
             z = ZipFile(io.BytesIO(content), 'r')
-            proc = z.read('I9surgery.txt').decode('latin-1')
-            diag = z.read('I9diagnosis.txt').decode('latin-1')
-            proc = pd.read_fwf(
-                io.StringIO(proc),
+            sg = z.read('I9surgery.txt').decode('latin-1')
+            dx = z.read('I9diagnosis.txt').decode('latin-1')
+            sg = pd.read_fwf(
+                io.StringIO(sg),
                 widths=[5, 200],
                 names=['icd_prcdr_cd', 'desc'],
                 dtype={'icd_prcdr_cd': 'str'})
-            diag = pd.read_fwf(
-                io.StringIO(diag),
+            dx = pd.read_fwf(
+                io.StringIO(dx),
                 widths=[5, 200],
                 names=['icd_dgns_cd', 'desc'],
                 dtype={'icd_dgns_cd': 'str'})
@@ -571,15 +571,15 @@ class icd9(object):
             content = requests.get(url).content
 
             z = ZipFile(io.BytesIO(content), 'r')
-            proc = z.read('I9proceduresV25.txt').decode('latin-1')
-            diag = z.read('I9diagnosesV25.txt').decode('latin-1')
-            proc = pd.read_fwf(
-                io.StringIO(proc),
+            sg = z.read('I9proceduresV25.txt').decode('latin-1')
+            dx = z.read('I9diagnosesV25.txt').decode('latin-1')
+            sg = pd.read_fwf(
+                io.StringIO(sg),
                 widths=[5, 200],
                 names=['icd_prcdr_cd', 'desc'],
                 dtype={'icd_prcdr_cd': 'str'})
-            diag = pd.read_fwf(
-                io.StringIO(diag),
+            dx = pd.read_fwf(
+                io.StringIO(dx),
                 widths=[5, 200],
                 names=['icd_dgns_cd', 'desc'],
                 dtype={'icd_dgns_cd': 'str'})
@@ -589,15 +589,15 @@ class icd9(object):
             content = requests.get(url).content
 
             z = ZipFile(io.BytesIO(content), 'r')
-            proc = z.read('V26  I-9 Procedures.txt').decode('latin-1')
-            diag = z.read('V26 I-9 Diagnosis.txt').decode('latin-1')
-            proc = pd.read_fwf(
-                io.StringIO(proc),
+            sg = z.read('V26  I-9 Procedures.txt').decode('latin-1')
+            dx = z.read('V26 I-9 Diagnosis.txt').decode('latin-1')
+            sg = pd.read_fwf(
+                io.StringIO(sg),
                 widths=[5, 200],
                 names=['icd_prcdr_cd', 'desc'],
                 dtype={'icd_prcdr_cd': 'str'})
-            diag = pd.read_fwf(
-                io.StringIO(diag),
+            dx = pd.read_fwf(
+                io.StringIO(dx),
                 widths=[5, 200],
                 names=['icd_dgns_cd', 'desc'],
                 dtype={'icd_dgns_cd': 'str'})
@@ -607,15 +607,15 @@ class icd9(object):
             content = requests.get(url).content
 
             z = ZipFile(io.BytesIO(content), 'r')
-            proc = z.read('CMS27_DESC_SHORT_SG.txt').decode('latin-1')
-            diag = z.read('CMS27_DESC_SHORT_DX.txt').decode('latin-1')
-            proc = pd.read_fwf(
-                io.StringIO(proc),
+            sg = z.read('CMS27_DESC_SHORT_SG.txt').decode('latin-1')
+            dx = z.read('CMS27_DESC_SHORT_DX.txt').decode('latin-1')
+            sg = pd.read_fwf(
+                io.StringIO(sg),
                 widths=[5, 200],
                 names=['icd_prcdr_cd', 'desc'],
                 dtype={'icd_prcdr_cd': 'str'})
-            diag = pd.read_fwf(
-                io.StringIO(diag),
+            dx = pd.read_fwf(
+                io.StringIO(dx),
                 widths=[5, 200],
                 names=['icd_dgns_cd', 'desc'],
                 dtype={'icd_dgns_cd': 'str'})
@@ -626,29 +626,29 @@ class icd9(object):
 
             z = ZipFile(io.BytesIO(content), 'r')
             if not long:
-                proc = z.read('CMS28_DESC_SHORT_SG.txt').decode('latin-1')
-                diag = z.read('CMS28_DESC_SHORT_DX.txt').decode('latin-1')
-                proc = pd.read_fwf(
-                    io.StringIO(proc),
+                sg = z.read('CMS28_DESC_SHORT_SG.txt').decode('latin-1')
+                dx = z.read('CMS28_DESC_SHORT_DX.txt').decode('latin-1')
+                sg = pd.read_fwf(
+                    io.StringIO(sg),
                     widths=[5, 200],
                     names=['icd_prcdr_cd', 'desc'],
                     dtype={'icd_prcdr_cd': 'str'})
-                diag = pd.read_fwf(
-                    io.StringIO(diag),
+                dx = pd.read_fwf(
+                    io.StringIO(dx),
                     widths=[5, 200],
                     names=['icd_dgns_cd', 'desc'],
                     dtype={'icd_dgns_cd': 'str'})
 
             else:
-                proc = z.read('CMS28_DESC_LONG_SG.txt').decode('latin-1')
-                diag = z.read('CMS28_DESC_LONG_DX.txt').decode('latin-1')
-                proc = pd.read_fwf(
-                    io.StringIO(proc),
+                sg = z.read('CMS28_DESC_LONG_SG.txt').decode('latin-1')
+                dx = z.read('CMS28_DESC_LONG_DX.txt').decode('latin-1')
+                sg = pd.read_fwf(
+                    io.StringIO(sg),
                     widths=[5, 200],
                     names=['icd_prcdr_cd', 'desc'],
                     dtype={'icd_prcdr_cd': 'str'})
-                diag = pd.read_fwf(
-                    io.StringIO(diag),
+                dx = pd.read_fwf(
+                    io.StringIO(dx),
                     widths=[5, 200],
                     names=['icd_dgns_cd', 'desc'],
                     dtype={'icd_dgns_cd': 'str'})
@@ -659,29 +659,29 @@ class icd9(object):
 
             z = ZipFile(io.BytesIO(content), 'r')
             if not long:
-                proc = z.read('CMS29_DESC_SHORT_SG.txt').decode('latin-1')
-                diag = z.read('CMS29_DESC_SHORT_DX.txt').decode('latin-1')
-                proc = pd.read_fwf(
-                    io.StringIO(proc),
+                sg = z.read('CMS29_DESC_SHORT_SG.txt').decode('latin-1')
+                dx = z.read('CMS29_DESC_SHORT_DX.txt').decode('latin-1')
+                sg = pd.read_fwf(
+                    io.StringIO(sg),
                     widths=[5, 200],
                     names=['icd_prcdr_cd', 'desc'],
                     dtype={'icd_prcdr_cd': 'str'})
-                diag = pd.read_fwf(
-                    io.StringIO(diag),
+                dx = pd.read_fwf(
+                    io.StringIO(dx),
                     widths=[5, 200],
                     names=['icd_dgns_cd', 'desc'],
                     dtype={'icd_dgns_cd': 'str'})
 
             else:
-                proc = z.read('CMS29_DESC_LONG_SG.txt').decode('latin-1')
-                diag = z.read('CMS29_DESC_LONG_DX.101111.txt').decode('latin-1')
-                proc = pd.read_fwf(
-                    io.StringIO(proc),
+                sg = z.read('CMS29_DESC_LONG_SG.txt').decode('latin-1')
+                dx = z.read('CMS29_DESC_LONG_DX.101111.txt').decode('latin-1')
+                sg = pd.read_fwf(
+                    io.StringIO(sg),
                     widths=[5, 200],
                     names=['icd_prcdr_cd', 'desc'],
                     dtype={'icd_prcdr_cd': 'str'})
-                diag = pd.read_fwf(
-                    io.StringIO(diag),
+                dx = pd.read_fwf(
+                    io.StringIO(dx),
                     widths=[5, 200],
                     names=['icd_dgns_cd', 'desc'],
                     dtype={'icd_dgns_cd': 'str'})
@@ -692,29 +692,29 @@ class icd9(object):
 
             z = ZipFile(io.BytesIO(content), 'r')
             if not long:
-                proc = z.read('CMS30_DESC_SHORT_SG.txt').decode('latin-1')
-                diag = z.read('CMS30_DESC_SHORT_DX.txt').decode('latin-1')
-                proc = pd.read_fwf(
-                    io.StringIO(proc),
+                sg = z.read('CMS30_DESC_SHORT_SG.txt').decode('latin-1')
+                dx = z.read('CMS30_DESC_SHORT_DX.txt').decode('latin-1')
+                sg = pd.read_fwf(
+                    io.StringIO(sg),
                     widths=[5, 200],
                     names=['icd_prcdr_cd', 'desc'],
                     dtype={'icd_prcdr_cd': 'str'})
-                diag = pd.read_fwf(
-                    io.StringIO(diag),
+                dx = pd.read_fwf(
+                    io.StringIO(dx),
                     widths=[5, 200],
                     names=['icd_dgns_cd', 'desc'],
                     dtype={'icd_dgns_cd': 'str'})
 
             else:
-                proc = z.read('CMS30_DESC_LONG_SG.txt').decode('latin-1')
-                diag = z.read('CMS30_DESC_LONG_DX 080612.txt').decode('latin-1')
-                proc = pd.read_fwf(
-                    io.StringIO(proc),
+                sg = z.read('CMS30_DESC_LONG_SG.txt').decode('latin-1')
+                dx = z.read('CMS30_DESC_LONG_DX 080612.txt').decode('latin-1')
+                sg = pd.read_fwf(
+                    io.StringIO(sg),
                     widths=[5, 200],
                     names=['icd_prcdr_cd', 'desc'],
                     dtype={'icd_prcdr_cd': 'str'})
-                diag = pd.read_fwf(
-                    io.StringIO(diag),
+                dx = pd.read_fwf(
+                    io.StringIO(dx),
                     widths=[5, 200],
                     names=['icd_dgns_cd', 'desc'],
                     dtype={'icd_dgns_cd': 'str'})
@@ -725,29 +725,29 @@ class icd9(object):
 
             z = ZipFile(io.BytesIO(content), 'r')
             if not long:
-                proc = z.read('CMS31_DESC_SHORT_SG.txt').decode('latin-1')
-                diag = z.read('CMS31_DESC_SHORT_DX.txt').decode('latin-1')
-                proc = pd.read_fwf(
-                    io.StringIO(proc),
+                sg = z.read('CMS31_DESC_SHORT_SG.txt').decode('latin-1')
+                dx = z.read('CMS31_DESC_SHORT_DX.txt').decode('latin-1')
+                sg = pd.read_fwf(
+                    io.StringIO(sg),
                     widths=[5, 200],
                     names=['icd_prcdr_cd', 'desc'],
                     dtype={'icd_prcdr_cd': 'str'})
-                diag = pd.read_fwf(
-                    io.StringIO(diag),
+                dx = pd.read_fwf(
+                    io.StringIO(dx),
                     widths=[5, 200],
                     names=['icd_dgns_cd', 'desc'],
                     dtype={'icd_dgns_cd': 'str'})
 
             else:
-                proc = z.read('CMS31_DESC_LONG_SG.txt').decode('latin-1')
-                diag = z.read('CMS31_DESC_LONG_DX.txt').decode('latin-1')
-                proc = pd.read_fwf(
-                    io.StringIO(proc),
+                sg = z.read('CMS31_DESC_LONG_SG.txt').decode('latin-1')
+                dx = z.read('CMS31_DESC_LONG_DX.txt').decode('latin-1')
+                sg = pd.read_fwf(
+                    io.StringIO(sg),
                     widths=[5, 200],
                     names=['icd_prcdr_cd', 'desc'],
                     dtype={'icd_prcdr_cd': 'str'})
-                diag = pd.read_fwf(
-                    io.StringIO(diag),
+                dx = pd.read_fwf(
+                    io.StringIO(dx),
                     widths=[5, 200],
                     names=['icd_dgns_cd', 'desc'],
                     dtype={'icd_dgns_cd': 'str'})
@@ -758,38 +758,38 @@ class icd9(object):
 
             z = ZipFile(io.BytesIO(content), 'r')
             if not long:
-                proc = z.read('CMS32_DESC_SHORT_SG.txt').decode('latin-1')
-                diag = z.read('CMS32_DESC_SHORT_DX.txt').decode('latin-1')
-                proc = pd.read_fwf(
-                    io.StringIO(proc),
+                sg = z.read('CMS32_DESC_SHORT_SG.txt').decode('latin-1')
+                dx = z.read('CMS32_DESC_SHORT_DX.txt').decode('latin-1')
+                sg = pd.read_fwf(
+                    io.StringIO(sg),
                     widths=[5, 200],
                     names=['icd_prcdr_cd', 'desc'],
                     dtype={'icd_prcdr_cd': 'str'})
-                diag = pd.read_fwf(
-                    io.StringIO(diag),
+                dx = pd.read_fwf(
+                    io.StringIO(dx),
                     widths=[5, 200],
                     names=['icd_dgns_cd', 'desc'],
                     dtype={'icd_dgns_cd': 'str'})
 
             else:
-                proc = z.read('CMS32_DESC_LONG_SG.txt').decode('latin-1')
-                diag = z.read('CMS32_DESC_LONG_DX.txt').decode('latin-1')
-                proc = pd.read_fwf(
-                    io.StringIO(proc),
+                sg = z.read('CMS32_DESC_LONG_SG.txt').decode('latin-1')
+                dx = z.read('CMS32_DESC_LONG_DX.txt').decode('latin-1')
+                sg = pd.read_fwf(
+                    io.StringIO(sg),
                     widths=[5, 200],
                     names=['icd_prcdr_cd', 'desc'],
                     dtype={'icd_prcdr_cd': 'str'})
-                diag = pd.read_fwf(
-                    io.StringIO(diag),
+                dx = pd.read_fwf(
+                    io.StringIO(dx),
                     widths=[5, 200],
                     names=['icd_dgns_cd', 'desc'],
                     dtype={'icd_dgns_cd': 'str'})
 
-        proc = proc.dropna(axis=0, how='any')
-        diag = diag.dropna(axis=0, how='any')
-        diag['year'] = year
-        proc['year'] = year
-        return diag, proc
+        sg = sg.dropna(axis=0, how='any')
+        dx = dx.dropna(axis=0, how='any')
+        dx['year'] = year
+        sg['year'] = year
+        return dx, sg
 
 
 # Define NPI dtypes for csv import
