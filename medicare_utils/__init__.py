@@ -7,5 +7,6 @@ __email__ = 'barronk@mit.edu'
 __version__ = '0.0.1'
 
 from .codes import icd9, hcpcs, npi
-from .utils import fpath, MedicareDF, pq_vars
+from .utils import fpath, pq_vars
+from .medicare_df import MedicareDF
 from . import parquet
