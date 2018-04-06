@@ -9,7 +9,7 @@ import pyarrow.parquet as pq
 from time import time
 from multiprocessing import cpu_count
 
-from .utils import fpath
+from .utils import fpath, mywrap
 
 allowed_pcts = ['0001', '01', '05', '20', '100']
 pct_dict = {0.01: '0001', 1: '01', 5: '05', 20: '20', 100: '100'}
@@ -41,9 +41,11 @@ class MedicareDF(object):
             try:
                 self.percent = pct_dict[percent]
             except KeyError:
-                msg = 'percent provided is not valid\n'
-                msg += f'Valid arguments are: {list(pct_dict.keys())}'
-                raise ValueError(msg)
+                msg = f"""\
+                percent provided is not valid.
+                Valid arguments are: {list(pct_dict.keys())}
+                """
+                raise ValueError(mywrap(msg))
         elif type(percent) == str:
             if percent not in allowed_pcts:
                 msg = f'percent must be one of: {allowed_pcts}'
@@ -172,9 +174,11 @@ class MedicareDF(object):
 
         if verbose:
             t0 = time()
-            msg = 'Starting cohort retrieval\n'
-            msg += f'\t- percent sample: {self.percent}\n'
-            print(msg)
+            msg = f"""\
+            Starting cohort retrieval
+            - percent sample: {self.percent}
+            """
+            print(mywrap(msg))
 
         if len(self.years) == 1:
             if buyin_months == 'age_year':
@@ -246,9 +250,10 @@ class MedicareDF(object):
 
         # Get list of variables to import for each year
         if ('age' in keep_vars) & (len(self.years) > 1):
-            msg = 'Warning: Can\'t export age variable, exporting'
-            msg += 'bene_dob instead'
-            print(msg)
+            msg = """\
+            Warning: Can't export age variable, exporting bene_dob instead
+            """
+            print(mywrap(msg))
 
             keep_vars.remove('age')
             keep_vars.append('bene_dob')
@@ -295,11 +300,13 @@ class MedicareDF(object):
         # checkable within a single year's data
         for year in self.years:
             if verbose:
-                msg = 'Importing bsfab file\n'
-                msg += f'\t- year: {year}\n'
-                msg += f'\t- columns: {tokeep_vars[year]}\n'
-                msg += f'\t- time elapsed: {(time() - t0) / 60:.2f} minutes\n'
-                print(msg)
+                msg = f"""\
+                Importing bsfab file
+                - year: {year}
+                - columns: {tokeep_vars[year]}
+                - time elapsed: {(time() - t0) / 60:.2f} minutes
+                """
+                print(mywrap(msg))
 
             if self.parquet_engine == 'pyarrow':
                 pf = pq.ParquetFile(self.fpath(self.percent, year, 'bsfab'))
@@ -354,11 +361,13 @@ class MedicareDF(object):
             extracted_dfs.append(pl)
 
         if verbose & (len(extracted_dfs) > 1):
-            msg = 'Merging together beneficiary files\n'
-            msg += f'\t- years: {self.years}\n'
-            msg += f'\t- merge type: {join}\n'
-            msg += f'\t- time elapsed: {(time() - t0) / 60:.2f} minutes\n'
-            print(msg)
+            msg = f"""\
+            Merging together beneficiary files
+            - years: {self.years}
+            - merge type: {join}
+            - time elapsed: {(time() - t0) / 60:.2f} minutes
+            """
+            print(mywrap(msg))
 
         # @NOTE As long as I'm only looking across years,
         # doing a left join on the last year should be fine
@@ -382,6 +391,7 @@ class MedicareDF(object):
         if (((buyin_val is not None) and (buyin_months == 'age_year'))
                 or ((hmo_val is not None) and (hmo_months == 'age_year'))):
 
+            # Create month of birth variable
             pl['bene_dob'] = pd.NaT
             for year in self.years:
                 pl['bene_dob'] = pl['bene_dob'].combine_first(
@@ -392,11 +402,13 @@ class MedicareDF(object):
 
         if buyin_val is not None:
             if verbose:
-                msg = 'Filtering based on buyin_val\n'
-                msg += f'\t- values: {buyin_val}\n'
-                msg += f'\t- filter type: {buyin_months}\n'
-                msg += f'\t- time elapsed: {(time() - t0) / 60:.2f} minutes\n'
-                print(msg)
+                msg = f"""\
+                Filtering based on buyin_val
+                - values: {buyin_val}
+                - filter type: {buyin_months}
+                - time elapsed: {(time() - t0) / 60:.2f} minutes
+                """
+                print(mywrap(msg))
 
             if buyin_months == 'age_year':
 
@@ -448,11 +460,13 @@ class MedicareDF(object):
 
         if hmo_val is not None:
             if verbose:
-                msg = 'Filtering based on hmo_val\n'
-                msg += f'\t- values: {hmo_val}\n'
-                msg += f'\t- filter type: {hmo_months}\n'
-                msg += f'\t- time elapsed: {(time() - t0) / 60:.2f} minutes\n'
-                print(msg)
+                msg = f"""\
+                Filtering based on hmo_val
+                - values: {hmo_val}
+                - filter type: {hmo_months}
+                - time elapsed: {(time() - t0) / 60:.2f} minutes
+                """
+                print(mywrap(msg))
 
             if hmo_months == 'age_year':
 
@@ -582,8 +596,11 @@ class MedicareDF(object):
         new column names
         """
         # If the values of rename are lists, make sure they match up on length
-        msg = 'If the values of the rename dictionary are lists, they need'
-        msg += '\nto match the length of the list of codes provided'
+        msg = f"""\
+        If the values of the rename dictionary are lists, they need
+        to match the length of the list of codes provided
+        """
+        msg = mywrap(msg)
 
         if type(rename.get('hcpcs')) == list:
             assert len(rename.get('hcpcs')) == len(hcpcs), msg
@@ -708,41 +725,51 @@ class MedicareDF(object):
         # Check that all data types provided to search through exist
         if not data_types.issubset(ok_data_types):
             invalid_vals = list(data_types.difference(ok_data_types))
-            msg = f'{invalid_vals} does not match any dataset. '
-            msg += 'Allowed data_types are:\n'
-            msg += f'{ok_data_types}'
-            raise ValueError(msg)
+            msg = f"""\
+            {invalid_vals} does not match any dataset.
+            - Allowed data_types: {ok_data_types}
+            """
+            raise ValueError(mywrap(msg))
 
         # Check types of codes given, i.e. that all are strings or
         # compiled regexes, and print which codes are searched in which dataset
         if verbose:
-            msg = 'Will check the following codes\n'
-            msg += f'\t- years: {self.years}\n'
+            msg = f"""\
+            Will check the following codes
+            - years: {self.years}
+            """
+            msg = mywrap(msg)
 
         all_codes = []
         if hcpcs is not None:
             hcpcs = self._check_code_types(hcpcs)
             all_codes.extend(hcpcs)
             if verbose:
-                msg += f'\t- HCPCS codes: {hcpcs}\n'
-                msg += '\t  in data types: '
-                msg += f'{list(data_types.intersection(ok_hcpcs_data_types))}\n'
+                dts = list(data_types.intersection(ok_hcpcs_data_types))
+                msg += mywrap(f"""\
+                - HCPCS codes: {hcpcs}
+                  in data types: {dts}
+                """)
 
         if icd9_dx is not None:
             icd9_dx = self._check_code_types(icd9_dx)
             all_codes.extend(icd9_dx)
             if verbose:
-                msg += f'\t- ICD-9 diagnosis codes: {icd9_dx}\n'
-                msg += '\t  in data types: '
-                msg += f'{list(data_types.intersection(ok_dx_data_types))}\n'
+                dts = list(data_types.intersection(ok_dx_data_types))
+                msg += mywrap(f"""\
+                - ICD-9 diagnosis codes: {icd9_dx}
+                  in data types: {dts}
+                """)
 
         if icd9_sg is not None:
             icd9_sg = self._check_code_types(icd9_sg)
             all_codes.extend(icd9_sg)
             if verbose:
-                msg += f'\t- ICD-9 procedure codes: {icd9_sg}\n'
-                msg += '\t  in data types: '
-                msg += f'{list(data_types.intersection(ok_sg_data_types))}\n'
+                dts = list(data_types.intersection(ok_sg_data_types))
+                msg += mywrap(f"""\
+                - ICD-9 procedure codes: {icd9_sg}
+                  in data types: {dts}
+                """)
 
         if verbose:
             print(msg)
@@ -759,23 +786,33 @@ class MedicareDF(object):
             data[data_type] = {}
             for year in self.years:
                 if verbose:
-                    msg = 'Starting search for codes\n'
-                    msg += f'\t- year: {year}\n'
-                    msg += f'\t- data type: {data_type}\n'
+                    msg = mywrap(f"""\
+                    Starting search for codes
+                    - year: {year}
+                    - data type: {data_type}
+                    """)
                     if data_type in ok_hcpcs_data_types:
                         if hcpcs is not None:
-                            msg += f'\t- HCPCS codes: {hcpcs}\n'
+                            msg += mywrap(f"""\
+                            - HCPCS codes: {hcpcs}
+                            """)
                     if data_type in ok_dx_data_types:
                         if icd9_dx is not None:
-                            msg += f'\t- ICD-9 diagnosis codes: {icd9_dx}\n'
+                            msg += mywrap(f"""\
+                            - ICD-9 diagnosis codes: {icd9_dx}
+                            """)
                     if data_type in ok_sg_data_types:
                         if icd9_sg is not None:
-                            msg += f'\t- ICD-9 procedure codes: {icd9_sg}\n'
+                            msg += mywrap(f"""\
+                            - ICD-9 procedure codes: {icd9_sg}
+                            """)
                     if keep_vars[data_type] != []:
-                        msg += '\t- Keeping variables: '
-                        msg += f'{keep_vars[data_type]}\n'
-                    msg += '\t- time elapsed: '
-                    msg += f'{(time() - t0) / 60:.2f} minutes\n'
+                        msg += mywrap(f"""\
+                        - Keeping variables: {keep_vars[data_type]}
+                        """)
+                    msg += mywrap(f"""\
+                    - time elapsed: {(time() - t0) / 60:.2f} minutes
+                    """)
                     print(msg)
 
                 data[data_type][year] = self._search_for_codes_single_year(
@@ -791,11 +828,13 @@ class MedicareDF(object):
                     rename=rename)
 
         if verbose:
-            msg = 'Concatenating matched codes across years\n'
-            msg += f'\t- years: {self.years}\n'
-            msg += f'\t- data types: {data_types}\n'
-            msg += f'\t- time elapsed: {(time() - t0) / 60:.2f} minutes\n'
-            print(msg)
+            msg = f"""\
+            Concatenating matched codes across years
+            - years: {self.years}
+            - data types: {data_types}
+            - time elapsed: {(time() - t0) / 60:.2f} minutes
+            """
+            print(mywrap(msg))
 
         years_ehic = [x for x in self.years if x < 2006]
         years_bene_id = [x for x in self.years if x >= 2006]

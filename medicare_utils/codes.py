@@ -11,6 +11,7 @@ from requests_html import HTMLSession
 from zipfile import ZipFile
 from multiprocessing import cpu_count
 
+from .utils import mywrap
 
 class npi(object):
     """A class to work with NPI codes"""
@@ -53,9 +54,11 @@ class npi(object):
                 with open(Path.home() / '.medicare_utils.json') as f:
                     self.conf = json.load(f)
             except FileNotFoundError:
-                msg = 'Must download data on first use.'
-                msg += ' Use download=True and give path to save data.'
-                raise FileNotFoundError(msg)
+                msg = f"""\
+                Must download data on first use.
+                Use download=True and give path to save data.
+                """
+                raise FileNotFoundError(mywrap(msg))
 
         if load:
             self.codes = self.load(columns=columns, regex=regex)
@@ -103,11 +106,12 @@ class npi(object):
                     csv = csv[0]
 
                     with z.open(csv) as f:
-                        msg = 'Converting NPI csv data to Parquet format.'
-                        msg += ' This takes around 20 minutes, but'
-                        msg += ' only has to be done once, and then has very'
-                        msg += ' fast read speeds.'
-                        print(msg)
+                        msg = f"""\
+                        Converting NPI csv data to Parquet format. This takes
+                        around 20 minutes, but only has to be done once, and
+                        then has very fast read speeds.
+                        """
+                        print(mywrap(msg))
                         df = pd.read_csv(
                             f,
                             dtype=npi_dtypes,

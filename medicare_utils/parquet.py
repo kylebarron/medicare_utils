@@ -10,7 +10,7 @@ from pandas.api.types import CategoricalDtype
 from time import time
 from joblib import Parallel, delayed
 
-from .utils import fpath
+from .utils import fpath, mywrap
 pkg_resources.require("pandas>=0.21.0")
 
 
@@ -195,9 +195,12 @@ def convert_med(
     if not os.path.exists(folder):
         os.makedirs(folder, exist_ok=True)
 
-    msg = f'Starting {data_type} conversion:\n'
-    msg += f'\tPercent {pct}\n\tYear {year}'
-    print(msg)
+    msg = f"""\
+    Starting {data_type} conversion
+    - Percent: {pct}
+    - Year {year}
+    """
+    print(mywrap(msg))
 
     convert_file(
         infile=infile,
@@ -252,15 +255,20 @@ def convert_file(
     nrow_rg = math.ceil(nrow_total / n_rg)
     gb_per_rg = file_size / n_rg
 
-    msg = f'Row groups:\n\t{n_rg}\n\tof size {gb_per_rg:.2f} GB'
-    msg += f'\n\tinfile: {infile_stub}.{infile_type}'
-    msg += f'\n\ttime: {(time() - t0) / 60:.2f} min'
-    print(msg)
+    msg = f"""\
+    Row groups:
+    - {n_rg} of size {gb_per_rg:.2f} GB
+    - infile: {infile_stub}.{infile_type}
+    - time: {(time() - t0) / 60:.2f} minutes
+    """
+    print(mywrap(msg))
 
-    msg = f'Beginning scanning dtypes of file'
-    msg += f'\n\tinfile: {infile_stub}.{infile_type}'
-    msg += f'\n\ttime: {(time() - t0) / 60:.2f} min'
-    print(msg)
+    msg = f"""\
+    Beginning scanning dtypes of file:
+    - infile: {infile_stub}.{infile_type}
+    - time: {(time() - t0) / 60:.2f} minutes
+    """
+    print(mywrap(msg))
 
     if parquet_engine == 'pyarrow':
         dtypes = scan_file(infile, categorical=False)
@@ -274,28 +282,37 @@ def convert_file(
             except KeyError:
                 pass
 
-    msg = f'Finished scanning dtypes of file\n\tinfile: {infile_stub}'
-    msg += f'\n\ttime: {(time() - t0) / 60:.2f} min'
-    print(msg)
+    msg = f"""\
+    Finished scanning dtypes of file
+    - infile: {infile_stub}.{infile_type}
+    - time: {(time() - t0) / 60:.2f} minutes
+    """
+    print(mywrap(msg))
 
     itr = pd.read_stata(infile, chunksize=nrow_rg)
     i = 0
     for df in itr:
         i += 1
-        msg = f'Read from file:\n\tGroup {i}'
-        msg += f'\n\tinfile: {infile_stub}.{infile_type}'
-        msg += f'\n\ttime: {(time() - t0) / 60:.2f} min'
-        print(msg)
+        msg = f"""\
+        Read from file:
+        - Group {i}
+        - infile: {infile_stub}.{infile_type}
+        - time: {(time() - t0) / 60:.2f} minutes
+        """
+        print(mywrap(msg))
 
         if rename_dict is not None:
             df.rename(index=str, columns=rename_dict, inplace=True)
 
         df = df.astype(dtypes)
 
-        msg = f'Cleaned file:\n\tGroup {i}'
-        msg += f'\n\tinfile: {infile_stub}'
-        msg += f'\n\ttime: {(time() - t0) / 60:.2f} min'
-        print(msg)
+        msg = f"""\
+        Cleaned file:
+        - Group {i}
+        - infile: {infile_stub}.{infile_type}
+        - time: {(time() - t0) / 60:.2f} minutes
+        """
+        print(mywrap(msg))
 
         if parquet_engine == 'pyarrow':
             if i == 1:
@@ -326,10 +343,13 @@ def convert_file(
                     object_encoding='utf8',
                     append=True)
 
-        msg = f'Wrote to .parquet:\n\tGroup {i}'
-        msg += f'\n\tinfile: {infile_stub}'
-        msg += f'\n\ttime: {(time() - t0) / 60:.2f} min'
-        print(msg)
+        msg = f"""\
+        Wrote to parquet:
+        - Group {i}
+        - infile: {infile_stub}.{infile_type}
+        - time: {(time() - t0) / 60:.2f} minutes
+        """
+        print(mywrap(msg))
 
     if parquet_engine == 'pyarrow':
         writer.close()

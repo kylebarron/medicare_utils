@@ -2,6 +2,7 @@
 """Main module."""
 
 from pathlib import Path
+from textwrap import dedent, fill
 
 allowed_pcts = ['0001', '01', '05', '20', '100']
 pct_dict = {0.01: '0001', 1: '01', 5: '05', 20: '20', 100: '100'}
@@ -9,6 +10,14 @@ pct_dict = {0.01: '0001', 1: '01', 5: '05', 20: '20', 100: '100'}
 
 def pq_vars(ParquetFile):
     return ParquetFile.schema.names
+
+
+def mywrap(text):
+    text = dedent(text)
+    lines = text.split('\n')
+    lines = [fill(x, replace_whitespace=False, subsequent_indent='\t') for x in lines]
+    text = '\n'.join(lines)
+    return text
 
 
 def fpath(
@@ -67,9 +76,11 @@ def fpath(
         try:
             percent = pct_dict[percent]
         except KeyError:
-            msg = 'percent provided is not valid\n'
-            msg += f'Valid arguments are: {list(pct_dict.keys())}'
-            raise ValueError(msg)
+            msg = f"""\
+            percent provided is not valid.
+            Valid arguments are: {list(pct_dict.keys())}
+            """
+            raise ValueError(mywrap(msg))
     elif type(percent) == str:
         if percent not in allowed_pcts:
             msg = f'percent must be one of: {allowed_pcts}'
