@@ -410,7 +410,7 @@ class MedicareDF(object):
         keep_vars = [keep_vars] if type(keep_vars) == str else keep_vars
 
         # Get list of variables to import for each year
-        if ('age' in keep_vars) & len(self.years > 1):
+        if ('age' in keep_vars) & (len(self.years) > 1):
             msg = 'Warning: Can\'t export age variable, exporting'
             msg += 'bene_dob instead'
             print(msg)
@@ -454,7 +454,7 @@ class MedicareDF(object):
 
         # Now perform extraction
         extracted_dfs = []
-        nobs_dropped = {}
+        nobs_dropped = {year: {} for year in self.years}
 
         # Do filtering for all vars that are
         # checkable within a single year's data
@@ -478,7 +478,6 @@ class MedicareDF(object):
                 pl = pf.to_pandas(columns=tokeep_vars[year], index='bene_id')
 
             nobs = len(pl)
-            nobs_dropped[year] = {}
 
             if gender is not None:
                 if (gender.lower() == 'male') | (gender.lower() == 'm'):
