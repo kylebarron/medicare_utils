@@ -410,9 +410,9 @@ class MedicareDF(object):
         keep_vars = [keep_vars] if type(keep_vars) == str else keep_vars
 
         # Get list of variables to import for each year
-        if 'age' in keep_vars:
+        if ('age' in keep_vars) & len(self.years > 1):
             msg = 'Warning: Can\'t export age variable, exporting'
-            msg += 'bene_id instead'
+            msg += 'bene_dob instead'
             print(msg)
 
             keep_vars.remove('age')
