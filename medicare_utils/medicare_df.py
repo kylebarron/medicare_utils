@@ -177,6 +177,14 @@ class MedicareDF(object):
             msg = f"""\
             Starting cohort retrieval
             - percent sample: {self.percent}
+            - years: {self.years}
+            - ages: {list(ages)}
+            - races: {list(races)}
+            - buyin values: {buyin_val}
+            - buyin months: {buyin_months}
+            - HMO values: {hmo_val}
+            - HMO months: {hmo_months}
+            - extra variables: {keep_vars}
             """
             print(mywrap(msg))
 
@@ -545,6 +553,22 @@ class MedicareDF(object):
         self.nobs_dropped = nobs_dropped
         self.pl = pl
 
+        if verbose:
+            msg = f"""\
+            Finished cohort retrieval
+            - percent sample: {self.percent}
+            - years: {self.years}
+            - ages: {list(ages)}
+            - races: {list(races)}
+            - buyin values: {buyin_val}
+            - buyin months: {buyin_months}
+            - HMO values: {hmo_val}
+            - HMO months: {hmo_months}
+            - extra variables: {keep_vars}
+            - time elapsed: {(time() - t0) / 60:.2f} minutes
+            """
+            print(mywrap(msg))
+
     @staticmethod
     def _check_code_types(var):
         """Check type of hcpcs, icd9_dx, icd9_sg codes
@@ -704,6 +728,13 @@ class MedicareDF(object):
 
         if verbose:
             t0 = time()
+            msg = f"""\
+            Starting searching for codes
+            - percent sample: {self.percent}
+            - years: {self.years}
+            - data_types: {data_types}
+            """
+            print(mywrap(msg))
 
         if type(data_types) is str:
             data_types = [data_types]
@@ -930,6 +961,16 @@ class MedicareDF(object):
             data[data_type] = data[data_type]['all']
 
         self.cl = data
+
+        if verbose:
+            msg = f"""\
+            Finished searching for codes
+            - percent sample: {self.percent}
+            - years: {self.years}
+            - data_types: {data_types}
+            - time elapsed: {(time() - t0) / 60:.2f} minutes
+            """
+            print(mywrap(msg))
 
     def _search_for_codes_single_year(
             self,
