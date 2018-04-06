@@ -13,6 +13,7 @@ from multiprocessing import cpu_count
 
 from .utils import mywrap
 
+
 class npi(object):
     """A class to work with NPI codes"""
 
@@ -461,8 +462,7 @@ class icd9(object):
             pq.ParquetFile(icd9_sg_path)
             pq.ParquetFile(icd9_dx_path)
         except:
-            self._download(
-                icd9_sg_path=icd9_sg_path, icd9_dx_path=icd9_dx_path)
+            self._download(icd9_sg_path=icd9_sg_path, icd9_dx_path=icd9_dx_path)
 
         sg_cols = ['icd_prcdr_cd', 'year']
         dx_cols = ['icd_dgns_cd', 'year']
@@ -473,10 +473,8 @@ class icd9(object):
             sg_cols.append('desc_short')
             dx_cols.append('desc_short')
 
-        sg = pd.read_parquet(
-            icd9_sg_path, engine='pyarrow', columns=sg_cols)
-        dx = pd.read_parquet(
-            icd9_dx_path, engine='pyarrow', columns=dx_cols)
+        sg = pd.read_parquet(icd9_sg_path, engine='pyarrow', columns=sg_cols)
+        dx = pd.read_parquet(icd9_dx_path, engine='pyarrow', columns=dx_cols)
 
         sg = sg[sg['year'] == year]
         dx = dx[dx['year'] == year]
@@ -510,10 +508,8 @@ class icd9(object):
 
         df_sg_long = pd.concat(all_icd9_sg_long, axis=0)
         df_dx_long = pd.concat(all_icd9_dx_long, axis=0)
-        df_sg_long = df_sg_long.rename(
-            index=str, columns={'desc': 'desc_long'})
-        df_dx_long = df_dx_long.rename(
-            index=str, columns={'desc': 'desc_long'})
+        df_sg_long = df_sg_long.rename(index=str, columns={'desc': 'desc_long'})
+        df_dx_long = df_dx_long.rename(index=str, columns={'desc': 'desc_long'})
 
         sg = df_sg_short.merge(
             df_sg_long,
@@ -521,10 +517,7 @@ class icd9(object):
             on=['icd_prcdr_cd', 'year'],
             validate='1:1')
         dx = df_dx_short.merge(
-            df_dx_long,
-            how='inner',
-            on=['icd_dgns_cd', 'year'],
-            validate='1:1')
+            df_dx_long, how='inner', on=['icd_dgns_cd', 'year'], validate='1:1')
 
         assert len(sg) == len(df_sg_short) == len(df_sg_long)
         assert len(dx) == len(df_dx_short) == len(df_dx_long)
