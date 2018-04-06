@@ -44,6 +44,7 @@ class npi(object):
             with open(Path.home() / '.medicare_utils.json', 'w') as f:
                 json.dump(conf, f)
 
+            Path(conf['npi']['data_path']).mkdir(parents=True, exist_ok=True)
             self.conf = conf
             self._download()
 
@@ -192,6 +193,7 @@ class hcpcs(object):
 
         self.conf = conf
 
+        Path(conf['hcpcs']['data_path']).mkdir(parents=True, exist_ok=True)
         hcpcs_path = Path(conf['hcpcs']['data_path']) / 'hcpcs.parquet'
         try:
             pq.ParquetFile(hcpcs_path)
@@ -448,6 +450,7 @@ class icd9(object):
 
         self.conf = conf
 
+        Path(conf['icd9']['data_path']).mkdir(parents=True, exist_ok=True)
         icd9_sg_path = Path(conf['icd9']['data_path']) / 'icd9_sg.parquet'
         icd9_dx_path = Path(conf['icd9']['data_path']) / 'icd9_dx.parquet'
         try:
