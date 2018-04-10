@@ -1,0 +1,611 @@
+{
+    "enrl_src": {
+        "name": "Source of enrollment data",
+        "values": {
+            "EDB": "Enrollment Database",
+            "CME": "Common Medicare Environment"
+        }
+    },
+    "sample_group": {
+        "name": "Medicare Sample Group Indicator",
+        "values": {}
+    },
+    "efivepct": {
+        "name": "Enhanced Medicare 5% Sample Indicator",
+        "values": {
+            "Y": "Yes, included in enhanced 5% sample",
+            "NULL": "Not included in enhanced 5% sample"
+        }
+    },
+    "crnt_bic": {
+        "name": "Current Beneficiary Identification Code",
+        "values": {}
+    },
+    "state_cd": {
+        "name": "State code for beneficiary (SSA code)",
+        "values": {
+            "01": "Alabama",
+            "02": "Alaska",
+            "03": "Arizona",
+            "04": "Arkansas",
+            "05": "California",
+            "06": "Colorado",
+            "07": "Connecticut",
+            "08": "Delaware",
+            "09": "District of Columbia",
+            "10": "Florida",
+            "11": "Georgia",
+            "12": "Hawaii",
+            "13": "Idaho",
+            "14": "Illinois",
+            "15": "Indiana",
+            "16": "Iowa",
+            "17": "Kansas",
+            "18": "Kentucky",
+            "19": "Louisiana",
+            "20": "Maine",
+            "21": "Maryland",
+            "22": "Massachusetts",
+            "23": "Michigan",
+            "24": "Minnesota",
+            "25": "Mississippi",
+            "26": "Missouri",
+            "27": "Montana",
+            "28": "Nebraska",
+            "29": "Nevada",
+            "30": "New Hampshire",
+            "31": "New Jersey",
+            "32": "New Mexico",
+            "33": "New York",
+            "34": "North Carolina",
+            "35": "North Dakota",
+            "36": "Ohio",
+            "37": "Oklahoma",
+            "38": "Oregon",
+            "39": "Pennsylvania",
+            "40": "Puerto Rico",
+            "41": "Rhode Island",
+            "42": "South Carolina",
+            "43": "South Dakota",
+            "44": "Tennessee",
+            "45": "Texas",
+            "46": "Utah",
+            "47": "Vermont",
+            "48": "Virgin Islands",
+            "49": "Virginia",
+            "50": "Washington",
+            "51": "West Virginia",
+            "52": "Wisconsin",
+            "53": "Wyoming",
+            "54": "Africa",
+            "55": "California",
+            "56": "Canada & Islands",
+            "57": "Central America and West Indies",
+            "58": "Europe",
+            "59": "Mexico",
+            "60": "Oceania",
+            "61": "Philippines",
+            "62": "South America",
+            "63": "U.S. Possessions",
+            "64": "American Samoa",
+            "65": "Guam",
+            "66": "Commonwealth of the Northern Marianas Islands",
+            "67": "Texas",
+            "68": "Florida",
+            "69": "Florida",
+            "70": "Kansas",
+            "71": "Louisiana",
+            "72": "Ohio",
+            "73": "Pennsylvania",
+            "74": "Texas",
+            "80": "Maryland",
+            "97": "Northern Marianas",
+            "98": "Guam",
+            "99": "With 000 county code is American Samoa; otherwise unknown"
+        }
+    },
+    "v_dod_sw": {
+        "name": "Valid Date of Death Switch",
+        "values": {
+            "Null": "Default",
+            "V": "Valid death date"
+        }
+    },
+    "sex": {
+        "name": "Sex",
+        "values": {
+            "0": "Unknown",
+            "1": "Male",
+            "2": "Female"
+        }
+    },
+    "race": {
+        "name": "Beneficiary Race Code",
+        "values": {
+            "0": "Unknown",
+            "1": "White",
+            "2": "Black",
+            "3": "Other",
+            "4": "Asian",
+            "5": "Hispanic",
+            "6": "North American Native"
+        }
+    },
+    "rti_race_cd": {
+        "name": "Research Triangle Institute (RTI) Race Code",
+        "values": {
+            "0": "Unknown",
+            "1": "Non-Hispanic White",
+            "2": "Black (or African-American)",
+            "3": "Other",
+            "4": "Asian Pacific Islander",
+            "5": "Hispanic",
+            "6": "American Indian Alaska Native"
+        }
+    },
+    "orec": {
+        "name": "Original Reason for Entitlement Code",
+        "values": {
+            "0": "Old Age and Survivors Insurance (OASI)",
+            "1": "Disability Insurance Benefits (DIB)",
+            "2": "End-stage Renal Disease (ESRD)",
+            "3": "Both DIB and ESRD"
+        }
+    },
+    "crec": {
+        "name": "Current Reason for Entitlement Code",
+        "values": {
+            "0": "Old Age and Survivors Insurance (OASI)",
+            "1": "Disability Insurance Benefits (DIB)",
+            "2": "End-stage Renal Disease (ESRD)",
+            "3": "Both DIB and ESRD"
+        }
+    },
+    "esrd_ind": {
+        "name": "End-stage Renal Disease (ESRD) Indicator",
+        "values": {
+            "Y": "The beneficiary has ESRD",
+            "0": "The beneficiary does not have ESRD"
+        }
+    },
+    "mdcr_stus_cd_01": {
+        "name": "Medicare Status Code - January",
+        "values": {
+            "10": "Aged without ESRD",
+            "11": "Aged with ESRD",
+            "20": "Disabled without ESRD",
+            "21": "Disabled with ESRD",
+            "31": "ESRD only"
+        }
+    },
+    "mdcr_stus_cd_02": {
+        "name": "Medicare Status Code - February",
+        "values": {
+            "10": "Aged without ESRD",
+            "11": "Aged with ESRD",
+            "20": "Disabled without ESRD",
+            "21": "Disabled with ESRD",
+            "31": "ESRD only"
+        }
+    },
+    "mdcr_stus_cd_03": {
+        "name": "Medicare Status Code - March",
+        "values": {
+            "10": "Aged without ESRD",
+            "11": "Aged with ESRD",
+            "20": "Disabled without ESRD",
+            "21": "Disabled with ESRD",
+            "31": "ESRD only"
+        }
+    },
+    "mdcr_stus_cd_04": {
+        "name": "Medicare Status Code - April",
+        "values": {
+            "10": "Aged without ESRD",
+            "11": "Aged with ESRD",
+            "20": "Disabled without ESRD",
+            "21": "Disabled with ESRD",
+            "31": "ESRD only"
+        }
+    },
+    "mdcr_stus_cd_05": {
+        "name": "Medicare Status Code - May",
+        "values": {
+            "10": "Aged without ESRD",
+            "11": "Aged with ESRD",
+            "20": "Disabled without ESRD",
+            "21": "Disabled with ESRD",
+            "31": "ESRD only"
+        }
+    },
+    "mdcr_stus_cd_06": {
+        "name": "Medicare Status Code - June",
+        "values": {
+            "10": "Aged without ESRD",
+            "11": "Aged with ESRD",
+            "20": "Disabled without ESRD",
+            "21": "Disabled with ESRD",
+            "31": "ESRD only"
+        }
+    },
+    "mdcr_stus_cd_07": {
+        "name": "Medicare Status Code - July",
+        "values": {
+            "10": "Aged without ESRD",
+            "11": "Aged with ESRD",
+            "20": "Disabled without ESRD",
+            "21": "Disabled with ESRD",
+            "31": "ESRD only"
+        }
+    },
+    "mdcr_stus_cd_08": {
+        "name": "Medicare Status Code - August",
+        "values": {
+            "10": "Aged without ESRD",
+            "11": "Aged with ESRD",
+            "20": "Disabled without ESRD",
+            "21": "Disabled with ESRD",
+            "31": "ESRD only"
+        }
+    },
+    "mdcr_stus_cd_09": {
+        "name": "Medicare Status Code - September",
+        "values": {
+            "10": "Aged without ESRD",
+            "11": "Aged with ESRD",
+            "20": "Disabled without ESRD",
+            "21": "Disabled with ESRD",
+            "31": "ESRD only"
+        }
+    },
+    "mdcr_stus_cd_10": {
+        "name": "Medicare Status Code - October",
+        "values": {
+            "10": "Aged without ESRD",
+            "11": "Aged with ESRD",
+            "20": "Disabled without ESRD",
+            "21": "Disabled with ESRD",
+            "31": "ESRD only"
+        }
+    },
+    "mdcr_stus_cd_11": {
+        "name": "Medicare Status Code - November",
+        "values": {
+            "10": "Aged without ESRD",
+            "11": "Aged with ESRD",
+            "20": "Disabled without ESRD",
+            "21": "Disabled with ESRD",
+            "31": "ESRD only"
+        }
+    },
+    "mdcr_stus_cd_12": {
+        "name": "Medicare Status Code - December",
+        "values": {
+            "10": "Aged without ESRD",
+            "11": "Aged with ESRD",
+            "20": "Disabled without ESRD",
+            "21": "Disabled with ESRD",
+            "31": "ESRD only"
+        }
+    },
+    "a_trm_cd": {
+        "name": "Part A Termination Code",
+        "values": {
+            "0": "Not terminated",
+            "1": "Dead",
+            "2": "Non-payment of premium",
+            "3": "Voluntary withdrawl",
+            "9": "Other termination"
+        }
+    },
+    "b_trm_cd": {
+        "name": "Part B Termination Code",
+        "values": {
+            "0": "Not terminated",
+            "1": "Dead",
+            "2": "Non-payment of premium",
+            "3": "Voluntary withdrawl",
+            "9": "Other termination"
+        }
+    },
+    "buyin01": {
+        "name": "Medicare Entitlement/Buy-In Indicator - January",
+        "values": {
+            "0": "Not entitled",
+            "1": "Part A only",
+            "2": "Part B only",
+            "3": "Part A and Part B",
+            "A": "Part A state buy-in",
+            "B": "Part B state buy-in",
+            "C": "Part A and Part B state buy-in"
+        }
+    },
+    "buyin02": {
+        "name": "Medicare Entitlement/Buy-In Indicator - February",
+        "values": {
+            "0": "Not entitled",
+            "1": "Part A only",
+            "2": "Part B only",
+            "3": "Part A and Part B",
+            "A": "Part A state buy-in",
+            "B": "Part B state buy-in",
+            "C": "Part A and Part B state buy-in"
+        }
+    },
+    "buyin03": {
+        "name": "Medicare Entitlement/Buy-In Indicator - March",
+        "values": {
+            "0": "Not entitled",
+            "1": "Part A only",
+            "2": "Part B only",
+            "3": "Part A and Part B",
+            "A": "Part A state buy-in",
+            "B": "Part B state buy-in",
+            "C": "Part A and Part B state buy-in"
+        }
+    },
+    "buyin04": {
+        "name": "Medicare Entitlement/Buy-In Indicator - April",
+        "values": {
+            "0": "Not entitled",
+            "1": "Part A only",
+            "2": "Part B only",
+            "3": "Part A and Part B",
+            "A": "Part A state buy-in",
+            "B": "Part B state buy-in",
+            "C": "Part A and Part B state buy-in"
+        }
+    },
+    "buyin05": {
+        "name": "Medicare Entitlement/Buy-In Indicator - May",
+        "values": {
+            "0": "Not entitled",
+            "1": "Part A only",
+            "2": "Part B only",
+            "3": "Part A and Part B",
+            "A": "Part A state buy-in",
+            "B": "Part B state buy-in",
+            "C": "Part A and Part B state buy-in"
+        }
+    },
+    "buyin06": {
+        "name": "Medicare Entitlement/Buy-In Indicator - June",
+        "values": {
+            "0": "Not entitled",
+            "1": "Part A only",
+            "2": "Part B only",
+            "3": "Part A and Part B",
+            "A": "Part A state buy-in",
+            "B": "Part B state buy-in",
+            "C": "Part A and Part B state buy-in"
+        }
+    },
+    "buyin07": {
+        "name": "Medicare Entitlement/Buy-In Indicator - July",
+        "values": {
+            "0": "Not entitled",
+            "1": "Part A only",
+            "2": "Part B only",
+            "3": "Part A and Part B",
+            "A": "Part A state buy-in",
+            "B": "Part B state buy-in",
+            "C": "Part A and Part B state buy-in"
+        }
+    },
+    "buyin08": {
+        "name": "Medicare Entitlement/Buy-In Indicator - August",
+        "values": {
+            "0": "Not entitled",
+            "1": "Part A only",
+            "2": "Part B only",
+            "3": "Part A and Part B",
+            "A": "Part A state buy-in",
+            "B": "Part B state buy-in",
+            "C": "Part A and Part B state buy-in"
+        }
+    },
+    "buyin09": {
+        "name": "Medicare Entitlement/Buy-In Indicator - September",
+        "values": {
+            "0": "Not entitled",
+            "1": "Part A only",
+            "2": "Part B only",
+            "3": "Part A and Part B",
+            "A": "Part A state buy-in",
+            "B": "Part B state buy-in",
+            "C": "Part A and Part B state buy-in"
+        }
+    },
+    "buyin10": {
+        "name": "Medicare Entitlement/Buy-In Indicator - October",
+        "values": {
+            "0": "Not entitled",
+            "1": "Part A only",
+            "2": "Part B only",
+            "3": "Part A and Part B",
+            "A": "Part A state buy-in",
+            "B": "Part B state buy-in",
+            "C": "Part A and Part B state buy-in"
+        }
+    },
+    "buyin11": {
+        "name": "Medicare Entitlement/Buy-In Indicator - November",
+        "values": {
+            "0": "Not entitled",
+            "1": "Part A only",
+            "2": "Part B only",
+            "3": "Part A and Part B",
+            "A": "Part A state buy-in",
+            "B": "Part B state buy-in",
+            "C": "Part A and Part B state buy-in"
+        }
+    },
+    "buyin12": {
+        "name": "Medicare Entitlement/Buy-In Indicator - December",
+        "values": {
+            "0": "Not entitled",
+            "1": "Part A only",
+            "2": "Part B only",
+            "3": "Part A and Part B",
+            "A": "Part A state buy-in",
+            "B": "Part B state buy-in",
+            "C": "Part A and Part B state buy-in"
+        }
+    },
+    "hmoind01": {
+        "name": "HMO Indicator - January",
+        "values": {
+            "0": "Not a member of an HMO",
+            "1": "Non-lock-in, CMS to process provider claims",
+            "2": "Non-lock-in, group health organization (GHO; MA plan) to process in plan Part A and in area Part B claims",
+            "4": "Fee-for-service participant in case or disease management demonstration project",
+            "5": "Not in documentation",
+            "A": "Lock-in, CMS to process provider claims",
+            "B": "Lock-in, GHO to process in plan Part A and in area Part B claims",
+            "C": "Lock-in, GHO to process all provider claims"
+        }
+    },
+    "hmoind02": {
+        "name": "HMO Indicator - February",
+        "values": {
+            "0": "Not a member of an HMO",
+            "1": "Non-lock-in, CMS to process provider claims",
+            "2": "Non-lock-in, group health organization (GHO; MA plan) to process in plan Part A and in area Part B claims",
+            "4": "Fee-for-service participant in case or disease management demonstration project",
+            "5": "Not in documentation",
+            "A": "Lock-in, CMS to process provider claims",
+            "B": "Lock-in, GHO to process in plan Part A and in area Part B claims",
+            "C": "Lock-in, GHO to process all provider claims"
+        }
+    },
+    "hmoind03": {
+        "name": "HMO Indicator - March",
+        "values": {
+            "0": "Not a member of an HMO",
+            "1": "Non-lock-in, CMS to process provider claims",
+            "2": "Non-lock-in, group health organization (GHO; MA plan) to process in plan Part A and in area Part B claims",
+            "4": "Fee-for-service participant in case or disease management demonstration project",
+            "5": "Not in documentation",
+            "A": "Lock-in, CMS to process provider claims",
+            "B": "Lock-in, GHO to process in plan Part A and in area Part B claims",
+            "C": "Lock-in, GHO to process all provider claims"
+        }
+    },
+    "hmoind04": {
+        "name": "HMO Indicator - April",
+        "values": {
+            "0": "Not a member of an HMO",
+            "1": "Non-lock-in, CMS to process provider claims",
+            "2": "Non-lock-in, group health organization (GHO; MA plan) to process in plan Part A and in area Part B claims",
+            "4": "Fee-for-service participant in case or disease management demonstration project",
+            "5": "Not in documentation",
+            "A": "Lock-in, CMS to process provider claims",
+            "B": "Lock-in, GHO to process in plan Part A and in area Part B claims",
+            "C": "Lock-in, GHO to process all provider claims"
+        }
+    },
+    "hmoind05": {
+        "name": "HMO Indicator - May",
+        "values": {
+            "0": "Not a member of an HMO",
+            "1": "Non-lock-in, CMS to process provider claims",
+            "2": "Non-lock-in, group health organization (GHO; MA plan) to process in plan Part A and in area Part B claims",
+            "4": "Fee-for-service participant in case or disease management demonstration project",
+            "5": "Not in documentation",
+            "A": "Lock-in, CMS to process provider claims",
+            "B": "Lock-in, GHO to process in plan Part A and in area Part B claims",
+            "C": "Lock-in, GHO to process all provider claims"
+        }
+    },
+    "hmoind06": {
+        "name": "HMO Indicator - June",
+        "values": {
+            "0": "Not a member of an HMO",
+            "1": "Non-lock-in, CMS to process provider claims",
+            "2": "Non-lock-in, group health organization (GHO; MA plan) to process in plan Part A and in area Part B claims",
+            "4": "Fee-for-service participant in case or disease management demonstration project",
+            "5": "Not in documentation",
+            "A": "Lock-in, CMS to process provider claims",
+            "B": "Lock-in, GHO to process in plan Part A and in area Part B claims",
+            "C": "Lock-in, GHO to process all provider claims"
+        }
+    },
+    "hmoind07": {
+        "name": "HMO Indicator - July",
+        "values": {
+            "0": "Not a member of an HMO",
+            "1": "Non-lock-in, CMS to process provider claims",
+            "2": "Non-lock-in, group health organization (GHO; MA plan) to process in plan Part A and in area Part B claims",
+            "4": "Fee-for-service participant in case or disease management demonstration project",
+            "5": "Not in documentation",
+            "A": "Lock-in, CMS to process provider claims",
+            "B": "Lock-in, GHO to process in plan Part A and in area Part B claims",
+            "C": "Lock-in, GHO to process all provider claims"
+        }
+    },
+    "hmoind08": {
+        "name": "HMO Indicator - August",
+        "values": {
+            "0": "Not a member of an HMO",
+            "1": "Non-lock-in, CMS to process provider claims",
+            "2": "Non-lock-in, group health organization (GHO; MA plan) to process in plan Part A and in area Part B claims",
+            "4": "Fee-for-service participant in case or disease management demonstration project",
+            "5": "Not in documentation",
+            "A": "Lock-in, CMS to process provider claims",
+            "B": "Lock-in, GHO to process in plan Part A and in area Part B claims",
+            "C": "Lock-in, GHO to process all provider claims"
+        }
+    },
+    "hmoind09": {
+        "name": "HMO Indicator - September",
+        "values": {
+            "0": "Not a member of an HMO",
+            "1": "Non-lock-in, CMS to process provider claims",
+            "2": "Non-lock-in, group health organization (GHO; MA plan) to process in plan Part A and in area Part B claims",
+            "4": "Fee-for-service participant in case or disease management demonstration project",
+            "5": "Not in documentation",
+            "A": "Lock-in, CMS to process provider claims",
+            "B": "Lock-in, GHO to process in plan Part A and in area Part B claims",
+            "C": "Lock-in, GHO to process all provider claims"
+        }
+    },
+    "hmoind10": {
+        "name": "HMO Indicator - October",
+        "values": {
+            "0": "Not a member of an HMO",
+            "1": "Non-lock-in, CMS to process provider claims",
+            "2": "Non-lock-in, group health organization (GHO; MA plan) to process in plan Part A and in area Part B claims",
+            "4": "Fee-for-service participant in case or disease management demonstration project",
+            "5": "Not in documentation",
+            "A": "Lock-in, CMS to process provider claims",
+            "B": "Lock-in, GHO to process in plan Part A and in area Part B claims",
+            "C": "Lock-in, GHO to process all provider claims"
+        }
+    },
+    "hmoind11": {
+        "name": "HMO Indicator - November",
+        "values": {
+            "0": "Not a member of an HMO",
+            "1": "Non-lock-in, CMS to process provider claims",
+            "2": "Non-lock-in, group health organization (GHO; MA plan) to process in plan Part A and in area Part B claims",
+            "4": "Fee-for-service participant in case or disease management demonstration project",
+            "5": "Not in documentation",
+            "A": "Lock-in, CMS to process provider claims",
+            "B": "Lock-in, GHO to process in plan Part A and in area Part B claims",
+            "C": "Lock-in, GHO to process all provider claims"
+        }
+    },
+    "hmoind12": {
+        "name": "HMO Indicator - December",
+        "values": {
+            "0": "Not a member of an HMO",
+            "1": "Non-lock-in, CMS to process provider claims",
+            "2": "Non-lock-in, group health organization (GHO; MA plan) to process in plan Part A and in area Part B claims",
+            "4": "Fee-for-service participant in case or disease management demonstration project",
+            "5": "Not in documentation",
+            "A": "Lock-in, CMS to process provider claims",
+            "B": "Lock-in, GHO to process in plan Part A and in area Part B claims",
+            "C": "Lock-in, GHO to process all provider claims"
+        }
+    }
+}
