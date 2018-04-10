@@ -3,11 +3,13 @@ import pkg_resources as pkg
 
 
 def codebook(data_type):
-    if data_type == 'med':
-        path = pkg.resource_filename(
-            'medicare_utils', 'data/codebook/medpar.json')
+    path = pkg.resource_filename(
+        'medicare_utils', f'data/codebook/{data_type}.json')
 
-    with open(path) as f:
-        data = json.load(f)
+    try:
+        with open(path) as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        raise NotImplementedError(f'Haven\'t added {data_type} codebook yet')
 
     return data
