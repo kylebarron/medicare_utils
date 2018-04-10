@@ -1,0 +1,479 @@
+{
+    "clm_type": {
+        "name": "MEDPAR NCH Claim Type Code",
+        "values": {
+            "10": "HHA claim",
+            "20": "Non swing bed SNF claim",
+            "30": "Swing bed SNF claim",
+            "40": "Outpatient claim",
+            "50": "Hospice claim",
+            "60": "Inpatient claim",
+            "61": "Inpatient 'Full-Encounter' claim",
+            "62": "Medicare Advantage IME/GME claims",
+            "63": "Medicare Advantage (no-pay) claims",
+            "64": "Medicare Advantage (paid as FFS) claim",
+            "71": "RIC O local carrier non-DMEPOS claim",
+            "72": "RIC O local carrier DMEPOS claim",
+            "81": "RIC M DMERC non-DMEPOS claim",
+            "82": "RIC M DMERC DMEPOS claim"
+        }
+    },
+    "sex": {
+        "name": "MEDPAR Beneficiary Sex Code",
+        "values": {
+            "0": "Unknown",
+            "2": "Female",
+            "1": "Male"
+        }
+    },
+    "race": {
+        "name": "MEDPAR Beneficiary Race Code",
+        "values": {
+            "1": "White",
+            "2": "Black",
+            "3": "Other",
+            "4": "Asian",
+            "5": "Hispanic",
+            "6": "North American Native",
+            "0": "Unknown"
+        }
+    },
+    "ms_cd": {
+        "name": "MEDPAR Beneficiary Medicare Status Code",
+        "values": {
+            "10": "Aged without ESRD",
+            "11": "Aged with ESRD",
+            "20": "Disabled without ESRD",
+            "21": "Disabled with ESRD",
+            "31": "ESRD only"
+        }
+    },
+    "state_cd": {
+        "name": "MEDPAR Beneficiary Residence SSA Standard State Code",
+        "values": {
+            "1": "Alabama",
+            "2": "Alaska",
+            "3": "Arizona",
+            "4": "Arkansas",
+            "5": "California",
+            "6": "Colorado",
+            "7": "Connecticut",
+            "8": "Delaware",
+            "9": "District of Columbia",
+            "10": "Florida",
+            "11": "Georgia",
+            "12": "Hawaii",
+            "13": "Idaho",
+            "14": "Illinois",
+            "15": "Indiana",
+            "16": "Iowa",
+            "17": "Kansas",
+            "18": "Kentucky",
+            "19": "Louisiana",
+            "20": "Maine",
+            "21": "Maryland",
+            "22": "Massachusetts",
+            "23": "Michigan",
+            "24": "Minnesota",
+            "25": "Mississippi",
+            "26": "Missouri",
+            "27": "Montana",
+            "28": "Nebraska",
+            "29": "Nevada",
+            "30": "New Hampshire",
+            "31": "New Jersey",
+            "32": "New Mexico",
+            "33": "New York",
+            "34": "North Carolina",
+            "35": "North Dakota",
+            "36": "Ohio",
+            "37": "Oklahoma",
+            "38": "Oregon",
+            "39": "Pennsylvania",
+            "40": "Puerto Rico",
+            "41": "Rhode Island",
+            "42": "South Carolina",
+            "43": "South Dakota",
+            "44": "Tennesee",
+            "45": "Texas",
+            "46": "Utah",
+            "47": "Vermont",
+            "48": "Virgin Islands",
+            "49": "Virginia",
+            "50": "Washington",
+            "51": "West Virginia",
+            "52": "Wisconsin",
+            "53": "Wyoming",
+            "54": "Africa",
+            "55": "Asia",
+            "56": "Canada",
+            "57": "Central America & West Indies",
+            "58": "Europe",
+            "59": "Mexico",
+            "60": "Oceania",
+            "61": "Philippines",
+            "62": "South America",
+            "63": "U.S. Possessions",
+            "97": "Saipan - MP",
+            "98": "Guam",
+            "99": "American Samoa"
+        }
+    },
+    "admsnday": {
+        "name": "MEDPAR Admission Day Code",
+        "values": {
+            "1": "Sunday",
+            "2": "Monday",
+            "3": "Tuesday",
+            "4": "Wednesday",
+            "5": "Thursday",
+            "6": "Friday",
+            "7": "Saturday"
+        }
+    },
+    "dschrgcd": {
+        "name": "MEDPAR Beneficiary Discharge Status Code",
+        "values": {
+            "A": "Discharged alive",
+            "B": "Discharged dead",
+            "C": "Still a patient"
+        }
+    },
+    "ghopdcd": {
+        "name": "MEDPAR GHO Paid Code",
+        "values": {
+            "1": "GHO has paid the provider",
+            "0": "GHO has not paid the provider",
+            "": "GHO has not paid the provider"
+        }
+    },
+    "pps_ind": {
+        "name": "MEDPAR PPS Indicator Code",
+        "values": {
+            "0": "Non PPS",
+            "2": "PPS"
+        }
+    },
+    "prvdrnum": {
+        "name": "MEDPAR Provider Number",
+        "values": {}
+    },
+    "spclunit": {
+        "name": "MEDPAR Provider Number Special Unit Code",
+        "values": {
+            "M": "PPS-exempt psychiatric unit in CAH",
+            "R": "PPS-exempt rehabilitation unit in CAH",
+            "S": "PPS-exempt psychiatric unit",
+            "T": "PPS-exempt rehabilitation unit",
+            "U": "Swing-bed short-term/acute care hospital",
+            "W": "Swing-bed long-term hospital",
+            "Y": "Swing-bed rehabilitation hospital",
+            "Z": "Swing-bed rural primary care hospital; eff 10/97 changed to critical access hospitals",
+            "": "Not PPS-exempt or swing-bed designation"
+        }
+    },
+    "sslssnf": {
+        "name": "MEDPAR Short Stay/Long Stay/SNF Indicator Code",
+        "values": {
+            "N": "SNF Stay",
+            "S": "Short-Stay",
+            "L": "Long-Stay"
+        }
+    },
+    "actv_xref_ind": {
+        "name": "MEDPAR Active Cross Reference Indicator",
+        "values": {
+            "X": "Cross-Reference",
+            "A": "Active"
+        }
+    },
+    "icuindcd": {
+        "name": "MEDPAR Intensive Care Unit (ICU) Indicator Code",
+        "values": {
+            "0": "General",
+            "1": "Surgical",
+            "2": "Medical",
+            "3": "Pediatric",
+            "4": "Psychiatric",
+            "6": "Intermediate IOU",
+            "7": "Burn care",
+            "8": "Trauma",
+            "9": "Other intensive care"
+        }
+    },
+    "crnry_cd": {
+        "name": "MEDPAR Coronary Care Indicator Code",
+        "values": {
+            "0": "General",
+            "1": "Myocardial",
+            "2": "Pulmonary care",
+            "3": "Heart transplant",
+            "4": "Intermediate CCU",
+            "9": "Other Coronary Care",
+            "": "No coronary care indication"
+        }
+    },
+    "phrmcycd": {
+        "name": "MEDPAR Pharmacy Indicator Code",
+        "values": {
+            "0": "No drugs",
+            "1": "General drugs and/pr IV therapy",
+            "2": "Erythropoietin",
+            "3": "Blood clotting drugs",
+            "4": "General drugs and/or IV therapy; and epoetin",
+            "5": "General drugs and/or IV therapy; and blood clotting drugs"
+        }
+    },
+    "trnsplnt": {
+        "name": "MEDPAR Transplant Indicator Code",
+        "values": {
+            "0": "No organ or kidney transplant",
+            "2": "Organ transplant other than kidney",
+            "7": "Kidney transplant"
+        }
+    },
+    "onclgysw": {
+        "name": "MEDPAR Radiology Oncology Indicator Switch",
+        "values": {
+            "0": "No radiology-oncology",
+            "1": "Yes radiology-oncology"
+        }
+    },
+    "dgnstcsw": {
+        "name": "MEDPAR Radiology Diagnostic Indicator Switch",
+        "values": {
+            "0": "No radiology-diagnostic",
+            "1": "Yes radiology-diagnostic"
+        }
+    },
+    "thrptcsw": {
+        "name": "MEDPAR Radiology Therapeutic Indicator Switch",
+        "values": {
+            "0": "No radiology-therapeutic",
+            "1": "Yes radiology-therapeutic"
+        }
+    },
+    "nuclr_sw": {
+        "name": "MEDPAR Radiology Nuclear Medicine Indicator Switch",
+        "values": {
+            "0": "No nuclear medicine",
+            "1": "Yes nuclear medicine"
+        }
+    },
+    "ctscansw": {
+        "name": "MEDPAR Radiology CT Scan Indicator Switch",
+        "values": {
+            "0": "No radiology CT scan",
+            "1": "Yes radiology CT scan"
+        }
+    },
+    "imgng_sw": {
+        "name": "MEDPAR Radiology Other Imaging Indicator Switch",
+        "values": {
+            "0": "No other imaging services",
+            "1": "Yes other imaging services"
+        }
+    },
+    "opsrvccd": {
+        "name": "MEDPAR Outpatient Services Indicator Code",
+        "values": {
+            "0": "No outpatient services/ambulatory surgical care",
+            "1": "Outpatient services",
+            "2": "Ambulatory surgical care",
+            "3": "Outpatient services and ambulatory surgical care"
+        }
+    },
+    "orgncd": {
+        "name": "MEDPAR Organ Acquisition Indicator Code",
+        "values": {
+            "K1": "General classification",
+            "K2": "Living donor kidney",
+            "K3": "Cadaver donor kidney",
+            "K4": "Unknown donor kidney",
+            "K5": "Other kidney acquisition",
+            "H1": "Cadaver donor heart",
+            "H2": "Other heart acquisition",
+            "L1": "Donor liver",
+            "01": "Other organ acquisition",
+            "02": "General acquisition",
+            "B1": "Bone donor bank",
+            "03": "Organ donor bank other than kidney",
+            "S1": "Skin donor bank",
+            "04": "Other donor bank",
+            "": "No organ acquisition indication"
+        }
+    },
+    "esrdstg{x}": {
+        "name": "MEDPAR ESRD Setting Indicator Code",
+        "values": {
+            "00": "Ip renal dialysis-general",
+            "01": "Ip renal dialysis-hemodialysis",
+            "02": "Ip renal dialysis-peritoneal",
+            "03": "Ip renal dialysis-capd",
+            "04": "Ip renal dialysis-ccpd",
+            "09": "Ip renal dialysis-other",
+            "20": "Hemodialysis-op-general",
+            "21": "Hemodialysis-op-hemodialysis/composite",
+            "22": "Hemodialysis-op-home supplies",
+            "23": "Hemodialysis-op-home equipment",
+            "24": "Hemodialysis-op-maintenance/100%",
+            "25": "Hemodialysis-op-support services",
+            "29": "Hemodialysis-op-other",
+            "30": "Peritoneal-op/home-general",
+            "31": "Peritoneal-op/home-peritoneal/composite",
+            "32": "Peritoneal-op/home-home supplies",
+            "33": "Peritoneal-op/home-home equipment",
+            "34": "Peritoneal-op/home-maintenance/100%",
+            "35": "Peritoneal-op/home-support services",
+            "39": "Peritoneal-op/home-other",
+            "40": "Capd-op-capd/general",
+            "41": "Capd-op-capd/composite",
+            "42": "Capd-op-home supplies",
+            "43": "Capd-op-home equipment",
+            "44": "Capd-op-maintenance/100%",
+            "45": "Capd-op-support services",
+            "49": "Capd-op-other",
+            "50": "Ccpd-op-ccpd/general",
+            "51": "Ccpd-op-ccpd/composite",
+            "52": "Ccpd-op-home supplies",
+            "53": "Ccpd-op-home equipment",
+            "54": "Ccpd-op-maintenance/100%",
+            "55": "Ccpd-op-support services",
+            "59": "Ccpd-op-other",
+            "80": "Miscellaneous dialysis-general",
+            "81": "Miscellaneous dialysis-ultrafiltration",
+            "89": "Miscellaneous dialysis-other",
+            "": "No ESRD setting indication"
+        }
+    },
+    "poa_dgns_e_{x}_ind_cd": {
+        "name": "MEDPAR Diagnosis E Code Present on Admission Indicator",
+        "values": {
+            "Y": "Diagnosis was present at the time of inpatient admission. CMS will pay the CC/MCC DRG for those selected HACs that are coded as 'Y' for the POA Indicator.",
+            "N": "Diagnosis was not present at the time of inpatient admission. CMS will not pay the CC/MCC DRG for those selected HACs that are coded as 'N' for the POA Indicator.",
+            "U": "Documentation is insufficient to determine if the condition was present at the time of inpatient admission. CMS will not pay the CC/MCC DRG for those selected HACs that are coded as 'U' for the POA Indicator.",
+            "W": "Clinically undetermined. Provider is unable to clinically determine whether condition was present at the time of inpatient admission. CMS will pay the CC/MCC DRG for those selected HACs that are coded as 'W' for the POA Indicator.",
+            "1": "Unreported/not used -- exempt from POA reporting -- This code is equivalent to a blank pn the UB-04, however, it was determined that blanks are undesirable when submitting this data via the 4010A. CMS will not pay the CC/MCC DRG for those selected HACs that are coded as '1' for the POA Indicator. The '1' POA Indicator should not be applied to any codes on the HAC list.",
+            "Z": "Denotes the end of the POA indicators (terminated 1/2011).",
+            "X": "Denotes the end of the POA indicators in special data processing situations that may be identified by CMS in the future (terminated 1/2011).",
+            "": "Identifies diagnosis codes that are exempt from the POA reporting requirements (replaces the '1'). NOTE: NCH/NMUD will carry a '0' in place of a blank."
+        }
+    },
+    "poa_dgns_{x}_ind_cd": {
+        "name": "MEDPAR Diagnosis Present on Admission Indicator Code",
+        "values": {
+            "Y": "Diagnosis was present at the time of inpatient admission. CMS will pay the CC/MCC DRG for those selected HACs that are coded as 'Y' for the POA Indicator.",
+            "N": "Diagnosis was not present at the time of inpatient admission. CMS will not pay the CC/MCC DRG for those selected HACs that are coded as 'N' for the POA Indicator.",
+            "U": "Documentation is insufficient to determine if the condition was present at the time of inpatient admission. CMS will not pay the CC/MCC DRG for those selected HACs that are coded as 'U' for the POA Indicator.",
+            "W": "Clinically undetermined. Provider is unable to clinically determine whether condition was present at the time of inpatient admission. CMS will pay the CC/MCC DRG for those selected HACs that are coded as 'W' for the POA Indicator.",
+            "1": "Unreported/not used -- exempt from POA reporting -- This code is equivalent to a blank pn the UB-04, however, it was determined that blanks are undesirable when submitting this data via the 4010A. CMS will not pay the CC/MCC DRG for those selected HACs that are coded as '1' for the POA Indicator. The '1' POA Indicator should not be applied to any codes on the HAC list.",
+            "Z": "Denotes the end of the POA indicators (terminated 1/2011).",
+            "X": "Denotes the end of the POA indicators in special data processing situations that may be identified by CMS in the future (terminated 1/2011).",
+            "": "Identifies diagnosis codes that are exempt from the POA reporting requirements (replaces the '1'). NOTE: NCH/NMUD will carry a '0' in place of a blank."
+        }
+    },
+    "prcdrsw": {
+        "name": "MEDPAR Surgical Procedure Indicator Switch",
+        "values": {
+            "0": "No surgery indicated",
+            "1": "Yes surgery indicated"
+        }
+    },
+    "dstntncd": {
+        "name": "MEDPAR Discharge Destination Code",
+        "values": {
+            "01": "Discharged to home/self care (routine charge).",
+            "02": "Discharged/transferred to other short term general hospital for inpatient care.",
+            "03": "Discharged/transferred to skilled nursing facility (SNF)",
+            "04": "Discharged/transferred to intermediate care facility (ICF).",
+            "05": "Discharged/transferred to another type of institution for inpatient care",
+            "06": "Discharged/transferred to home care of organized home health service organization.",
+            "07": "Left against medical advice or discontinued care.",
+            "08": "Discharged/transferred to home under care of a home IV drug therapy provider.",
+            "09": "Admitted as an inpatient to this hospital (effective 3/1/91). In situations where a patient is admitted before midnight of the third day following the day of an outpatient service, the outpatient services are considered inpatient.",
+            "20": "Expired (did not recover - Christian Science patient).",
+            "30": "Still patient.",
+            "40": "Expired at home (hospice claims only)",
+            "41": "Expired in a medical facility such as hospital, SNF, ICF, or freestanding hospice. (Hospice claims only)",
+            "42": "Expired - place unknown (Hospice claims only)",
+            "43": "Discharged/transferred to a federal hospital",
+            "50": "Hospice - home",
+            "51": "Hospice - medical facility",
+            "61": "Discharged/transferred within this institution to a hospital-based swing bed",
+            "62": "Discharged/transferred to an inpatient rehabilitation facility.",
+            "63": "Discharged/transferred to a long term care hospitals.",
+            "64": "Discharged/transferred to a nursing facility certified under Medicaid only",
+            "65": "Discharged/Transferred to a psychiatric hospital or psychiatric distinct unit of a hospital.",
+            "66": "Discharged/transferred to a Critical Access Hospital (CAH)",
+            "70": "Other",
+            "71": "Discharged/transferred/referred to another institution for outpatient services as specified by the discharge plan of care",
+            "72": "Discharged/transferred/referred to this institution for outpatient services as specified by the discharge plan of care"
+        }
+    },
+    "outlr_cd": {
+        "name": "MEDPAR DRG/Outlier Stay Code",
+        "values": {
+            "0": "No Outlier",
+            "1": "Day Outlier",
+            "2": "Cost Outlier",
+            "6": "Valid DRG Received From Intermediary",
+            "7": "HCFA-Developed DRG",
+            "8": "HCFA-Developed DRG Using Claim Status Code",
+            "9": "Not Groupable"
+        }
+    },
+    "prpay_cd": {
+        "name": "MEDPAR Beneficiary Primary Payer Code",
+        "values": {
+            "A": "Working aged bene/spouse with eghp",
+            "B": "ESRD bene in 18-month coordination period with eghp",
+            "C": "Conditional Medicare payment; future reimbursement expected",
+            "D": "Auto no-fault or any liability insurance",
+            "E": "Worker's compensation",
+            "F": "Phs or other federal agency (other than dept of veterans affairs)",
+            "G": "Working disabled",
+            "H": "Black lung",
+            "I": "Dept of veterans affairs",
+            "J": "Any liability insurance",
+            "Z": "Medicare is primary payer",
+            "": "Medicare is primary payer"
+        }
+    },
+    "src_adms": {
+        "name": "MEDPAR Source Inpatient Admission Code",
+        "values": {
+            "0": "ANOMALY: invalid value, if present, translate to '9'",
+            "1": "Non-Health Care Facility Point of Origin (Physician Referral) - The patient was admitted to this facility upon an order of a physician.",
+            "2": "Clinical referral - The patient was admitted upon the recommendation of this facility's clinic physician.",
+            "3": "HMO referral - Reserved for national assignment. (eff. 3/08) Prior to 3/08, HMO referral - The patient was admitted upon the recommendation of a health maintenance organization (HMO) physician.",
+            "4": "Transfer from hospital (Different Facility) - The patient was admitted to this facility as a hospital transfer from an acute care facility where he or she was an inpatient.",
+            "5": "Transfer from a skilled nursing facility (SNF) or Intermediate Care Facility (ICF) - The patient was admitted to this facility as a transfer from a SNF or ICF where he or she was a resident.",
+            "6": "Transfer from another health care facility - The patient was admitted to this facility as a transfer from another type of health care facility not defined elsewhere in this code list where he or she was an inpatient.",
+            "7": "Emergency room - The patient was admitted to this facility after receiving services in this facility's emergency room department. (Obsolete - eff. 7/1/10)",
+            "8": "Court/law enforcement - The patient was admitted upon the direction of a court of law or upon the request of a law enforcement agency's representative. Includes transfers from incarceration facilities.",
+            "9": "Information not available - The means by which the patient was admitted is not known.",
+            "A": "Reserved for National Assignment. (eff. 3/08) Prior to 3/08 defined as: Transfer from a Critical Access Hospital - patient was admitted/referred to this facility as a transfer from a Critical Access Hospital.",
+            "B": "Transfer from Another Home Health Agency - The patient was admitted to this home health agency as a transfer from another home health agency. (Discontinued July 1, 2010 - See Condition Code 47)",
+            "C": "Readmission to Same Home Health Agency - The patient was readmitted to this home health agency within the same home health episode period. (Discontinued July 1, 2010)",
+            "D": "Transfer from hospital inpatient in the same facility resulting in a separate claim to the payer - The patient was admitted to this facility as a transfer from hospital inpatient within this facility resulting in a separate claim to the payer.",
+            "E": "Transfer from Ambulatory Surgery Center - The patient was admitted to this facility as a transfer from an ambulatory surgery center. (eff. 10/1/2007)",
+            "F": "Transfer from Hospice and is under a Hospice Plan of Care or Enrolled in a Hospice Program - The patient was admitted to this facility as a transfer from a hospice. (eff. 10/1/2007)"
+        }
+    },
+    "type_adm": {
+        "name": "MEDPAR Inpatient Admission Type Code",
+        "values": {
+            "0": "Blank",
+            "1": "Emergency - The patient required immediate medical intervention as a result of severe, life threatening, or potentially disabling conditions. Generally, the patient was admitted through the emergency room.",
+            "2": "Urgent - The patient required immediate attention for the care and treatment of a physical or mental disorder. Generally, the patient was admitted to the first available and suitable accommodation.",
+            "3": "Elective - The patient's condition permitted adequate time to schedule the availability of suitable accommodations.",
+            "4": "Newborn - Necessitates the use of special source of admission codes.",
+            "5": "Trauma Center - visits to a trauma center/hospital as licensed or designated by the State or local government authority authorized to do so, or as verified by the American College of Surgeons and involving a trauma activation.",
+            "9": "Unknown - Information not available."
+        }
+    },
+    "wrngcd": {
+        "name": "MEDPAR Warning Indicators Code",
+        "values": {}
+    }
+}
