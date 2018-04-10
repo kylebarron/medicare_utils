@@ -693,6 +693,7 @@ class MedicareDF(object):
             data_types,
             hcpcs=None,
             icd9_dx=None,
+            icd9_dx_max_cols=None,
             icd9_sg=None,
             keep_vars={},
             collapse_codes=False,
@@ -712,6 +713,8 @@ class MedicareDF(object):
                 List of HCPCS codes to look for
             icd9_dx (str, compiled regex, list[str], list[compiled regex]):
                 List of ICD-9 diagnosis codes to look for
+            icd9_dx_max_cols (int): Max number of ICD9 diagnosis code columns to
+                search through
             icd9_sg (str, compiled regex, list[str], list[compiled regex]):
                 List of ICD-9 procedure codes to look for
             keep_vars (dict[data_type: list[str]]): dict of column names to return
@@ -852,6 +855,7 @@ class MedicareDF(object):
                     hcpcs=(hcpcs if data_type in ok_hcpcs_data_types else None),
                     icd9_dx=(
                         icd9_dx if data_type in ok_dx_data_types else None),
+                    icd9_dx_max_cols=icd9_dx_max_cols,
                     icd9_sg=(
                         icd9_sg if data_type in ok_sg_data_types else None),
                     keep_vars=keep_vars[data_type],
@@ -978,6 +982,7 @@ class MedicareDF(object):
             data_type,
             hcpcs=None,
             icd9_dx=None,
+            icd9_dx_max_cols=None,
             icd9_sg=None,
             keep_vars=[],
             rename={},
@@ -993,6 +998,8 @@ class MedicareDF(object):
                 List of HCPCS codes to look for
             icd9_dx (str, compiled regex, list[str], list[compiled regex]):
                 List of ICD-9 diagnosis codes to look for
+            icd9_dx_max_cols (int): Max number of ICD9 diagnosis code columns to
+                search through
             icd9_sg (str, compiled regex, list[str], list[compiled regex]):
                 List of ICD-9 procedure codes to look for
             keep_vars (list[str]): list of column names to return
@@ -1037,11 +1044,11 @@ class MedicareDF(object):
 
         if icd9_dx is not None:
             if data_type == 'carl':
-                icd9_dx_regex = r'icd_dgns_cd\d*$'
+                icd9_dx_regex = r'icd_dgns_cd(\d*)$'
             elif data_type == 'med':
-                icd9_dx_regex = r'^dgnscd\d+$$'
+                icd9_dx_regex = r'^dgnscd(\d+)$$'
             else:
-                icd9_dx_regex = r'^icd_dgns_cd\d+$'
+                icd9_dx_regex = r'^icd_dgns_cd(\d+)$'
             regex_string.append(icd9_dx_regex)
 
         if icd9_sg is not None:
@@ -1065,6 +1072,15 @@ class MedicareDF(object):
 
         if icd9_dx is not None:
             icd9_dx_cols = [x for x in cols if re.search(icd9_dx_regex, x)]
+
+            if icd9_dx_max_cols is not None:
+                new_cols = [
+                    x for x in icd9_dx_cols
+                    if int(re.search(icd9_dx_regex, x)[1]) <= icd9_dx_max_cols]
+
+                deleted_cols = list(set(icd9_dx_cols).difference(new_cols))
+                cols = [x for x in cols if x not in deleted_cols]
+                icd9_dx_cols = new_cols
         else:
             icd9_dx_cols = None
 
