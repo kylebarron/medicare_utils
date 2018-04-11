@@ -780,7 +780,8 @@ class MedicareDF(object):
             all_codes.extend(hcpcs)
             if verbose:
                 dts = list(data_types.intersection(ok_hcpcs_data_types))
-                msg += mywrap(f"""\
+                msg += mywrap(
+                    f"""\
                 - HCPCS codes: {hcpcs}
                   in data types: {dts}
                 """)
@@ -790,7 +791,8 @@ class MedicareDF(object):
             all_codes.extend(icd9_dx)
             if verbose:
                 dts = list(data_types.intersection(ok_dx_data_types))
-                msg += mywrap(f"""\
+                msg += mywrap(
+                    f"""\
                 - ICD-9 diagnosis codes: {icd9_dx}
                   in data types: {dts}
                 """)
@@ -800,7 +802,8 @@ class MedicareDF(object):
             all_codes.extend(icd9_sg)
             if verbose:
                 dts = list(data_types.intersection(ok_sg_data_types))
-                msg += mywrap(f"""\
+                msg += mywrap(
+                    f"""\
                 - ICD-9 procedure codes: {icd9_sg}
                   in data types: {dts}
                 """)
@@ -820,31 +823,37 @@ class MedicareDF(object):
             data[data_type] = {}
             for year in self.years:
                 if verbose:
-                    msg = mywrap(f"""\
+                    msg = mywrap(
+                        f"""\
                     Starting search for codes
                     - year: {year}
                     - data type: {data_type}
                     """)
                     if data_type in ok_hcpcs_data_types:
                         if hcpcs is not None:
-                            msg += mywrap(f"""\
+                            msg += mywrap(
+                                f"""\
                             - HCPCS codes: {hcpcs}
                             """)
                     if data_type in ok_dx_data_types:
                         if icd9_dx is not None:
-                            msg += mywrap(f"""\
+                            msg += mywrap(
+                                f"""\
                             - ICD-9 diagnosis codes: {icd9_dx}
                             """)
                     if data_type in ok_sg_data_types:
                         if icd9_sg is not None:
-                            msg += mywrap(f"""\
+                            msg += mywrap(
+                                f"""\
                             - ICD-9 procedure codes: {icd9_sg}
                             """)
                     if keep_vars[data_type] != []:
-                        msg += mywrap(f"""\
+                        msg += mywrap(
+                            f"""\
                         - Keeping variables: {keep_vars[data_type]}
                         """)
-                    msg += mywrap(f"""\
+                    msg += mywrap(
+                        f"""\
                     - time elapsed: {(time() - t0) / 60:.2f} minutes
                     """)
                     print(msg)
