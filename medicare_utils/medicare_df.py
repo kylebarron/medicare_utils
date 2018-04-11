@@ -1064,7 +1064,7 @@ class MedicareDF(object):
                                              data_type)).columns
         cols = [x for x in all_cols if regex(x)]
 
-        # cl_id_col = [x for x in cols if re.search(cl_id_regex, x)]
+        cl_id_col = [x for x in cols if re.search(cl_id_regex, x)]
         if hcpcs is not None:
             hcpcs_cols = [x for x in cols if re.search(hcpcs_regex, x)]
         else:
@@ -1110,8 +1110,11 @@ class MedicareDF(object):
                 cl = cl.join(pd.DataFrame(index=pl_ids_to_filter), how='inner')
                 cl.index.name = index_name
 
-            # if cl.index.name == 'bene_id':
-            #     cl = cl.reset_index().set_index(cl_id_col)
+            # The index needs to be unique for the stuff I do below with first
+            # saving all indices in a var idx, then using that with cl.loc[].
+            # If index is bene_id, it'll set matched to true for _anyone_ who
+            # had a match _sometime_.
+            cl = cl.reset_index().set_index(cl_id_col)
 
             if collapse_codes:
                 cl['match'] = False
@@ -1152,8 +1155,7 @@ class MedicareDF(object):
 
                     cl.drop(icd9_sg_cols, axis=1, inplace=True)
 
-                # Unsure whether to keep only true matches
-                # cl = cl.loc[cl['match']]
+                # Keep all rows; not just matches
                 all_cl.append(cl)
 
             else:
@@ -1215,6 +1217,8 @@ class MedicareDF(object):
 
                 # Rename columns according to `rename` dictionary
                 cl = cl.rename(index=str, columns=rename)
+
+                cl = cl.reset_index().set_index(pl_id_col)
                 all_cl.append(cl)
 
         cl = pd.concat(all_cl, axis=0)
