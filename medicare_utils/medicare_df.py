@@ -204,7 +204,6 @@ class MedicareDF(object):
             'Hispanic': '5',
             'North American Native': '6',
             'UNKNOWN': '0',
-            'NON-HISPANIC WHITE': '1',
             'BLACK (OR AFRICAN-AMERICAN)': '2',
             'OTHER': '3',
             'ASIAN/PACIFIC ISLANDER': '4',
