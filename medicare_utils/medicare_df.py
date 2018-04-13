@@ -557,8 +557,8 @@ class MedicareDF(object):
             Finished cohort retrieval
             - percent sample: {self.percent}
             - years: {self.years}
-            - ages: {list(ages)}
-            - races: {list(races)}
+            - ages: {list(ages) if ages else None}
+            - races: {list(races) if races else None}
             - buyin values: {buyin_val}
             - buyin months: {buyin_months}
             - HMO values: {hmo_val}
