@@ -695,7 +695,7 @@ class MedicareDF(object):
             icd9_dx_max_cols=None,
             icd9_sg=None,
             keep_vars={},
-            collapse_codes=False,
+            collapse_codes=True,
             rename={
                 'hcpcs': None,
                 'icd9_dx': None,
