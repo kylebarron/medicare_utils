@@ -1164,6 +1164,7 @@ class MedicareDF(object):
                     cl.drop(icd9_sg_cols, axis=1, inplace=True)
 
                 # Keep all rows; not just matches
+                cl = cl.reset_index().set_index(pl_id_col)
                 all_cl.append(cl)
 
             else:
