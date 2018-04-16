@@ -750,11 +750,12 @@ class MedicareDF(object):
             """
             print(mywrap(msg))
 
+        is_search_for_codes = (hcpcs or icd9_dx or icd9_sg) is not None
+
         if type(data_types) is str:
             data_types = [data_types]
 
         data_types = set(data_types)
-
         ok_data_types = ['carc', 'carl', 'ipc', 'ipr', 'med', 'opc', 'opr']
         ok_hcpcs_data_types = ['carl', 'ipr', 'opr']
         ok_dx_data_types = ['carc', 'carl', 'ipc', 'med', 'opc']
@@ -778,56 +779,57 @@ class MedicareDF(object):
 
         # Check types of codes given, i.e. that all are strings or
         # compiled regexes, and print which codes are searched in which dataset
-        if verbose:
-            msg = f"""\
-            Will check the following codes
-            - years: {self.years}
-            """
-            msg = mywrap(msg)
-
-        all_codes = []
-        if hcpcs is not None:
-            hcpcs = self._check_code_types(hcpcs)
-            all_codes.extend(hcpcs)
+        if is_search_for_codes:
             if verbose:
-                dts = list(data_types.intersection(ok_hcpcs_data_types))
-                msg += mywrap(
-                    f"""\
-                - HCPCS codes: {hcpcs}
-                  in data types: {dts}
-                """)
+                msg = f"""\
+                Will check the following codes
+                - years: {self.years}
+                """
+                msg = mywrap(msg)
 
-        if icd9_dx is not None:
-            icd9_dx = self._check_code_types(icd9_dx)
-            all_codes.extend(icd9_dx)
+            all_codes = []
+            if hcpcs is not None:
+                hcpcs = self._check_code_types(hcpcs)
+                all_codes.extend(hcpcs)
+                if verbose:
+                    dts = list(data_types.intersection(ok_hcpcs_data_types))
+                    msg += mywrap(
+                        f"""\
+                    - HCPCS codes: {hcpcs}
+                      in data types: {dts}
+                    """)
+
+            if icd9_dx is not None:
+                icd9_dx = self._check_code_types(icd9_dx)
+                all_codes.extend(icd9_dx)
+                if verbose:
+                    dts = list(data_types.intersection(ok_dx_data_types))
+                    msg += mywrap(
+                        f"""\
+                    - ICD-9 diagnosis codes: {icd9_dx}
+                      in data types: {dts}
+                    """)
+
+            if icd9_sg is not None:
+                icd9_sg = self._check_code_types(icd9_sg)
+                all_codes.extend(icd9_sg)
+                if verbose:
+                    dts = list(data_types.intersection(ok_sg_data_types))
+                    msg += mywrap(
+                        f"""\
+                    - ICD-9 procedure codes: {icd9_sg}
+                      in data types: {dts}
+                    """)
+
             if verbose:
-                dts = list(data_types.intersection(ok_dx_data_types))
-                msg += mywrap(
-                    f"""\
-                - ICD-9 diagnosis codes: {icd9_dx}
-                  in data types: {dts}
-                """)
+                print(msg)
 
-        if icd9_sg is not None:
-            icd9_sg = self._check_code_types(icd9_sg)
-            all_codes.extend(icd9_sg)
-            if verbose:
-                dts = list(data_types.intersection(ok_sg_data_types))
-                msg += mywrap(
-                    f"""\
-                - ICD-9 procedure codes: {icd9_sg}
-                  in data types: {dts}
-                """)
+            all_codes = [self.get_pattern(x) for x in all_codes]
+            msg = 'Code patterns given must be unique'
+            assert len(all_codes) == len(set(all_codes)), msg
 
-        if verbose:
-            print(msg)
-
-        all_codes = [self.get_pattern(x) for x in all_codes]
-        msg = 'Code patterns given must be unique'
-        assert len(all_codes) == len(set(all_codes)), msg
-
-        rename = self.create_rename_dict(
-            hcpcs=hcpcs, icd9_dx=icd9_dx, icd9_sg=icd9_sg, rename=rename)
+            rename = self.create_rename_dict(
+                hcpcs=hcpcs, icd9_dx=icd9_dx, icd9_sg=icd9_sg, rename=rename)
 
         data = {}
         for data_type in data_types:
@@ -1032,6 +1034,8 @@ class MedicareDF(object):
             DataFrame with bene_id and bool columns for each code to search for
         """
 
+        is_search_for_codes = (hcpcs or icd9_dx or icd9_sg) is not None
+
         if year < 2006:
             pl_id_col = 'ehic'
         else:
@@ -1129,6 +1133,10 @@ class MedicareDF(object):
                 index_name = cl.index.name
                 cl = cl.join(pd.DataFrame(index=pl_ids_to_filter), how='inner')
                 cl.index.name = index_name
+
+            if not is_search_for_codes:
+                all_cl.append(cl)
+                continue
 
             # The index needs to be unique for the stuff I do below with first
             # saving all indices in a var idx, then using that with cl.loc[].
