@@ -728,6 +728,12 @@ class MedicareDF(object):
         if self.verbose:
             verbose = True
 
+        if collapse_codes and any([x is not None for x in rename.values()]):
+            msg = f"""\
+            rename argument not allowed when collapse_codes is True
+            """
+            raise ValueError(mywrap(msg))
+
         if verbose:
             t0 = time()
             msg = f"""\
