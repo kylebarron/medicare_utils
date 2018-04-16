@@ -299,6 +299,16 @@ class MedicareDF(object):
 
             tokeep_vars[year] = [x for x in cols if re.search(tokeep_regex, x)]
 
+            # Check cols against keep_vars
+            # Is there an item in keep_vars that wasn't matched?
+            for var in keep_vars:
+                if [x for x in tokeep_vars[year] if re.search(var, x)] == []:
+                    msg = f"""\
+                    WARNING: variable `{var}` in the keep_vars argument
+                    was not found in bsfab for year {year}
+                    """
+                    print(mywrap(msg))
+
         # Now perform extraction
         extracted_dfs = []
         nobs_dropped = {year: {} for year in self.years}
@@ -1092,6 +1102,16 @@ class MedicareDF(object):
             all_cols = fp.ParquetFile(
                 self.fpath(self.percent, year, data_type)).columns
         cols = [x for x in all_cols if regex(x)]
+
+        # Check cols against keep_vars
+        # Is there an item in keep_vars that wasn't matched?
+        for var in keep_vars:
+            if [x for x in cols if re.search(var, x)] == []:
+                msg = f"""\
+                WARNING: variable `{var}` in the keep_vars argument
+                was not found in {data_type}
+                """
+                print(mywrap(msg))
 
         cl_id_col = [x for x in cols if re.search(cl_id_regex, x)]
         if hcpcs is not None:
