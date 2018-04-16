@@ -23,7 +23,8 @@ requirements = [
 ]
 
 setup_requirements = [
-    'setuptools>=38.6.0'
+    'setuptools >= 38.6.0',
+    'twine >= 1.11.0'
 ]
 
 test_requirements = []
@@ -54,6 +55,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/kylebarron/medicare_utils',
-    version='0.0.1',
+    version='0.0.2',
     zip_safe=False,
 )
