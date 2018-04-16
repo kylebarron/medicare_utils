@@ -1084,8 +1084,13 @@ class MedicareDF(object):
 
         regex_string = '|'.join(regex_string)
         regex = re.compile(regex_string).search
-        all_cols = fp.ParquetFile(self.fpath(self.percent, year,
-                                             data_type)).columns
+
+        if self.parquet_engine == 'pyarrow':
+            all_cols = pq.ParquetFile(
+                self.fpath(self.percent, year, data_type)).schema.names
+        elif self.parquet_engine == 'fastparquet':
+            all_cols = fp.ParquetFile(
+                self.fpath(self.percent, year, data_type)).columns
         cols = [x for x in all_cols if regex(x)]
 
         cl_id_col = [x for x in cols if re.search(cl_id_regex, x)]
