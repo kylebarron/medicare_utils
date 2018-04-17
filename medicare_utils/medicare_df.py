@@ -10,6 +10,7 @@ from time import time
 from multiprocessing import cpu_count
 
 from .utils import fpath, mywrap
+from .codebook import codebook
 
 allowed_pcts = ['0001', '01', '05', '20', '100']
 pct_dict = {0.01: '0001', 1: '01', 5: '05', 20: '20', 100: '100'}
@@ -22,8 +23,9 @@ class MedicareDF(object):
             self,
             percent,
             years,
-            verbose=False,
-            parquet_engine='pyarrow',
+            year_type: str ='calendar',
+            verbose: bool = False,
+            parquet_engine: str = 'pyarrow',
             parquet_nthreads=None,
             dta_path: str = '/disk/aging/medicare/data',
             pq_path: str = '/homes/nber/barronk/agebulk1/raw/pq'):
@@ -32,11 +34,16 @@ class MedicareDF(object):
         Attributes:
             percent (str, int, or float): percent sample of data to use
             years (list[int]): years of data to use
+            year_type (str): 'calendar' to work with multiple years as calendar
+                years; 'age' to work with patients' age years
             verbose (bool): Print status of program
             parquet_engine (str): 'pyarrow' or 'fastparquet'
             parquet_nthreads (int): number of threads to use when reading file
+            dta_path (str): path to Stata Medicare files
+            pq_path (str): path to Parquet Medicare files
         """
 
+        # Check types
         if (type(percent) == float) or (type(percent) == int):
             try:
                 self.percent = pct_dict[percent]
@@ -60,20 +67,24 @@ class MedicareDF(object):
         else:
             years = years
 
+        if (len(years) == 1) & (year_type == 'age'):
+            msg = "year_type can't be `age` when one year is given"
+            raise ValueError(msg)
+
         assert min(years) >= 2001
         assert max(years) <= 2015
 
         self.years = years
+        self.year_type = year_type
         self.verbose = verbose
 
         if parquet_engine not in ['pyarrow', 'fastparquet']:
             raise ValueError('parquet_engine must be pyarrow or fastparquet')
 
-        self.parquet_engine = parquet_engine
-
         if parquet_nthreads is None:
             parquet_nthreads = cpu_count()
 
+        self.parquet_engine = parquet_engine
         self.parquet_nthreads = parquet_nthreads
 
         self.pl = None
@@ -133,9 +144,7 @@ class MedicareDF(object):
             races=None,
             rti_race=False,
             buyin_val=None,
-            buyin_months=None,
             hmo_val=None,
-            hmo_months=None,
             join='default',
             keep_vars=[],
             verbose=False):
@@ -154,8 +163,7 @@ class MedicareDF(object):
             rti_race (bool): Whether to use the Research Triangle
                 Institute race code
             buyin_val (list[str], str): The values `buyin\d\d` can take
-            buyin_months (str): 'All', 'age_year'
-                If 'age_year', years cannot be int
+            hmo_val (list[str], str): The values `hmoind\d\d` can take
             join (str): method for joining across years
                 Default is "outer" join for all years up to N-1, "left" for N
                 Otherwise must be "left", "inner", "outer"
@@ -181,23 +189,17 @@ class MedicareDF(object):
             - ages: {list(ages) if ages else None}
             - races: {list(races) if races else None}
             - buyin values: {buyin_val}
-            - buyin months: {buyin_months}
             - HMO values: {hmo_val}
-            - HMO months: {hmo_months}
             - extra variables: {keep_vars}
             """
             print(mywrap(msg))
 
-        if len(self.years) == 1:
-            if buyin_months == 'age_year':
-                msg = "buyin_months can't be 'age_year' when one year is given"
-                raise ValueError(msg)
         if type(ages) == int:
             ages = [ages]
 
         race_col = 'rti_race_cd' if rti_race else 'race'
         race_cbk = codebook('bsfab')[race_col]['values']
-        race_cbk = dict((v.lower(), k) for k, v in race_cbk.items())
+        race_cbk = {v.lower(): k for k, v in race_cbk.items()}
         if race_col == 'rti_race_cd':
             race_cbk['white'] = race_cbk.pop('non-hispanic white')
 
@@ -218,17 +220,16 @@ class MedicareDF(object):
             except ValueError:
                 races = [v for k, v in race_cbk.items() if re.search(races, k)]
 
-        buyin_val = [buyin_val] if type(buyin_val) == str else buyin_val
-        allowed_buyin_months = ['all', 'age_year', None]
-        if buyin_months not in allowed_buyin_months:
-            msg = f'buyin_months must be one of: {allowed_buyin_months[:2]}'
-            raise ValueError(msg)
+        gender_cbk = codebook('bsfab')['sex']['values']
+        gender_cbk = {v.lower(): k for k, v in gender_cbk.items()}
+        gender_cbk = {**gender_cbk, **{k[0]: v for k, v in gender_cbk.items()}}
+        try:
+            gender = str(int(gender))
+        except ValueError:
+            gender = gender_cbk[gender.lower()]
 
+        buyin_val = [buyin_val] if type(buyin_val) == str else buyin_val
         hmo_val = [hmo_val] if type(hmo_val) == str else hmo_val
-        allowed_hmo_months = ['all', 'age_year', None]
-        if hmo_months not in allowed_hmo_months:
-            msg = f'hmo_months must be one of: {allowed_hmo_months[:2]}'
-            raise ValueError(msg)
 
         allowed_join = ['default', 'left', 'inner', 'outer']
         if join not in allowed_join:
@@ -239,13 +240,11 @@ class MedicareDF(object):
 
         # Get list of variables to import for each year
         if ('age' in keep_vars) & (len(self.years) > 1):
-            msg = """\
-            Warning: Can't export age variable, exporting bene_dob instead
-            """
-            print(mywrap(msg))
-
             keep_vars.remove('age')
             keep_vars.append('bene_dob')
+            print(mywrap("""\
+            Warning: Can't export age variable, exporting bene_dob instead
+            """))
 
         tokeep_regex = []
         tokeep_regex.extend([r'^(ehic)$', r'^(bene_id)$'])
@@ -257,13 +256,10 @@ class MedicareDF(object):
             tokeep_regex.append(r'^({})$'.format(race_col))
         if buyin_val is not None:
             tokeep_regex.append(r'^(buyin\d{2})$')
-            if buyin_months == 'age_year':
-                tokeep_regex.append(r'^(bene_dob)$')
         if hmo_val is not None:
             tokeep_regex.append(r'^(hmoind\d{2})$')
-            if hmo_months == 'age_year':
-                tokeep_regex.append(r'^(bene_dob)$')
-
+        if self.year_type == 'age':
+            tokeep_regex.append(r'^(bene_dob)$')
         if keep_vars is not None:
             for var in keep_vars:
                 tokeep_regex.append(r'^({})$'.format(var))
@@ -321,16 +317,20 @@ class MedicareDF(object):
             nobs = len(pl)
 
             if gender is not None:
-                if (gender.lower() == 'male') | (gender.lower() == 'm'):
-                    if pl.sex.dtype.name == 'category':
-                        pl = pl.drop(pl[pl['sex'] == '2'].index)
-                    elif np.issubdtype(pl.sex.dtype, np.number):
-                        pl = pl.drop(pl[pl['sex'] == 2].index)
-                elif (gender.lower() == 'female') | (gender.lower() == 'f'):
-                    if pl.sex.dtype.name == 'category':
-                        pl = pl.drop(pl[pl['sex'] == '1'].index)
-                    elif np.issubdtype(pl.sex.dtype, np.number):
-                        pl = pl.drop(pl[pl['sex'] == 1].index)
+                if pl['sex'].dtype.name == 'category':
+                    if pl['sex'].dtype.categories.dtype == object:
+                        var_type = 'string'
+                    else:
+                        var_type = 'numeric'
+                elif np.issubdtype(pl['sex'].dtype, np.number):
+                    var_type = 'numeric'
+                else:
+                    var_type = 'string'
+
+                if var_type == 'string':
+                    pl = pl.loc[pl['sex'] == gender]
+                else:
+                    pl = pl.loc[pl['sex'] == int(gender)]
 
                 if 'sex' not in keep_vars:
                     pl = pl.drop('sex', axis=1)
@@ -340,19 +340,36 @@ class MedicareDF(object):
 
             if ages is not None:
                 pl = pl.loc[pl['age'].isin(ages)]
-
-                pl = pl.drop('age', axis=1)
-
                 nobs_dropped[year]['age'] = 1 - (len(pl) / nobs)
                 nobs = len(pl)
 
+                if 'age' not in keep_vars:
+                    pl = pl.drop('age', axis=1)
+
             if races is not None:
                 pl = pl.loc[pl[race_col].isin(races)]
+                nobs_dropped[year]['race'] = 1 - (len(pl) / nobs)
+                nobs = len(pl)
 
                 if race_col not in keep_vars:
                     pl = pl.drop(race_col, axis=1)
 
-                nobs_dropped[year]['race'] = 1 - (len(pl) / nobs)
+            if (buyin_val is not None) and (self.year_type == 'calendar'):
+                regex = re.compile(r'^buyin\d{2}').search
+                buyin_cols = [x for x in pl.columns if regex(x)]
+                pl = pl.loc[(pl[buyin_cols].isin(buyin_val)).all(axis=1)]
+
+                pl = pl.drop(set(buyin_cols).difference(keep_vars), axis=1)
+                nobs_dropped[year]['buyin_val'] = 1 - (len(pl) / nobs)
+                nobs = len(pl)
+
+            if (hmo_val is not None) and (self.year_type == 'calendar'):
+                regex = re.compile(r'^hmoind\d{2}').search
+                hmo_cols = [x for x in pl.columns if regex(x)]
+                pl = pl.loc[(pl[hmo_cols].isin(hmo_val)).all(axis=1)]
+
+                pl = pl.drop(set(hmo_cols).difference(keep_vars), axis=1)
+                nobs_dropped[year]['hmo_val'] = 1 - (len(pl) / nobs)
                 nobs = len(pl)
 
             pl.columns = [f'{x}{year}' for x in pl.columns]
@@ -387,9 +404,7 @@ class MedicareDF(object):
 
         pl.index.name = 'bene_id'
 
-        if (((buyin_val is not None) and (buyin_months == 'age_year'))
-                or ((hmo_val is not None) and (hmo_months == 'age_year'))):
-
+        if ((buyin_val is not None) or (hmo_val is not None)) and (self.year_type == 'age'):
             # Create month of birth variable
             pl['bene_dob'] = pd.NaT
             for year in self.years:
@@ -399,125 +414,103 @@ class MedicareDF(object):
 
             pl['dob_month'] = pl['bene_dob'].dt.month
 
-        if buyin_val is not None:
+        if (buyin_val is not None) and (self.year_type == 'age'):
             if verbose:
                 msg = f"""\
                 Filtering based on buyin_val
                 - values: {buyin_val}
-                - filter type: {buyin_months}
+                - year_type: {self.year_type}
                 - time elapsed: {(time() - t0) / 60:.2f} minutes
                 """
                 print(mywrap(msg))
 
-            if buyin_months == 'age_year':
+            # Create indicator variable for each year if `buyin ==
+            # buyin_val` for the 13 months starting in birthday month of
+            # `year` and ending in birthday month of `year + 1`
 
-                # Create indicator variable for each year if `buyin ==
-                # buyin_val` for the 13 months starting in birthday month of
-                # `year` and ending in birthday month of `year + 1`
+            for year in self.years[:-1]:
+                # Initialize indicator variable for each year
+                pl[f'buyin_match_{year}'] = False
 
-                for year in self.years[:-1]:
-                    # Initialize indicator variable for each year
-                    pl[f'buyin_match_{year}'] = False
+                for month in range(1, 13):
+                    buyin_cols = []
+                    for colname in pl.columns:
+                        match = re.search(r'buyin(\d{2})(\d{4})', colname)
+                        if match is not None:
+                            # Match month
+                            m_month = int(match[1])
+                            # Match year
+                            m_year = int(match[2])
+                            if (m_month >= month) & (m_year == year):
+                                buyin_cols.append(colname)
+                            elif (m_month <= month) & (m_year == year + 1):
+                                buyin_cols.append(colname)
 
-                    for month in range(1, 13):
-                        buyin_cols = []
-                        for colname in pl.columns:
-                            match = re.search(r'buyin(\d{2})(\d{4})', colname)
-                            if match is not None:
-                                # Match month
-                                m_month = int(match[1])
-                                # Match year
-                                m_year = int(match[2])
-                                if (m_month >= month) & (m_year == year):
-                                    buyin_cols.append(colname)
-                                elif (m_month <= month) & (m_year == year + 1):
-                                    buyin_cols.append(colname)
+                    pl.loc[(pl['dob_month'] == month)
+                           & (pl[buyin_cols].isin(buyin_val)).all(axis=1),
+                           f'buyin_match_{year}'] = True
 
-                        pl.loc[(pl['dob_month'] == month)
-                               & (pl[buyin_cols].isin(buyin_val)).all(axis=1),
-                               f'buyin_match_{year}'] = True
+                nobs_dropped[year]['buyin'] = (
+                    1 - (pl[f'buyin_match_{year}'].sum() / len(pl)))
 
-                    nobs_dropped[year]['buyin'] = (
-                        1 - (pl[f'buyin_match_{year}'].sum() / len(pl)))
+            regex = re.compile(r'^buyin_match_\d{4}$').search
+            buyin_match_cols = [x for x in pl if regex(x)]
+            pl = pl.loc[pl[buyin_match_cols].all(axis=1)]
 
-                regex = re.compile(r'^buyin_match_\d{4}$').search
-                buyin_match_cols = [x for x in pl if regex(x)]
-                pl = pl.loc[pl[buyin_match_cols].all(axis=1)]
+            regex = re.compile(r'^buyin\d{2}\d{4}$').search
+            cols_todrop = [x for x in pl if regex(x)]
+            cols_todrop.extend(buyin_match_cols)
+            pl = pl.drop(cols_todrop, axis=1)
 
-                regex = re.compile(r'^buyin\d{2}\d{4}$').search
-                cols_todrop = [x for x in pl if regex(x)]
-                cols_todrop.extend(buyin_match_cols)
-                pl = pl.drop(cols_todrop, axis=1)
-
-            elif buyin_months == 'all':
-                buyin_cols = [x for x in pl if re.search(r'^buyin\d{2}', x)]
-                pl = pl.loc[(pl[buyin_cols].isin(buyin_val)).all(axis=1)]
-
-                regex = re.compile(r'^buyin\d{2}\d{4}$').search
-                cols_todrop = [x for x in pl if regex(x)]
-                pl = pl.drop(cols_todrop, axis=1)
-
-        if hmo_val is not None:
+        if (hmo_val is not None) and (self.year_type == 'age'):
             if verbose:
                 msg = f"""\
                 Filtering based on hmo_val
                 - values: {hmo_val}
-                - filter type: {hmo_months}
+                - year_type: {self.year_type}
                 - time elapsed: {(time() - t0) / 60:.2f} minutes
                 """
                 print(mywrap(msg))
 
-            if hmo_months == 'age_year':
+            # Create indicator variable for each year if `hmo ==
+            # hmo_val` for the 13 months starting in birthday month of
+            # `year` and ending in birthday month of `year + 1`
 
-                # Create indicator variable for each year if `hmo ==
-                # hmo_val` for the 13 months starting in birthday month of
-                # `year` and ending in birthday month of `year + 1`
+            for year in self.years[:-1]:
+                # Initialize indicator variable for each year
+                pl[f'hmo_match_{year}'] = False
 
-                for year in self.years[:-1]:
-                    # Initialize indicator variable for each year
-                    pl[f'hmo_match_{year}'] = False
+                for month in range(1, 13):
+                    hmo_cols = []
+                    for colname in pl.columns:
+                        match = re.search(r'hmoind(\d{2})(\d{4})', colname)
+                        if match is not None:
+                            # Match month
+                            m_month = int(match[1])
+                            # Match year
+                            m_year = int(match[2])
+                            if (m_month >= month) & (m_year == year):
+                                hmo_cols.append(colname)
+                            elif (m_month <= month) & (m_year == year + 1):
+                                hmo_cols.append(colname)
 
-                    for month in range(1, 13):
-                        hmo_cols = []
-                        for colname in pl.columns:
-                            match = re.search(r'hmoind(\d{2})(\d{4})', colname)
-                            if match is not None:
-                                # Match month
-                                m_month = int(match[1])
-                                # Match year
-                                m_year = int(match[2])
-                                if (m_month >= month) & (m_year == year):
-                                    hmo_cols.append(colname)
-                                elif (m_month <= month) & (m_year == year + 1):
-                                    hmo_cols.append(colname)
+                    pl.loc[(pl['dob_month'] == month)
+                           & (pl[hmo_cols].isin(hmo_val)).all(axis=1),
+                           f'hmo_match_{year}'] = True
 
-                        pl.loc[(pl['dob_month'] == month)
-                               & (pl[hmo_cols].isin(hmo_val)).all(axis=1),
-                               f'hmo_match_{year}'] = True
+                nobs_dropped[year]['hmo'] = (
+                    1 - (pl[f'hmo_match_{year}'].sum() / len(pl)))
 
-                    nobs_dropped[year]['hmo'] = (
-                        1 - (pl[f'hmo_match_{year}'].sum() / len(pl)))
+            regex = re.compile(r'^hmo_match_\d{4}$').search
+            hmo_match_cols = [x for x in pl if regex(x)]
+            pl = pl.loc[pl[hmo_match_cols].all(axis=1)]
 
-                regex = re.compile(r'^hmo_match_\d{4}$').search
-                hmo_match_cols = [x for x in pl if regex(x)]
-                pl = pl.loc[pl[hmo_match_cols].all(axis=1)]
+            regex = re.compile(r'^hmoind\d{2}\d{4}$').search
+            cols_todrop = [x for x in pl if regex(x)]
+            cols_todrop.extend(hmo_match_cols)
+            pl = pl.drop(cols_todrop, axis=1)
 
-                regex = re.compile(r'^hmoind\d{2}\d{4}$').search
-                cols_todrop = [x for x in pl if regex(x)]
-                cols_todrop.extend(hmo_match_cols)
-                pl = pl.drop(cols_todrop, axis=1)
-
-            elif hmo_months == 'all':
-                hmo_cols = [x for x in pl if re.search(r'^hmoind\d{2}', x)]
-                pl = pl.loc[(pl[hmo_cols].isin(hmo_val)).all(axis=1)]
-
-                regex = re.compile(r'^hmoind\d{2}\d{4}$').search
-                cols_todrop = [x for x in pl if regex(x)]
-                pl = pl.drop(cols_todrop, axis=1)
-
-        if (((buyin_val is not None) and (buyin_months == 'age_year'))
-                or ((hmo_val is not None) and (hmo_months == 'age_year'))):
-
+        if ((buyin_val is not None) or (hmo_val is not None)) and (self.year_type == 'age'):
             pl = pl.drop('dob_month', axis=1)
 
             if 'bene_dob' not in keep_vars:
@@ -552,9 +545,7 @@ class MedicareDF(object):
             - ages: {list(ages) if ages else None}
             - races: {list(races) if races else None}
             - buyin values: {buyin_val}
-            - buyin months: {buyin_months}
             - HMO values: {hmo_val}
-            - HMO months: {hmo_months}
             - extra variables: {keep_vars}
             - time elapsed: {(time() - t0) / 60:.2f} minutes
             """
