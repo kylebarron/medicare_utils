@@ -451,9 +451,11 @@ class MedicareDF(object):
                 regex = re.compile(r'buyin(\d{2})(\d{4})').search
                 for month in range(1, 13):
                     cols = [m for col in pl.columns for m in [regex(col)] if m]
-                    cols = [m[0] for m in cols if
-                            ((int(m[1]) >= month) & (int(m[2]) == year)) or
-                            ((int(m[1]) <= month) & (int(m[2]) == year + 1))]
+                    cols = [
+                        m[0]
+                        for m in cols
+                        if ((int(m[1]) >= month) & (int(m[2]) == year)) or (
+                            (int(m[1]) <= month) & (int(m[2]) == year + 1))]
 
                     pl.loc[(pl['dob_month'] == month)
                            & (~pl[cols].isin(buyin_val)).all(axis=1),
@@ -485,9 +487,11 @@ class MedicareDF(object):
                 regex = re.compile(r'hmoind(\d{2})(\d{4})').search
                 for month in range(1, 13):
                     cols = [m for col in pl.columns for m in [regex(col)] if m]
-                    cols = [m[0] for m in cols if
-                            ((int(m[1]) >= month) & (int(m[2]) == year)) or
-                            ((int(m[1]) <= month) & (int(m[2]) == year + 1))]
+                    cols = [
+                        m[0]
+                        for m in cols
+                        if ((int(m[1]) >= month) & (int(m[2]) == year)) or (
+                            (int(m[1]) <= month) & (int(m[2]) == year + 1))]
 
                     pl.loc[(pl['dob_month'] == month)
                            & (~pl[cols].isin(hmo_val)).all(axis=1),
