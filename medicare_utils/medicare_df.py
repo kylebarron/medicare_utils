@@ -103,39 +103,39 @@ class MedicareDF(object):
             dta_path=self.dta_path,
             pq_path=self.pq_path)
 
-    def _get_variables_to_import(self, year, data_type, import_vars):
-        """Get list of variable names to import from given file
-
-        NOTE Not currently used
-
-        Returns:
-            List of strings of variable names to import from file
-        """
-
-        if type(year) != int:
-            raise TypeError('year must be type int')
-
-        allowed_data_types = [
-            'carc', 'carl', 'den', 'ipc', 'ipr', 'med', 'opc', 'opr', 'bsfab',
-            'bsfcc', 'bsfcu', 'bsfd']
-        if data_type not in allowed_data_types:
-            msg = f'data_type must be one of: {allowed_data_types}'
-            raise ValueError(msg)
-
-        import_vars = list(set(import_vars))
-
-        cols = fp.ParquetFile(self.fpath(self.percent, year, data_type)).columns
-        tokeep_list = []
-
-        for var in import_vars[:]:
-            # Keep columns that match text exactly
-            if var in cols:
-                tokeep_list.append(var)
-                import_vars.remove(var)
-
-            # Then perform regex against other variables
-            # else:
-            #     re.search
+    # def _get_variables_to_import(self, year, data_type, import_vars):
+    #     """Get list of variable names to import from given file
+    #
+    #     NOTE Not currently used
+    #
+    #     Returns:
+    #         List of strings of variable names to import from file
+    #     """
+    #
+    #     if type(year) != int:
+    #         raise TypeError('year must be type int')
+    #
+    #     allowed_data_types = [
+    #         'carc', 'carl', 'den', 'ipc', 'ipr', 'med', 'opc', 'opr', 'bsfab',
+    #         'bsfcc', 'bsfcu', 'bsfd']
+    #     if data_type not in allowed_data_types:
+    #         msg = f'data_type must be one of: {allowed_data_types}'
+    #         raise ValueError(msg)
+    #
+    #     import_vars = list(set(import_vars))
+    #
+    #     cols = fp.ParquetFile(self.fpath(self.percent, year, data_type)).columns
+    #     tokeep_list = []
+    #
+    #     for var in import_vars[:]:
+    #         # Keep columns that match text exactly
+    #         if var in cols:
+    #             tokeep_list.append(var)
+    #             import_vars.remove(var)
+    #
+    #         # Then perform regex against other variables
+    #         # else:
+    #         #     re.search
 
     def get_cohort(
             self,
