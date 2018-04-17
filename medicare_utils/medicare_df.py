@@ -145,35 +145,38 @@ class MedicareDF(object):
             rti_race=False,
             buyin_val=None,
             hmo_val=None,
-            join='default',
+            join='outer',
             keep_vars=[],
             verbose=False):
-        """Get cohort in standardized way
+        """Get cohort given demographic and enrollment characteristics
 
-        Merges in such a way that age has to be within `ages` in any such year.
-        Creates '.pl' attribute with patient-level data in the form of a
-        pandas DataFrame. Index of returned DataFrame is always 'bene_id'.
-        In pre-2006 years, 'ehic' will always be returned as a column.
+        Creates `.pl` attribute with patient-level data in the form of a
+        pandas DataFrame. Index of returned DataFrame is always `bene_id`.
+        In pre-2006 years, `ehic` will always be returned as a column.
 
         Args:
-            gender (str): 'M', 'F', 'Male', 'Female', or None (keep both)
+            gender (str): `M`, `F`, `Male`, `Female`, or None (keep both)
             ages (range, list[int], int):
-                Minimum and maximum possible ages (inclusive)
-            races (list[str], str): which races to include
+                Range of ages to include. When `year_type` is `calendar`, keeps
+                anyone whose age was in `ages` at the end of the calendar year.
+                When `year_type` is `age`, keeps anyone whose age was in `ages`
+                at any point during the year.
+            races (list[str], str): Races to include
             rti_race (bool): Whether to use the Research Triangle
                 Institute race code
             buyin_val (list[str], str): The values `buyin\d\d` can take
             hmo_val (list[str], str): The values `hmoind\d\d` can take
-            join (str): method for joining across years
-                Default is "outer" join for all years up to N-1, "left" for N
-                Otherwise must be "left", "inner", "outer"
+            join (str): method for joining across years. Options: `outer`,
+                `inner`, `left`, `right`. `left` keeps all people who matched
+                desired characteristics in first year. `left` keeps all people
+                who matched desired characteristics in last year.
             keep_vars (list[str]): Variable names to keep in final output
             verbose (bool): Print status of program
 
         Returns:
             Creates attributes:
-            - 'pl' with patient-level data in pandas DataFrame.
-            - 'nobs_dropped' with dict of percent of observations dropped
+            - `pl` with patient-level data in pandas DataFrame.
+            - `nobs_dropped` with dict of percent of observations dropped
                 due to each filter.
         """
 
