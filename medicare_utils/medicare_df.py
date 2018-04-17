@@ -231,7 +231,7 @@ class MedicareDF(object):
         buyin_val = [buyin_val] if type(buyin_val) == str else buyin_val
         hmo_val = [hmo_val] if type(hmo_val) == str else hmo_val
 
-        allowed_join = ['default', 'left', 'inner', 'outer']
+        allowed_join = ['left', 'right', 'inner', 'outer']
         if join not in allowed_join:
             msg = f'join must be one of: {allowed_join}'
             raise ValueError(msg)
@@ -396,19 +396,16 @@ class MedicareDF(object):
         if len(extracted_dfs) == 1:
             pl = extracted_dfs[0]
         elif self.year_type == 'age':
-            pl = extracted_dfs[0].join(extracted_dfs[1:], how='outer')
-        elif len(extracted_dfs) == 2:
-            if join == 'default':
+            if len(extracted_dfs) == 2:
                 pl = extracted_dfs[0].join(extracted_dfs[1], how='left')
             else:
-                pl = extracted_dfs[0].join(extracted_dfs[1], how=join)
-        else:
-            if join == 'default':
                 pl = extracted_dfs[0].join(
                     extracted_dfs[1:-1], how='outer').join(
                         extracted_dfs[-1], how='left')
-            else:
-                pl = extracted_dfs[0].join(extracted_dfs[1:], how=join)
+        elif join == 'right':
+            pl = extracted_dfs[-1].join(extracted_dfs[:-1], how='left')
+        else:
+            pl = extracted_dfs[0].join(extracted_dfs[1:], how=join)
 
         pl.index.name = 'bene_id'
 
