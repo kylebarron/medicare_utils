@@ -376,6 +376,10 @@ class MedicareDF(object):
 
             pl.columns = [f'{x}{year}' for x in pl.columns]
 
+            # Indicator for which patients exist in which year
+            if (join != 'inner') or (self.year_type == 'age'):
+                pl[f'match_{year}'] = True
+
             extracted_dfs.append(pl)
 
         if verbose & (len(extracted_dfs) > 1):
@@ -387,10 +391,12 @@ class MedicareDF(object):
             """
             print(mywrap(msg))
 
-        # @NOTE As long as I'm only looking across years,
-        # doing a left join on the last year should be fine
+        # Unless no inter-year variables to check, always do an outer join.
+        # Then after checking, perform desired join
         if len(extracted_dfs) == 1:
             pl = extracted_dfs[0]
+        elif self.year_type == 'age':
+            pl = extracted_dfs[0].join(extracted_dfs[1:], how='outer')
         elif len(extracted_dfs) == 2:
             if join == 'default':
                 pl = extracted_dfs[0].join(extracted_dfs[1], how='left')
@@ -406,8 +412,16 @@ class MedicareDF(object):
 
         pl.index.name = 'bene_id'
 
+        if (join != 'inner') or (self.year_type == 'age'):
+            cols = [f'match_{year}' for year in self.years]
+            pl[cols] = pl[cols].fillna(False)
+
+            if self.year_type == 'age':
+                pl = pl.drop(f'match_{max(self.years)}', axis=1)
+
         if ((buyin_val is not None) or
             (hmo_val is not None)) and (self.year_type == 'age'):
+
             # Create month of birth variable
             pl['bene_dob'] = pd.NaT
             for year in self.years:
@@ -432,38 +446,24 @@ class MedicareDF(object):
             # `year` and ending in birthday month of `year + 1`
 
             for year in self.years[:-1]:
-                # Initialize indicator variable for each year
-                pl[f'buyin_match_{year}'] = False
+                nobs = len(pl[pl[f'match_{year}']])
 
+                regex = re.compile(r'buyin(\d{2})(\d{4})').search
                 for month in range(1, 13):
-                    buyin_cols = []
-                    for colname in pl.columns:
-                        match = re.search(r'buyin(\d{2})(\d{4})', colname)
-                        if match is not None:
-                            # Match month
-                            m_month = int(match[1])
-                            # Match year
-                            m_year = int(match[2])
-                            if (m_month >= month) & (m_year == year):
-                                buyin_cols.append(colname)
-                            elif (m_month <= month) & (m_year == year + 1):
-                                buyin_cols.append(colname)
+                    cols = [m for col in pl.columns for m in [regex(col)] if m]
+                    cols = [m[0] for m in cols if
+                            ((int(m[1]) >= month) & (int(m[2]) == year)) or
+                            ((int(m[1]) <= month) & (int(m[2]) == year + 1))]
 
                     pl.loc[(pl['dob_month'] == month)
-                           & (pl[buyin_cols].isin(buyin_val)).all(axis=1),
-                           f'buyin_match_{year}'] = True
+                           & (~pl[cols].isin(buyin_val)).all(axis=1),
+                           f'match_{year}'] = False
 
                 nobs_dropped[year]['buyin'] = (
-                    1 - (pl[f'buyin_match_{year}'].sum() / len(pl)))
-
-            regex = re.compile(r'^buyin_match_\d{4}$').search
-            buyin_match_cols = [x for x in pl if regex(x)]
-            pl = pl.loc[pl[buyin_match_cols].all(axis=1)]
+                    1 - (pl[f'match_{year}'].sum() / nobs))
 
             regex = re.compile(r'^buyin\d{2}\d{4}$').search
-            cols_todrop = [x for x in pl if regex(x)]
-            cols_todrop.extend(buyin_match_cols)
-            pl = pl.drop(cols_todrop, axis=1)
+            pl = pl.drop([x for x in pl if regex(x)], axis=1)
 
         if (hmo_val is not None) and (self.year_type == 'age'):
             if verbose:
@@ -480,45 +480,46 @@ class MedicareDF(object):
             # `year` and ending in birthday month of `year + 1`
 
             for year in self.years[:-1]:
-                # Initialize indicator variable for each year
-                pl[f'hmo_match_{year}'] = False
+                nobs = len(pl[pl[f'match_{year}']])
 
+                regex = re.compile(r'hmoind(\d{2})(\d{4})').search
                 for month in range(1, 13):
-                    hmo_cols = []
-                    for colname in pl.columns:
-                        match = re.search(r'hmoind(\d{2})(\d{4})', colname)
-                        if match is not None:
-                            # Match month
-                            m_month = int(match[1])
-                            # Match year
-                            m_year = int(match[2])
-                            if (m_month >= month) & (m_year == year):
-                                hmo_cols.append(colname)
-                            elif (m_month <= month) & (m_year == year + 1):
-                                hmo_cols.append(colname)
+                    cols = [m for col in pl.columns for m in [regex(col)] if m]
+                    cols = [m[0] for m in cols if
+                            ((int(m[1]) >= month) & (int(m[2]) == year)) or
+                            ((int(m[1]) <= month) & (int(m[2]) == year + 1))]
 
                     pl.loc[(pl['dob_month'] == month)
-                           & (pl[hmo_cols].isin(hmo_val)).all(axis=1),
-                           f'hmo_match_{year}'] = True
+                           & (~pl[cols].isin(hmo_val)).all(axis=1),
+                           f'match_{year}'] = False
 
                 nobs_dropped[year]['hmo'] = (
-                    1 - (pl[f'hmo_match_{year}'].sum() / len(pl)))
-
-            regex = re.compile(r'^hmo_match_\d{4}$').search
-            hmo_match_cols = [x for x in pl if regex(x)]
-            pl = pl.loc[pl[hmo_match_cols].all(axis=1)]
+                    1 - (pl[f'match_{year}'].sum() / len(pl)))
 
             regex = re.compile(r'^hmoind\d{2}\d{4}$').search
-            cols_todrop = [x for x in pl if regex(x)]
-            cols_todrop.extend(hmo_match_cols)
-            pl = pl.drop(cols_todrop, axis=1)
+            pl = pl.drop([x for x in pl if regex(x)], axis=1)
 
         if ((buyin_val is not None) or
             (hmo_val is not None)) and (self.year_type == 'age'):
-            pl = pl.drop('dob_month', axis=1)
 
+            to_drop = ['dob_month']
             if 'bene_dob' not in keep_vars:
-                pl = pl.drop('bene_dob', axis=1)
+                to_drop.append('bene_dob')
+
+            pl = pl.drop(to_drop, axis=1)
+
+        if self.year_type == 'age':
+            # Do correct filtering of data based on desired join
+            match_cols = [f'match_{year}' for year in self.years[:-1]]
+            if join == 'inner':
+                pl = pl.loc[pl[match_cols].all(axis=1)]
+                pl = pl.drop(match_cols, axis=1)
+            elif join == 'outer':
+                pl = pl.loc[pl[match_cols].any(axis=1)]
+            elif join == 'left':
+                pl = pl.loc[pl[f'match_{min(self.years)}']]
+            elif join == 'right':
+                pl = pl.loc[pl[f'match_{max(self.years) - 1}']]
 
         # Create single variable across years for any non month-oriented vars
         # Columns that vary by year:
@@ -528,15 +529,19 @@ class MedicareDF(object):
         # unique names of columns that vary by year:
         year_cols_stub = list(set([x[:-4] for x in year_cols]))
 
-        if year_cols != []:
-            pl = pd.wide_to_long(
-                pl.reset_index(),
-                stubnames=year_cols_stub,
-                i='bene_id',
-                j='year')
+        for col in year_cols_stub:
+            dest_col = f'{col}{min(self.years)}'
 
-            pl = pl.reset_index('year').drop('year', axis=1)
-            pl = pl[~pl.index.duplicated(keep='first')]
+            if len(self.years) == 1:
+                pl = pl.rename(index=str, columns={dest_col: col})
+                continue
+
+            for year in self.years[1:]:
+                pl[dest_col] = pl[dest_col].combine_first(
+                    pl[f'{col}{year}'])
+                pl = pl.drop(f'{col}{year}', axis=1)
+
+            pl = pl.rename(index=str, columns={dest_col: col})
 
         self.nobs_dropped = nobs_dropped
         self.pl = pl
