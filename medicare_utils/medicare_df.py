@@ -323,17 +323,17 @@ class MedicareDF(object):
             if gender is not None:
                 if (gender.lower() == 'male') | (gender.lower() == 'm'):
                     if pl.sex.dtype.name == 'category':
-                        pl.drop(pl[pl['sex'] == '2'].index, inplace=True)
+                        pl = pl.drop(pl[pl['sex'] == '2'].index)
                     elif np.issubdtype(pl.sex.dtype, np.number):
-                        pl.drop(pl[pl['sex'] == 2].index, inplace=True)
+                        pl = pl.drop(pl[pl['sex'] == 2].index)
                 elif (gender.lower() == 'female') | (gender.lower() == 'f'):
                     if pl.sex.dtype.name == 'category':
-                        pl.drop(pl[pl['sex'] == '1'].index, inplace=True)
+                        pl = pl.drop(pl[pl['sex'] == '1'].index)
                     elif np.issubdtype(pl.sex.dtype, np.number):
-                        pl.drop(pl[pl['sex'] == 1].index, inplace=True)
+                        pl = pl.drop(pl[pl['sex'] == 1].index)
 
                 if 'sex' not in keep_vars:
-                    pl.drop('sex', axis=1, inplace=True)
+                    pl = pl.drop('sex', axis=1)
 
                 nobs_dropped[year]['gender'] = 1 - (len(pl) / nobs)
                 nobs = len(pl)
@@ -341,7 +341,7 @@ class MedicareDF(object):
             if ages is not None:
                 pl = pl.loc[pl['age'].isin(ages)]
 
-                pl.drop('age', axis=1, inplace=True)
+                pl = pl.drop('age', axis=1)
 
                 nobs_dropped[year]['age'] = 1 - (len(pl) / nobs)
                 nobs = len(pl)
@@ -350,7 +350,7 @@ class MedicareDF(object):
                 pl = pl.loc[pl[race_col].isin(races)]
 
                 if race_col not in keep_vars:
-                    pl.drop(race_col, axis=1, inplace=True)
+                    pl = pl.drop(race_col, axis=1)
 
                 nobs_dropped[year]['race'] = 1 - (len(pl) / nobs)
                 nobs = len(pl)
@@ -395,7 +395,7 @@ class MedicareDF(object):
             for year in self.years:
                 pl['bene_dob'] = pl['bene_dob'].combine_first(
                     pl[f'bene_dob{year}'])
-                pl.drop(f'bene_dob{year}', axis=1, inplace=True)
+                pl = pl.drop(f'bene_dob{year}', axis=1)
 
             pl['dob_month'] = pl['bene_dob'].dt.month
 
@@ -447,7 +447,7 @@ class MedicareDF(object):
                 regex = re.compile(r'^buyin\d{2}\d{4}$').search
                 cols_todrop = [x for x in pl if regex(x)]
                 cols_todrop.extend(buyin_match_cols)
-                pl.drop(cols_todrop, axis=1, inplace=True)
+                pl = pl.drop(cols_todrop, axis=1)
 
             elif buyin_months == 'all':
                 buyin_cols = [x for x in pl if re.search(r'^buyin\d{2}', x)]
@@ -505,7 +505,7 @@ class MedicareDF(object):
                 regex = re.compile(r'^hmoind\d{2}\d{4}$').search
                 cols_todrop = [x for x in pl if regex(x)]
                 cols_todrop.extend(hmo_match_cols)
-                pl.drop(cols_todrop, axis=1, inplace=True)
+                pl = pl.drop(cols_todrop, axis=1)
 
             elif hmo_months == 'all':
                 hmo_cols = [x for x in pl if re.search(r'^hmoind\d{2}', x)]
@@ -518,10 +518,10 @@ class MedicareDF(object):
         if (((buyin_val is not None) and (buyin_months == 'age_year'))
                 or ((hmo_val is not None) and (hmo_months == 'age_year'))):
 
-            pl.drop('dob_month', axis=1, inplace=True)
+            pl = pl.drop('dob_month', axis=1)
 
             if 'bene_dob' not in keep_vars:
-                pl.drop('bene_dob', axis=1, inplace=True)
+                pl = pl.drop('bene_dob', axis=1)
 
         # Create single variable across years for any non month-oriented vars
         # Columns that vary by year:
@@ -1164,7 +1164,7 @@ class MedicareDF(object):
                             cl.loc[(cl[hcpcs_cols] == code
                                    ).any(axis=1), 'match'] = True
 
-                    cl.drop(hcpcs_cols, axis=1, inplace=True)
+                    cl = cl.drop(hcpcs_cols, axis=1)
 
                 if icd9_dx:
                     for code in icd9_dx:
@@ -1176,7 +1176,7 @@ class MedicareDF(object):
                             cl.loc[(cl[icd9_dx_cols] == code
                                    ).any(axis=1), 'match'] = True
 
-                    cl.drop(icd9_dx_cols, axis=1, inplace=True)
+                    cl = cl.drop(icd9_dx_cols, axis=1)
 
                 if icd9_sg:
                     for code in icd9_sg:
@@ -1188,7 +1188,7 @@ class MedicareDF(object):
                             cl.loc[(cl[icd9_sg_cols] == code
                                    ).any(axis=1), 'match'] = True
 
-                    cl.drop(icd9_sg_cols, axis=1, inplace=True)
+                    cl = cl.drop(icd9_sg_cols, axis=1)
 
                 # Keep all rows; not just matches
                 cl = cl.reset_index().set_index(pl_id_col)
@@ -1211,7 +1211,7 @@ class MedicareDF(object):
                             cl.loc[idx, code] = True
                             all_created_cols.append(code)
 
-                    cl.drop(hcpcs_cols, axis=1, inplace=True)
+                    cl = cl.drop(hcpcs_cols, axis=1)
 
                 if icd9_dx:
                     for code in icd9_dx:
@@ -1229,7 +1229,7 @@ class MedicareDF(object):
                             cl.loc[idx, code] = True
                             all_created_cols.append(code)
 
-                    cl.drop(icd9_dx_cols, axis=1, inplace=True)
+                    cl = cl.drop(icd9_dx_cols, axis=1)
 
                 if icd9_sg:
                     for code in icd9_sg:
@@ -1247,7 +1247,7 @@ class MedicareDF(object):
                             cl.loc[idx, code] = True
                             all_created_cols.append(code)
 
-                    cl.drop(icd9_sg_cols, axis=1, inplace=True)
+                    cl = cl.drop(icd9_sg_cols, axis=1)
 
                 cl['match'] = (cl[all_created_cols] == True).any(axis=1)
 
