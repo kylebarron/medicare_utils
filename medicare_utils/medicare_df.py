@@ -195,46 +195,28 @@ class MedicareDF(object):
         if type(ages) == int:
             ages = [ages]
 
-        race_codebook = {
-            'Unknown': '0',
-            'White': '1',
-            'Black': '2',
-            'Other': '3',
-            'Asian': '4',
-            'Hispanic': '5',
-            'North American Native': '6',
-            'UNKNOWN': '0',
-            'BLACK (OR AFRICAN-AMERICAN)': '2',
-            'OTHER': '3',
-            'ASIAN/PACIFIC ISLANDER': '4',
-            'HISPANIC': '5',
-            'AMERICAN INDIAN / ALASKA NATIVE': '6'}
-
         race_col = 'rti_race_cd' if rti_race else 'race'
+        race_cbk = codebook('bsfab')[race_col]['values']
+        race_cbk = dict((v.lower(), k) for k, v in race_cbk.items())
+        if race_col == 'rti_race_cd':
+            race_cbk['white'] = race_cbk.pop('non-hispanic white')
 
-        if type(races) == int:
-            races = [str(races)]
-        elif type(races) == str:
-            regex = re.compile(races, re.IGNORECASE).search
-            races = [val for key, val in race_codebook.items() if regex(key)]
-            races = list(set(races))
-            assert len(races) == 1
-        elif type(races) == list:
-            assert all((type(x) == str) or (type(x) == int) for x in races)
-
-            races_new = []
-            for race in races:
-                if type(race) == str:
-                    regex = re.compile(race, re.IGNORECASE).search
-                    race = [
-                        val for key, val in race_codebook.items() if regex(key)]
-                    race = list(set(race))
-                    assert len(race) == 1
-                    races_new.append(race[0])
-                else:
-                    races_new.append(str(race))
-
-            races = races_new
+        if type(races) == list:
+            try:
+                races = [str(int(x)) for x in races]
+            except ValueError:
+                races_new = []
+                for race in races:
+                    r = [v for k, v in race_cbk.items() if re.search(race, k)]
+                    msg = f'`{race}` matches more than one race description'
+                    assert len(r) == 0, msg
+                    races_new.append(r)
+                races = races_new
+        else:
+            try:
+                races = [str(int(races))]
+            except ValueError:
+                races = [v for k, v in race_cbk.items() if re.search(races, k)]
 
         buyin_val = [buyin_val] if type(buyin_val) == str else buyin_val
         allowed_buyin_months = ['all', 'age_year', None]
