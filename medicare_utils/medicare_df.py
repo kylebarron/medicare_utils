@@ -23,7 +23,7 @@ class MedicareDF(object):
             self,
             percent,
             years,
-            year_type: str ='calendar',
+            year_type: str = 'calendar',
             verbose: bool = False,
             parquet_engine: str = 'pyarrow',
             parquet_nthreads=None,
@@ -242,7 +242,9 @@ class MedicareDF(object):
         if ('age' in keep_vars) & (len(self.years) > 1):
             keep_vars.remove('age')
             keep_vars.append('bene_dob')
-            print(mywrap("""\
+            print(
+                mywrap(
+                    """\
             Warning: Can't export age variable, exporting bene_dob instead
             """))
 
@@ -404,7 +406,8 @@ class MedicareDF(object):
 
         pl.index.name = 'bene_id'
 
-        if ((buyin_val is not None) or (hmo_val is not None)) and (self.year_type == 'age'):
+        if ((buyin_val is not None) or
+            (hmo_val is not None)) and (self.year_type == 'age'):
             # Create month of birth variable
             pl['bene_dob'] = pd.NaT
             for year in self.years:
@@ -510,7 +513,8 @@ class MedicareDF(object):
             cols_todrop.extend(hmo_match_cols)
             pl = pl.drop(cols_todrop, axis=1)
 
-        if ((buyin_val is not None) or (hmo_val is not None)) and (self.year_type == 'age'):
+        if ((buyin_val is not None) or
+            (hmo_val is not None)) and (self.year_type == 'age'):
             pl = pl.drop('dob_month', axis=1)
 
             if 'bene_dob' not in keep_vars:
