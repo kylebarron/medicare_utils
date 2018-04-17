@@ -537,9 +537,13 @@ class MedicareDF(object):
                 continue
 
             for year in self.years[1:]:
-                pl[dest_col] = pl[dest_col].combine_first(
-                    pl[f'{col}{year}'])
-                pl = pl.drop(f'{col}{year}', axis=1)
+                try:
+                    pl[dest_col] = pl[dest_col].combine_first(
+                        pl[f'{col}{year}'])
+                    pl = pl.drop(f'{col}{year}', axis=1)
+                except KeyError:
+                    # Means that f'{col}{year}' wasn't loaded
+                    pass
 
             pl = pl.rename(index=str, columns={dest_col: col})
 
