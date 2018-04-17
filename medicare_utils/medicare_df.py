@@ -185,9 +185,9 @@ class MedicareDF(object):
             msg = f"""\
             Starting cohort retrieval
             - percent sample: {self.percent}
-            - years: {self.years}
+            - years: {list(self.years)}
             - ages: {list(ages) if ages else None}
-            - races: {list(races) if races else None}
+            - races: {races if races else None}
             - buyin values: {buyin_val}
             - HMO values: {hmo_val}
             - extra variables: {keep_vars}
@@ -379,7 +379,7 @@ class MedicareDF(object):
         if verbose & (len(extracted_dfs) > 1):
             msg = f"""\
             Merging together beneficiary files
-            - years: {self.years}
+            - years: {list(self.years)}
             - merge type: {join}
             - time elapsed: {(time() - t0) / 60:.2f} minutes
             """
@@ -541,9 +541,9 @@ class MedicareDF(object):
             msg = f"""\
             Finished cohort retrieval
             - percent sample: {self.percent}
-            - years: {self.years}
+            - years: {list(self.years)}
             - ages: {list(ages) if ages else None}
-            - races: {list(races) if races else None}
+            - races: {races if races else None}
             - buyin values: {buyin_val}
             - HMO values: {hmo_val}
             - extra variables: {keep_vars}
@@ -728,7 +728,7 @@ class MedicareDF(object):
             msg = f"""\
             Starting searching for codes
             - percent sample: {self.percent}
-            - years: {self.years}
+            - years: {list(self.years)}
             - data_types: {data_types}
             """
             print(mywrap(msg))
@@ -766,7 +766,7 @@ class MedicareDF(object):
             if verbose:
                 msg = f"""\
                 Will check the following codes
-                - years: {self.years}
+                - years: {list(self.years)}
                 """
                 msg = mywrap(msg)
 
@@ -870,7 +870,7 @@ class MedicareDF(object):
         if verbose:
             msg = f"""\
             Concatenating matched codes across years
-            - years: {self.years}
+            - years: {list(self.years)}
             - data types: {data_types}
             - time elapsed: {(time() - t0) / 60:.2f} minutes
             """
@@ -975,7 +975,7 @@ class MedicareDF(object):
             msg = f"""\
             Finished searching for codes
             - percent sample: {self.percent}
-            - years: {self.years}
+            - years: {list(self.years)}
             - data_types: {data_types}
             - time elapsed: {(time() - t0) / 60:.2f} minutes
             """
