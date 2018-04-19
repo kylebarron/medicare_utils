@@ -457,9 +457,8 @@ class MedicareDF(object):
                         if ((int(m[1]) >= month) & (int(m[2]) == year)) or (
                             (int(m[1]) <= month) & (int(m[2]) == year + 1))]
 
-                    pl.loc[(pl['dob_month'] == month)
-                           & (~pl[cols].isin(buyin_val)).all(axis=1),
-                           f'match_{year}'] = False
+                    pl[f'match_{year}'] = pl[f'match_{year}'].mask(
+                        (pl['dob_month'] == month) & (~pl[cols].isin(buyin_val)).all(axis=1), False)
 
                 nobs_dropped[year]['buyin'] = (
                     1 - (pl[f'match_{year}'].sum() / nobs))
@@ -493,9 +492,8 @@ class MedicareDF(object):
                         if ((int(m[1]) >= month) & (int(m[2]) == year)) or (
                             (int(m[1]) <= month) & (int(m[2]) == year + 1))]
 
-                    pl.loc[(pl['dob_month'] == month)
-                           & (~pl[cols].isin(hmo_val)).all(axis=1),
-                           f'match_{year}'] = False
+                    pl[f'match_{year}'] = pl[f'match_{year}'].mask(
+                        (pl['dob_month'] == month) & (~pl[cols].isin(hmo_val)).all(axis=1), False)
 
                 nobs_dropped[year]['hmo'] = (
                     1 - (pl[f'match_{year}'].sum() / len(pl)))
