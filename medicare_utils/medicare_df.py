@@ -537,7 +537,7 @@ class MedicareDF(object):
             dest_col = f'{col}{min(self.years)}'
 
             if len(self.years) == 1:
-                pl = pl.rename(index=str, columns={dest_col: col})
+                pl = pl.rename(columns={dest_col: col})
                 continue
 
             for year in self.years[1:]:
@@ -549,7 +549,7 @@ class MedicareDF(object):
                     # Means that f'{col}{year}' wasn't loaded
                     pass
 
-            pl = pl.rename(index=str, columns={dest_col: col})
+            pl = pl.rename(columns={dest_col: col})
 
         self.nobs_dropped = nobs_dropped
         self.pl = pl
@@ -1260,7 +1260,7 @@ class MedicareDF(object):
                 cl['match'] = (cl[all_created_cols] == True).any(axis=1)
 
                 # Rename columns according to `rename` dictionary
-                cl = cl.rename(index=str, columns=rename)
+                cl = cl.rename(columns=rename)
 
                 cl = cl.reset_index().set_index(pl_id_col)
                 all_cl.append(cl)

@@ -302,7 +302,7 @@ def convert_file(
         print(mywrap(msg))
 
         if rename_dict is not None:
-            df.rename(index=str, columns=rename_dict, inplace=True)
+            df = df.rename(columns=rename_dict)
 
         df = df.astype(dtypes)
 

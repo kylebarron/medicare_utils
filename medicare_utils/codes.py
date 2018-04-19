@@ -420,7 +420,7 @@ class hcpcs(object):
 
         df = df.dropna(axis=0, how='any')
         rename_dict = {'HCPCS': 'hcpcs_cd', 'DESCRIPTION': 'desc'}
-        df = df.rename(index=str, columns=rename_dict)
+        df = df.rename(columns=rename_dict)
         df['year'] = year
         return df
 
@@ -494,10 +494,8 @@ class icd9(object):
 
         df_sg_short = pd.concat(all_icd9_sg_short, axis=0)
         df_dx_short = pd.concat(all_icd9_dx_short, axis=0)
-        df_sg_short = df_sg_short.rename(
-            index=str, columns={'desc': 'desc_short'})
-        df_dx_short = df_dx_short.rename(
-            index=str, columns={'desc': 'desc_short'})
+        df_sg_short = df_sg_short.rename(columns={'desc': 'desc_short'})
+        df_dx_short = df_dx_short.rename(columns={'desc': 'desc_short'})
 
         all_icd9_sg_long = []
         all_icd9_dx_long = []
@@ -508,8 +506,8 @@ class icd9(object):
 
         df_sg_long = pd.concat(all_icd9_sg_long, axis=0)
         df_dx_long = pd.concat(all_icd9_dx_long, axis=0)
-        df_sg_long = df_sg_long.rename(index=str, columns={'desc': 'desc_long'})
-        df_dx_long = df_dx_long.rename(index=str, columns={'desc': 'desc_long'})
+        df_sg_long = df_sg_long.rename(columns={'desc': 'desc_long'})
+        df_dx_long = df_dx_long.rename(columns={'desc': 'desc_long'})
 
         sg = df_sg_short.merge(
             df_sg_long,
