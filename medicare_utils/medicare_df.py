@@ -1,10 +1,9 @@
 #! /usr/bin/env python3
-"""Main module."""
-
 import re
+import numpy as np
 import pandas as pd
 import fastparquet as fp
-import numpy as np
+import dask.dataframe as dd
 import pyarrow.parquet as pq
 from time import time
 from multiprocessing import cpu_count
@@ -147,6 +146,7 @@ class MedicareDF(object):
             hmo_val=None,
             join='outer',
             keep_vars=[],
+            dask=False,
             verbose=False):
         """Get cohort given demographic and enrollment characteristics
 
@@ -171,6 +171,7 @@ class MedicareDF(object):
                 desired characteristics in first year. `left` keeps all people
                 who matched desired characteristics in last year.
             keep_vars (list[str]): Variable names to keep in final output
+            dask (bool): Use dask library for out of core computation
             verbose (bool): Print status of program
 
         Returns:
@@ -252,7 +253,7 @@ class MedicareDF(object):
             """))
 
         tokeep_regex = []
-        tokeep_regex.extend([r'^(ehic)$', r'^(bene_id)$'])
+        tokeep_regex.append(r'^(ehic)$')
         if gender is not None:
             tokeep_regex.append(r'^(sex)$')
         if ages is not None:
@@ -294,7 +295,8 @@ class MedicareDF(object):
 
         # Now perform extraction
         extracted_dfs = []
-        nobs_dropped = {year: {} for year in self.years}
+        if not dask:
+            nobs_dropped = {year: {} for year in self.years}
 
         # Do filtering for all vars that are
         # checkable within a single year's data
@@ -308,7 +310,13 @@ class MedicareDF(object):
                 """
                 print(mywrap(msg))
 
-            if self.parquet_engine == 'pyarrow':
+            if dask:
+                pl = dd.read_parquet(
+                    self.fpath(self.percent, year, 'bsfab'),
+                    columns=tokeep_vars[year],
+                    index=['bene_id'],
+                    engine=self.parquet_engine)
+            elif self.parquet_engine == 'pyarrow':
                 pf = pq.ParquetFile(self.fpath(self.percent, year, 'bsfab'))
                 pl = pf.read(
                     columns=tokeep_vars[year],
@@ -319,7 +327,8 @@ class MedicareDF(object):
                 pf = fp.ParquetFile(self.fpath(self.percent, year, 'bsfab'))
                 pl = pf.to_pandas(columns=tokeep_vars[year], index='bene_id')
 
-            nobs = len(pl)
+            if not dask:
+                nobs = len(pl)
 
             if gender is not None:
                 if pl['sex'].dtype.name == 'category':
@@ -340,21 +349,26 @@ class MedicareDF(object):
                 if 'sex' not in keep_vars:
                     pl = pl.drop('sex', axis=1)
 
-                nobs_dropped[year]['gender'] = 1 - (len(pl) / nobs)
-                nobs = len(pl)
+                if not dask:
+                    nobs_dropped[year]['gender'] = 1 - (len(pl) / nobs)
+                    nobs = len(pl)
 
             if ages is not None:
                 pl = pl.loc[pl['age'].isin(ages)]
-                nobs_dropped[year]['age'] = 1 - (len(pl) / nobs)
-                nobs = len(pl)
+
+                if not dask:
+                    nobs_dropped[year]['age'] = 1 - (len(pl) / nobs)
+                    nobs = len(pl)
 
                 if 'age' not in keep_vars:
                     pl = pl.drop('age', axis=1)
 
             if races is not None:
                 pl = pl.loc[pl[race_col].isin(races)]
-                nobs_dropped[year]['race'] = 1 - (len(pl) / nobs)
-                nobs = len(pl)
+
+                if not dask:
+                    nobs_dropped[year]['race'] = 1 - (len(pl) / nobs)
+                    nobs = len(pl)
 
                 if race_col not in keep_vars:
                     pl = pl.drop(race_col, axis=1)
@@ -363,19 +377,21 @@ class MedicareDF(object):
                 regex = re.compile(r'^buyin\d{2}').search
                 buyin_cols = [x for x in pl.columns if regex(x)]
                 pl = pl.loc[(pl[buyin_cols].isin(buyin_val)).all(axis=1)]
-
                 pl = pl.drop(set(buyin_cols).difference(keep_vars), axis=1)
-                nobs_dropped[year]['buyin_val'] = 1 - (len(pl) / nobs)
-                nobs = len(pl)
+
+                if not dask:
+                    nobs_dropped[year]['buyin_val'] = 1 - (len(pl) / nobs)
+                    nobs = len(pl)
 
             if (hmo_val is not None) and (self.year_type == 'calendar'):
                 regex = re.compile(r'^hmoind\d{2}').search
                 hmo_cols = [x for x in pl.columns if regex(x)]
                 pl = pl.loc[(pl[hmo_cols].isin(hmo_val)).all(axis=1)]
-
                 pl = pl.drop(set(hmo_cols).difference(keep_vars), axis=1)
-                nobs_dropped[year]['hmo_val'] = 1 - (len(pl) / nobs)
-                nobs = len(pl)
+
+                if not dask:
+                    nobs_dropped[year]['hmo_val'] = 1 - (len(pl) / nobs)
+                    nobs = len(pl)
 
             pl.columns = [f'{x}{year}' for x in pl.columns]
 
@@ -402,22 +418,44 @@ class MedicareDF(object):
             if len(extracted_dfs) == 2:
                 pl = extracted_dfs[0].join(extracted_dfs[1], how='left')
             else:
-                pl = extracted_dfs[0].join(
-                    extracted_dfs[1:-1], how='outer').join(
-                        extracted_dfs[-1], how='left')
+                if not dask:
+                    pl = extracted_dfs[0].join(
+                        extracted_dfs[1:-1], how='outer').join(
+                            extracted_dfs[-1], how='left')
+                else:
+                    pl = extracted_dfs[0]
+                    for i in range(1, len(extracted_dfs) - 1):
+                        pl = pl.join(extracted_dfs[i], how='outer')
+                    pl = pl.join(extracted_dfs[-1], how='left')
         elif join == 'right':
-            pl = extracted_dfs[-1].join(extracted_dfs[:-1], how='left')
+            if not dask:
+                pl = extracted_dfs[-1].join(extracted_dfs[:-1], how='left')
+            else:
+                pl = extracted_dfs[-1]
+                for i in range(len(extracted_dfs) - 1):
+                    pl = pl.join(extracted_dfs[i], how='left')
         else:
-            pl = extracted_dfs[0].join(extracted_dfs[1:], how=join)
+            if not dask:
+                pl = extracted_dfs[0].join(extracted_dfs[1:], how=join)
+            else:
+                pl = extracted_dfs[0]
+                for i in range(1, len(extracted_dfs)):
+                    pl = pl.join(extracted_dfs[i], how='left')
 
         pl.index.name = 'bene_id'
 
         if (join != 'inner') or (self.year_type == 'age'):
-            cols = [f'match_{year}' for year in self.years]
-            pl[cols] = pl[cols].fillna(False)
-
             if self.year_type == 'age':
+                # Don't need last calendar year match variable
+                # Am only matching part of last calendar year when doing age-
+                # year match
+                cols = [f'match_{year}' for year in self.years]
+                cols.remove(f'match_{max(self.years)}')
+                pl[cols] = pl[cols].fillna(False)
                 pl = pl.drop(f'match_{max(self.years)}', axis=1)
+            else:
+                cols = [f'match_{year}' for year in self.years]
+                pl[cols] = pl[cols].fillna(False)
 
         if ((buyin_val is not None) or
             (hmo_val is not None)) and (self.year_type == 'age'):
@@ -446,7 +484,8 @@ class MedicareDF(object):
             # `year` and ending in birthday month of `year + 1`
 
             for year in self.years[:-1]:
-                nobs = len(pl[pl[f'match_{year}']])
+                if not dask:
+                    nobs = len(pl[pl[f'match_{year}']])
 
                 regex = re.compile(r'buyin(\d{2})(\d{4})').search
                 for month in range(1, 13):
@@ -460,8 +499,9 @@ class MedicareDF(object):
                     pl[f'match_{year}'] = pl[f'match_{year}'].mask(
                         (pl['dob_month'] == month) & (~pl[cols].isin(buyin_val)).all(axis=1), False)
 
-                nobs_dropped[year]['buyin'] = (
-                    1 - (pl[f'match_{year}'].sum() / nobs))
+                if not dask:
+                    nobs_dropped[year]['buyin'] = (
+                        1 - (pl[f'match_{year}'].sum() / nobs))
 
             regex = re.compile(r'^buyin\d{2}\d{4}$').search
             pl = pl.drop([x for x in pl.columns if regex(x)], axis=1)
@@ -481,7 +521,8 @@ class MedicareDF(object):
             # `year` and ending in birthday month of `year + 1`
 
             for year in self.years[:-1]:
-                nobs = len(pl[pl[f'match_{year}']])
+                if not dask:
+                    nobs = len(pl[pl[f'match_{year}']])
 
                 regex = re.compile(r'hmoind(\d{2})(\d{4})').search
                 for month in range(1, 13):
@@ -495,8 +536,9 @@ class MedicareDF(object):
                     pl[f'match_{year}'] = pl[f'match_{year}'].mask(
                         (pl['dob_month'] == month) & (~pl[cols].isin(hmo_val)).all(axis=1), False)
 
-                nobs_dropped[year]['hmo'] = (
-                    1 - (pl[f'match_{year}'].sum() / len(pl)))
+                if not dask:
+                    nobs_dropped[year]['hmo'] = (
+                        1 - (pl[f'match_{year}'].sum() / len(pl)))
 
             regex = re.compile(r'^hmoind\d{2}\d{4}$').search
             pl = pl.drop([x for x in pl.columns if regex(x)], axis=1)
@@ -549,8 +591,11 @@ class MedicareDF(object):
 
             pl = pl.rename(columns={dest_col: col})
 
-        self.nobs_dropped = nobs_dropped
-        self.pl = pl
+        if not dask:
+            self.nobs_dropped = nobs_dropped
+            self.pl = pl
+        else:
+            self.pl = pl.compute()
 
         if verbose:
             msg = f"""\
