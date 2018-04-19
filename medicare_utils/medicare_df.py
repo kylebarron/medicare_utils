@@ -465,7 +465,7 @@ class MedicareDF(object):
                     1 - (pl[f'match_{year}'].sum() / nobs))
 
             regex = re.compile(r'^buyin\d{2}\d{4}$').search
-            pl = pl.drop([x for x in pl if regex(x)], axis=1)
+            pl = pl.drop([x for x in pl.columns if regex(x)], axis=1)
 
         if (hmo_val is not None) and (self.year_type == 'age'):
             if verbose:
@@ -501,7 +501,7 @@ class MedicareDF(object):
                     1 - (pl[f'match_{year}'].sum() / len(pl)))
 
             regex = re.compile(r'^hmoind\d{2}\d{4}$').search
-            pl = pl.drop([x for x in pl if regex(x)], axis=1)
+            pl = pl.drop([x for x in pl.columns if regex(x)], axis=1)
 
         if ((buyin_val is not None) or
             (hmo_val is not None)) and (self.year_type == 'age'):
@@ -528,7 +528,7 @@ class MedicareDF(object):
         # Create single variable across years for any non month-oriented vars
         # Columns that vary by year:
         regex = re.compile(r'(?!_).\d{4}$').search
-        year_cols = [x for x in pl if regex(x)]
+        year_cols = [x for x in pl.columns if regex(x)]
 
         # unique names of columns that vary by year:
         year_cols_stub = list(set([x[:-4] for x in year_cols]))
