@@ -12,6 +12,8 @@ with open('CHANGELOG.md') as history_file:
     history = history_file.read()
 
 requirements = [
+    'dask >= 0.17.1',
+    'distributed >= 1.21.1',
     'fastparquet >= 0.1.4',
     'joblib >= 0.11',
     'numpy >= 1.14.1',
