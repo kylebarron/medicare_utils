@@ -207,7 +207,9 @@ class MedicareDF(object):
         if race_col == 'rti_race_cd':
             race_cbk['white'] = race_cbk.pop('non-hispanic white')
 
-        if type(races) == list:
+        if races is None:
+            pass
+        elif type(races) == list:
             try:
                 races = [str(int(x)) for x in races]
             except ValueError:
@@ -227,10 +229,13 @@ class MedicareDF(object):
         gender_cbk = codebook('bsfab')['sex']['values']
         gender_cbk = {v.lower(): k for k, v in gender_cbk.items()}
         gender_cbk = {**gender_cbk, **{k[0]: v for k, v in gender_cbk.items()}}
-        try:
-            gender = str(int(gender))
-        except ValueError:
-            gender = gender_cbk[gender.lower()]
+        if gender is None:
+            pass
+        else:
+            try:
+                gender = str(int(gender))
+            except ValueError:
+                gender = gender_cbk[gender.lower()]
 
         buyin_val = [buyin_val] if type(buyin_val) == str else buyin_val
         hmo_val = [hmo_val] if type(hmo_val) == str else hmo_val
