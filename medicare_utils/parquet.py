@@ -26,37 +26,65 @@ def convert_med(
         med_dta='/disk/aging/medicare/data',
         med_pq='/homes/nber/barronk/agebulk1/raw/pq',
         xw_dir='/disk/aging/medicare/data/docs'):
-    """Main program: In parallel convert Medicare Stata files to parquet
+    """Convert Medicare Stata files to parquet
 
     Args:
-        pcts: string or list of strings of percent samples to convert
-        years: int, range, or list of ints of file years to convert
-        med_types: string or list of strings of type of data files to convert
-            - bsfab Beneficiary Summary File, Base segment
-            - bsfcc Beneficiary Summary File, Chronic Conditions segment
-            - bsfcu Beneficiary Summary File, Cost & Use segment
-            - bsfd  Beneficiary Summary File, National Death Index segment
-            - carc  Carrier File, Claims segment
-            - carl  Carrier File, Line segment
-            - den   Denominator File
-            - dmec  Durable Medical Equipment File, Claims segment
-            - dmel  Durable Medical Equipment File, Line segment
-            - hhac  Home Health Agency File, Claims segment
-            - hhar  Home Health Agency File, Revenue Center segment
-            - hosc  Hospice File, Claims segment
-            - hosr  Hospice File, Revenue Center segment
-            - ipc   Inpatient File, Claims segment
-            - ipr   Inpatient File, Revenue Center segment
-            - med   MedPAR File
-            - opc   Outpatient File, Claims segment
-            - opr   Outpatient File, Revenue Center segment
-            - snfc  Skilled Nursing Facility File, Claims segment
-            - snfr  Skilled Nursing Facility File, Revenue Center segment
-            - xw    `ehic` - `bene_id` crosswalk files
-        n_jobs: number of processes to use
-        med_dta: top of tree for medicare stata files
-        med_pq: top of tree to output new parquet files
-        xw_dir: directory with variable name crosswalks
+        pcts (str or list[str]): percent samples to convert
+        years (int, range, or list[int]): file years to convert
+        data_types (str or list[str]):
+            types of data files to convert
+
+            - ``bsfab`` (`Beneficiary Summary File, Base segment`_)
+            - ``bsfcc`` (`Beneficiary Summary File, Chronic Conditions segment`_)
+            - ``bsfcu`` (`Beneficiary Summary File, Cost & Use segment`_)
+            - ``bsfd``  (`Beneficiary Summary File, National Death Index segment`_)
+            - ``carc``  (`Carrier File, Claims segment`_)
+            - ``carl``  (`Carrier File, Line segment`_)
+            - ``den``   (Denominator File)
+            - ``dmec``  (`Durable Medical Equipment File, Claims segment`_)
+            - ``dmel``  (`Durable Medical Equipment File, Line segment`_)
+            - ``hhac``  (`Home Health Agency File, Claims segment`_)
+            - ``hhar``  (`Home Health Agency File, Revenue Center segment`_)
+            - ``hosc``  (`Hospice File, Claims segment`_)
+            - ``hosr``  (`Hospice File, Revenue Center segment`_)
+            - ``ipc``   (`Inpatient File, Claims segment`_)
+            - ``ipr``   (`Inpatient File, Revenue Center segment`_)
+            - ``med``   (`MedPAR File`_)
+            - ``opc``   (`Outpatient File, Claims segment`_)
+            - ``opr``   (`Outpatient File, Revenue Center segment`_)
+            - ``snfc``  (`Skilled Nursing Facility File, Claims segment`_)
+            - ``snfr``  (`Skilled Nursing Facility File, Revenue Center segment`_)
+            - ``xw``    (Crosswalks files for ``ehic`` - ``bene_id``)
+
+            .. _`Beneficiary Summary File, Base segment`: https://kylebarron.github.io/medicare-documentation/resdac/mbsf/#base-abcd-segment_2
+            .. _`Beneficiary Summary File, Chronic Conditions segment`: https://kylebarron.github.io/medicare-documentation/resdac/mbsf/#chronic-conditions-segment_2
+            .. _`Beneficiary Summary File, Cost & Use segment`: https://kylebarron.github.io/medicare-documentation/resdac/mbsf/#cost-and-use-segment_1
+            .. _`Beneficiary Summary File, National Death Index segment`: https://kylebarron.github.io/medicare-documentation/resdac/mbsf/#national-death-index-segment_1
+            .. _`Carrier File, Claims segment`: https://kylebarron.github.io/medicare-documentation/resdac/carrier-rif/#carrier-rif_1
+            .. _`Carrier File, Line segment`: https://kylebarron.github.io/medicare-documentation/resdac/carrier-rif/#line-file
+            .. _`Durable Medical Equipment File, Claims segment`: https://kylebarron.github.io/medicare-documentation/resdac/dme-rif/#durable-medical-equipment-rif_1
+            .. _`Durable Medical Equipment File, Line segment`: https://kylebarron.github.io/medicare-documentation/resdac/dme-rif/#line-file
+            .. _`Home Health Agency File, Claims segment`: https://kylebarron.github.io/medicare-documentation/resdac/hha-rif/#home-health-agency-rif_1
+            .. _`Home Health Agency File, Revenue Center segment`: https://kylebarron.github.io/medicare-documentation/resdac/hha-rif/#revenue-center-file
+            .. _`Hospice File, Claims segment`: https://kylebarron.github.io/medicare-documentation/resdac/hospice-rif/#hospice-rif_1
+            .. _`Hospice File, Revenue Center segment`: https://kylebarron.github.io/medicare-documentation/resdac/hospice-rif/#revenue-center-file
+            .. _`Inpatient File, Claims segment`: https://kylebarron.github.io/medicare-documentation/resdac/ip-rif/#inpatient-rif_1
+            .. _`Inpatient File, Revenue Center segment`: https://kylebarron.github.io/medicare-documentation/resdac/ip-rif/#revenue-center-file
+            .. _`MedPAR File`: https://kylebarron.github.io/medicare-documentation/resdac/medpar-rif/#medpar-rif_1
+            .. _`Outpatient File, Claims segment`: https://kylebarron.github.io/medicare-documentation/resdac/op-rif/#outpatient-rif_1
+            .. _`Outpatient File, Revenue Center segment`: https://kylebarron.github.io/medicare-documentation/resdac/op-rif/#revenue-center-file
+            .. _`Skilled Nursing Facility File, Claims segment`: https://kylebarron.github.io/medicare-documentation/resdac/snf-rif/#skilled-nursing-facility-rif_1
+            .. _`Skilled Nursing Facility File, Revenue Center segment`: https://kylebarron.github.io/medicare-documentation/resdac/snf-rif/#revenue-center-file
+
+        rg_size (float): size in GB of each Parquet row group
+        parquet_engine (str): either 'fastparquet' or 'pyarrow'
+        compression_type (str): 'SNAPPY' or 'GZIP'
+        manual_schema (bool): whether to create manual parquet schema. Doesn't
+            always work.
+        n_jobs (int): number of processes to use
+        med_dta (str): top of tree for medicare stata files
+        med_pq (str): top of tree to output new parquet files
+        xw_dir (str): directory with variable name crosswalks
     """
 
     if type(pcts) is str:
@@ -124,34 +152,40 @@ def _convert_med(
     percent sample, year, and data type of file to parquet format.
 
     Args:
-        pct: percent sample to convert
-        year: year of data to convert
-        data_type:
-            - bsfab Beneficiary Summary File, Base segment
-            - bsfcc Beneficiary Summary File, Chronic Conditions segment
-            - bsfcu Beneficiary Summary File, Cost & Use segment
-            - bsfd  Beneficiary Summary File, National Death Index segment
-            - carc  Carrier File, Claims segment
-            - carl  Carrier File, Line segment
-            - den   Denominator File
-            - dmec  Durable Medical Equipment File, Claims segment
-            - dmel  Durable Medical Equipment File, Line segment
-            - hhac  Home Health Agency File, Claims segment
-            - hhar  Home Health Agency File, Revenue Center segment
-            - hosc  Hospice File, Claims segment
-            - hosr  Hospice File, Revenue Center segment
-            - ipc   Inpatient File, Claims segment
-            - ipr   Inpatient File, Revenue Center segment
-            - med   MedPAR File
-            - opc   Outpatient File, Claims segment
-            - opr   Outpatient File, Revenue Center segment
-            - snfc  Skilled Nursing Facility File, Claims segment
-            - snfr  Skilled Nursing Facility File, Revenue Center segment
-            - xw    `ehic` - `bene_id` crosswalk files
-        rg_size: size in GB of each Parquet row group
-        med_dta: canonical path for raw medicare dta files
-        med_pq: top of tree to output new parquet files
-        xw_dir: directory with variable name crosswalks
+        pct (int, float, or str): percent sample to convert
+        year (int): year of data to convert
+        data_type (str or list[str]):
+            type of data files to convert
+
+            - ``bsfab`` Beneficiary Summary File, Base segment
+            - ``bsfcc`` Beneficiary Summary File, Chronic Conditions segment
+            - ``bsfcu`` Beneficiary Summary File, Cost & Use segment
+            - ``bsfd``  Beneficiary Summary File, National Death Index segment
+            - ``carc``  Carrier File, Claims segment
+            - ``carl``  Carrier File, Line segment
+            - ``den``   Denominator File
+            - ``dmec``  Durable Medical Equipment File, Claims segment
+            - ``dmel``  Durable Medical Equipment File, Line segment
+            - ``hhac``  Home Health Agency File, Claims segment
+            - ``hhar``  Home Health Agency File, Revenue Center segment
+            - ``hosc``  Hospice File, Claims segment
+            - ``hosr``  Hospice File, Revenue Center segment
+            - ``ipc``   Inpatient File, Claims segment
+            - ``ipr``   Inpatient File, Revenue Center segment
+            - ``med``   MedPAR File
+            - ``opc``   Outpatient File, Claims segment
+            - ``opr``   Outpatient File, Revenue Center segment
+            - ``snfc``  Skilled Nursing Facility File, Claims segment
+            - ``snfr``  Skilled Nursing Facility File, Revenue Center segment
+            - ``xw``    Crosswalks files for ``ehic`` - ``bene_id``
+        rg_size (float): size in GB of each Parquet row group
+        parquet_engine (str): either 'fastparquet' or 'pyarrow'
+        compression_type (str): 'SNAPPY' or 'GZIP'
+        manual_schema (bool): whether to create manual parquet schema. Doesn't
+            always work.
+        med_dta (str): canonical path for raw medicare dta files
+        med_pq (str): top of tree to output new parquet files
+        xw_dir (str): directory with variable name crosswalks
     Returns:
         nothing. Writes parquet file to disk.
     Raises:
@@ -231,18 +265,19 @@ def convert_file(
         parquet_engine='pyarrow',
         compression_type='SNAPPY',
         manual_schema=False):
-    """Convert arbitrary file to Parquet format
+    """Convert arbitrary Stata file to Parquet format
 
     Args:
-        infile: path of file to read from
-        outfile: path of file to export to
-        rename_dict: a dictionary with varnames and canonical varnames
-        rg_size: Size in GB of the individual row groups
-        parquet_engine: str: either 'pyarrow' or 'fastparquet'
-        manual_schema: Whether to make my own schema, for use with pyarrow
+        infile (str): path of file to read from
+        outfile (str): path of file to export to
+        rename_dict (dict): keys should be initial variable names; values should
+            be new variable names
+        rg_size (float): Size in GB of the individual row groups
+        parquet_engine (str): either 'pyarrow' or 'fastparquet'
+        manual_schema (bool): Create parquet schema manually. For use with
+            pyarrow; doesn't always work
     Returns:
-        Nothing. Writes .parquet file to disk.
-    Raises:
+        Writes .parquet file to disk.
     """
     if parquet_engine == 'pyarrow':
         import pyarrow as pa

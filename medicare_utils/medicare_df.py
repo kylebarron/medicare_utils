@@ -16,7 +16,23 @@ pct_dict = {0.01: '0001', 1: '01', 5: '05', 20: '20', 100: '100'}
 
 
 class MedicareDF(object):
-    """A class to organize Medicare operations"""
+    """Instantiate a MedicareDF object
+
+    Attributes:
+        percent (str, int, or float): percent sample of data to use
+        years (list[int]): years of data to use
+        year_type (str): ``calendar`` to work with multiple years as calendar
+            years; ``age`` to work with patients' age years
+        verbose (bool): Print progress status of program to console
+        parquet_engine (str): ``pyarrow`` or ``fastparquet``
+        parquet_nthreads (int): number of threads to use when reading file
+        dta_path (str): path to Stata Medicare files
+        pq_path (str): path to Parquet Medicare files
+    Returns:
+        ``MedicareDF`` object. Can then create a cohort with :func:`get_cohort`
+        or search for patients with a given diagnosis with
+        :func:`search_for_codes`
+    """
 
     def __init__(
             self,
@@ -28,18 +44,22 @@ class MedicareDF(object):
             parquet_nthreads=None,
             dta_path: str = '/disk/aging/medicare/data',
             pq_path: str = '/homes/nber/barronk/agebulk1/raw/pq'):
-        """Return a MedicareDF object
+        """Instantiate a MedicareDF object
 
         Attributes:
             percent (str, int, or float): percent sample of data to use
             years (list[int]): years of data to use
-            year_type (str): 'calendar' to work with multiple years as calendar
-                years; 'age' to work with patients' age years
-            verbose (bool): Print status of program
-            parquet_engine (str): 'pyarrow' or 'fastparquet'
+            year_type (str): ``calendar`` to work with multiple years as
+                calendar years; ``age`` to work with patients' age years
+            verbose (bool): Print progress status of program to console
+            parquet_engine (str): ``pyarrow`` or ``fastparquet``
             parquet_nthreads (int): number of threads to use when reading file
             dta_path (str): path to Stata Medicare files
             pq_path (str): path to Parquet Medicare files
+        Returns:
+            ``MedicareDF`` object. Can then create a cohort with
+            :func:`get_cohort` or search for patients with a given diagnosis
+            with :func:`search_for_codes`
         """
 
         # Check types
@@ -150,35 +170,38 @@ class MedicareDF(object):
             verbose=False):
         """Get cohort given demographic and enrollment characteristics
 
-        Creates `.pl` attribute with patient-level data in the form of a
-        pandas DataFrame. Index of returned DataFrame is always `bene_id`.
-        In pre-2006 years, `ehic` will always be returned as a column.
+        Creates ``.pl`` attribute with patient-level data in the form of a
+        pandas DataFrame. Index of returned DataFrame is always ``bene_id``,
+        even if years provided are before 2006. In pre-2006 years, ``ehic`` will
+        always be returned as a column.
 
         Args:
-            gender (str): `M`, `F`, `Male`, `Female`, or None (keep both)
+            gender (str): ``M``, ``F``, ``Male``, ``Female``, or ``None`` (keep both)
             ages (range, list[int], int):
-                Range of ages to include. When `year_type` is `calendar`, keeps
-                anyone whose age was in `ages` at the end of the calendar year.
-                When `year_type` is `age`, keeps anyone whose age was in `ages`
-                at any point during the year.
+                Range of ages to include. When ``year_type`` is ``calendar``,
+                keeps anyone whose age was in ``ages`` at the end of the
+                calendar year. When ``year_type`` is ``age``, keeps anyone whose
+                age was in ``ages`` at any point during the year.
             races (list[str], str): Races to include
             rti_race (bool): Whether to use the Research Triangle
-                Institute race code
-            buyin_val (list[str], str): The values `buyin\d\d` can take
-            hmo_val (list[str], str): The values `hmoind\d\d` can take
-            join (str): method for joining across years. Options: `outer`,
-                `inner`, `left`, `right`. `left` keeps all people who matched
-                desired characteristics in first year. `left` keeps all people
-                who matched desired characteristics in last year.
+                Institute race code instead of the default race code.
+            buyin_val (list[str], str): The values ``buyinXX`` can take
+            hmo_val (list[str], str): The values ``hmoindXX`` can take
+            join (str): method for joining across years. Options: ``outer``,
+                ``inner``, ``left``, ``right``. ``outer`` keeps all patients who
+                matched desired characteristics in **any** year. ``inner`` keeps
+                all patients who matched desired characteristics in **all**
+                years. ``left`` keeps all people who matched desired
+                characteristics in the **first** year. ``right`` keeps all
+                people who matched desired characteristics in the **last** year.
             keep_vars (list[str]): Variable names to keep in final output
             dask (bool): Use dask library for out of core computation
-            verbose (bool): Print status of program
+            verbose (bool): Print progress of program to console
 
         Returns:
-            Creates attributes:
-            - `pl` with patient-level data in pandas DataFrame.
-            - `nobs_dropped` with dict of percent of observations dropped
-                due to each filter.
+            Creates attributes ``.pl`` with patient-level data in pandas
+            DataFrame and ``.nobs_dropped`` with dict of percent of observations
+            dropped due to each filter.
         """
 
         if self.verbose:
@@ -750,27 +773,48 @@ class MedicareDF(object):
                 'icd9_sg': None},
             convert_ehic=True,
             verbose=False):
-        """Search in given claim-level dataset(s) for HCPCS and/or ICD9 codes
+        """Search in claim-level datasets for HCPCS and/or ICD9 codes
 
-        Note: Each code given must be distinct, or collapse_codes must be True
+        Note: Each code given must be distinct, or ``collapse_codes`` must be ``True``
 
         Args:
-            data_types (str or list[str]): carc, carl, ipc, ipr, med, opc, opr
+            data_types (str or list[str]):
+                Files to search through. The following are allowed:
+
+                - ``carc``  (`Carrier File, Claims segment`_)
+                - ``carl``  (`Carrier File, Line segment`_)
+                - ``ipc``   (`Inpatient File, Claims segment`_)
+                - ``ipr``   (`Inpatient File, Revenue Center segment`_)
+                - ``med``   (`MedPAR File`_)
+                - ``opc``   (`Outpatient File, Claims segment`_)
+                - ``opr``   (`Outpatient File, Revenue Center segment`_)
+
+                .. _`Carrier File, Claims segment`: https://kylebarron.github.io/medicare-documentation/resdac/carrier-rif/#carrier-rif_1
+                .. _`Carrier File, Line segment`: https://kylebarron.github.io/medicare-documentation/resdac/carrier-rif/#line-file
+                .. _`Inpatient File, Claims segment`: https://kylebarron.github.io/medicare-documentation/resdac/ip-rif/#inpatient-rif_1
+                .. _`Inpatient File, Revenue Center segment`: https://kylebarron.github.io/medicare-documentation/resdac/ip-rif/#revenue-center-file
+                .. _`MedPAR File`: https://kylebarron.github.io/medicare-documentation/resdac/medpar-rif/#medpar-rif_1
+                .. _`Outpatient File, Claims segment`: https://kylebarron.github.io/medicare-documentation/resdac/op-rif/#outpatient-rif_1
+                .. _`Outpatient File, Revenue Center segment`: https://kylebarron.github.io/medicare-documentation/resdac/op-rif/#revenue-center-file
             hcpcs (str, compiled regex, list[str], list[compiled regex]):
-                List of HCPCS codes to look for
+                HCPCS codes to search for
             icd9_dx (str, compiled regex, list[str], list[compiled regex]):
-                List of ICD-9 diagnosis codes to look for
+                ICD-9 diagnosis codes to search for
             icd9_dx_max_cols (int): Max number of ICD9 diagnosis code columns to
                 search through
             icd9_sg (str, compiled regex, list[str], list[compiled regex]):
-                List of ICD-9 procedure codes to look for
-            keep_vars (dict[data_type: list[str]]): dict of column names to return
-            collapse_codes (bool): If True, returns a single column "match";
-                else it returns a column for each code provided
-            convert_ehic (bool): If True, merges on 'bene_id' for years < 2006
+                ICD-9 procedure codes to search for
+            keep_vars (dict[data_type: list[str]]): dict of column names to
+                return
+            collapse_codes (bool): If ``True``, returns a single column
+                ``match``; otherwise returns a column for each code provided
+            convert_ehic (bool): If ``True``, merges on ``bene_id`` for years <
+                2006
 
         Returns:
-            DataFrame with bene_id and bool columns for each code to search for
+            Creates ``.cl`` attribute; a dict where keys are the data_types
+            provided and values are pandas DataFrames with ``bene_id`` as index
+            and indicator columns for each code provided.
         """
 
         if self.verbose:

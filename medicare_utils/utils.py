@@ -24,41 +24,62 @@ def fpath(
         data_type: str,
         dta: bool = False,
         dta_path: str = '/disk/aging/medicare/data',
-        pq_path: str = '/homes/nber/barronk/agebulk1/raw/pq'):
+        pq_path: str = '/homes/nber/barronk/agebulk1/raw/pq') -> str:
     """Generate path to Medicare files
 
     Args:
-        percent: percent sample to convert
-        year: year of data to convert
+        percent: percent sample of data
+        year: year of data
         data_type:
-            - bsfab Beneficiary Summary File, Base segment
-            - bsfcc Beneficiary Summary File, Chronic Conditions segment
-            - bsfcu Beneficiary Summary File, Cost & Use segment
-            - bsfd  Beneficiary Summary File, National Death Index segment
-            - carc  Carrier File, Claims segment
-            - carl  Carrier File, Line segment
-            - den   Denominator File
-            - dmec  Durable Medical Equipment File, Claims segment
-            - dmel  Durable Medical Equipment File, Line segment
-            - hhac  Home Health Agency File, Claims segment
-            - hhar  Home Health Agency File, Revenue Center segment
-            - hosc  Hospice File, Claims segment
-            - hosr  Hospice File, Revenue Center segment
-            - ipc   Inpatient File, Claims segment
-            - ipr   Inpatient File, Revenue Center segment
-            - med   MedPAR File
-            - opc   Outpatient File, Claims segment
-            - opr   Outpatient File, Revenue Center segment
-            - snfc  Skilled Nursing Facility File, Claims segment
-            - snfr  Skilled Nursing Facility File, Revenue Center segment
-            - xw    `ehic` - `bene_id` crosswalk files
+            desired type of file
+
+            - ``bsfab`` (`Beneficiary Summary File, Base segment`_)
+            - ``bsfcc`` (`Beneficiary Summary File, Chronic Conditions segment`_)
+            - ``bsfcu`` (`Beneficiary Summary File, Cost & Use segment`_)
+            - ``bsfd``  (`Beneficiary Summary File, National Death Index segment`_)
+            - ``carc``  (`Carrier File, Claims segment`_)
+            - ``carl``  (`Carrier File, Line segment`_)
+            - ``den``   (Denominator File)
+            - ``dmec``  (`Durable Medical Equipment File, Claims segment`_)
+            - ``dmel``  (`Durable Medical Equipment File, Line segment`_)
+            - ``hhac``  (`Home Health Agency File, Claims segment`_)
+            - ``hhar``  (`Home Health Agency File, Revenue Center segment`_)
+            - ``hosc``  (`Hospice File, Claims segment`_)
+            - ``hosr``  (`Hospice File, Revenue Center segment`_)
+            - ``ipc``   (`Inpatient File, Claims segment`_)
+            - ``ipr``   (`Inpatient File, Revenue Center segment`_)
+            - ``med``   (`MedPAR File`_)
+            - ``opc``   (`Outpatient File, Claims segment`_)
+            - ``opr``   (`Outpatient File, Revenue Center segment`_)
+            - ``snfc``  (`Skilled Nursing Facility File, Claims segment`_)
+            - ``snfr``  (`Skilled Nursing Facility File, Revenue Center segment`_)
+            - ``xw``    (Crosswalks files for ``ehic`` - ``bene_id``)
+
+            .. _`Beneficiary Summary File, Base segment`: https://kylebarron.github.io/medicare-documentation/resdac/mbsf/#base-abcd-segment_2
+            .. _`Beneficiary Summary File, Chronic Conditions segment`: https://kylebarron.github.io/medicare-documentation/resdac/mbsf/#chronic-conditions-segment_2
+            .. _`Beneficiary Summary File, Cost & Use segment`: https://kylebarron.github.io/medicare-documentation/resdac/mbsf/#cost-and-use-segment_1
+            .. _`Beneficiary Summary File, National Death Index segment`: https://kylebarron.github.io/medicare-documentation/resdac/mbsf/#national-death-index-segment_1
+            .. _`Carrier File, Claims segment`: https://kylebarron.github.io/medicare-documentation/resdac/carrier-rif/#carrier-rif_1
+            .. _`Carrier File, Line segment`: https://kylebarron.github.io/medicare-documentation/resdac/carrier-rif/#line-file
+            .. _`Durable Medical Equipment File, Claims segment`: https://kylebarron.github.io/medicare-documentation/resdac/dme-rif/#durable-medical-equipment-rif_1
+            .. _`Durable Medical Equipment File, Line segment`: https://kylebarron.github.io/medicare-documentation/resdac/dme-rif/#line-file
+            .. _`Home Health Agency File, Claims segment`: https://kylebarron.github.io/medicare-documentation/resdac/hha-rif/#home-health-agency-rif_1
+            .. _`Home Health Agency File, Revenue Center segment`: https://kylebarron.github.io/medicare-documentation/resdac/hha-rif/#revenue-center-file
+            .. _`Hospice File, Claims segment`: https://kylebarron.github.io/medicare-documentation/resdac/hospice-rif/#hospice-rif_1
+            .. _`Hospice File, Revenue Center segment`: https://kylebarron.github.io/medicare-documentation/resdac/hospice-rif/#revenue-center-file
+            .. _`Inpatient File, Claims segment`: https://kylebarron.github.io/medicare-documentation/resdac/ip-rif/#inpatient-rif_1
+            .. _`Inpatient File, Revenue Center segment`: https://kylebarron.github.io/medicare-documentation/resdac/ip-rif/#revenue-center-file
+            .. _`MedPAR File`: https://kylebarron.github.io/medicare-documentation/resdac/medpar-rif/#medpar-rif_1
+            .. _`Outpatient File, Claims segment`: https://kylebarron.github.io/medicare-documentation/resdac/op-rif/#outpatient-rif_1
+            .. _`Outpatient File, Revenue Center segment`: https://kylebarron.github.io/medicare-documentation/resdac/op-rif/#revenue-center-file
+            .. _`Skilled Nursing Facility File, Claims segment`: https://kylebarron.github.io/medicare-documentation/resdac/snf-rif/#skilled-nursing-facility-rif_1
+            .. _`Skilled Nursing Facility File, Revenue Center segment`: https://kylebarron.github.io/medicare-documentation/resdac/snf-rif/#revenue-center-file
+
         dta: Returns Stata file path
         dta_path: top of tree for medicare stata files
         pq_path: top of tree for medicare parquet files
     Returns:
-        string with file path.
-    Raises:
-        NameError if data_type is not one of the above
+        path to file
     """
 
     # Check types
