@@ -6,6 +6,7 @@ import fastparquet as fp
 import dask.dataframe as dd
 import pyarrow.parquet as pq
 from time import time
+from collections import namedtuple
 from multiprocessing import cpu_count
 
 from .utils import fpath, _mywrap
@@ -87,11 +88,8 @@ class MedicareDF(object):
             years = years
 
         if (len(years) == 1) & (year_type == 'age'):
-            msg = "year_type can't be `age` when one year is given"
+            msg = "year_type can't be `age` when only one year is given"
             raise ValueError(msg)
-
-        assert min(years) >= 2001
-        assert max(years) <= 2015
 
         self.years = years
         self.year_type = year_type
@@ -112,7 +110,8 @@ class MedicareDF(object):
         self.dta_path = dta_path
         self.pq_path = pq_path
 
-    def _fpath(self, percent: str, year: int, data_type: str, dta: bool = False):
+    def _fpath(
+            self, percent: str, year: int, data_type: str, dta: bool = False):
 
         return fpath(
             percent=percent,
@@ -155,6 +154,109 @@ class MedicareDF(object):
     #         # Then perform regex against other variables
     #         # else:
     #         #     re.search
+
+    @staticmethod
+    def _get_cohort_type_check(
+            gender, ages, races, rti_race, buyin_val, hmo_val, join, keep_vars,
+            dask, verbose):
+        """Check types and valid values for :func:`get_cohort`
+
+        Also resolves input into correct value
+        """
+
+        # Check gender
+        if gender is None:
+            pass
+        else:
+            try:
+                gender = str(int(gender))
+            except ValueError:
+                gender_cbk = codebook('bsfab')['sex']['values']
+                gender_cbk = {v.lower(): k for k, v in gender_cbk.items()}
+                gender_cbk = {
+                    **gender_cbk,
+                    **{k[0]: v
+                       for k, v in gender_cbk.items()}}
+                try:
+                    gender = gender_cbk[gender.lower()]
+                except KeyError:
+                    raise ValueError(f'{gender} is invalid value for `gender`')
+
+        # Check ages
+        if type(ages) == int:
+            ages = [ages]
+
+        # check races
+        assert (rti_race is None) | (type(rti_race) is bool)
+        race_col = 'rti_race_cd' if rti_race else 'race'
+
+        if races is None:
+            pass
+        elif type(races) == list:
+            try:
+                races = [str(int(x)) for x in races]
+            except ValueError:
+                race_cbk = codebook('bsfab')[race_col]['values']
+                race_cbk = {v.lower(): k for k, v in race_cbk.items()}
+                if race_col == 'rti_race_cd':
+                    race_cbk['white'] = race_cbk.pop('non-hispanic white')
+
+                races_new = []
+                for race in races:
+                    r = [v for k, v in race_cbk.items() if re.search(race, k)]
+                    msg = f'`{race}` matches more than one race description'
+                    assert len(r) <= 1, msg
+                    msg = f'`{race}` matches no race description'
+                    assert len(r) >= 1, msg
+                    races_new.extend(r)
+
+                races = races_new
+        else:
+            try:
+                races = [str(int(races))]
+            except ValueError:
+                race_cbk = codebook('bsfab')[race_col]['values']
+                race_cbk = {v.lower(): k for k, v in race_cbk.items()}
+                if race_col == 'rti_race_cd':
+                    race_cbk['white'] = race_cbk.pop('non-hispanic white')
+
+                r = [v for k, v in race_cbk.items() if re.search(races, k)]
+                msg = f'`{race}` matches more than one race description'
+                assert len(r) <= 1, msg
+                msg = f'`{race}` matches no race description'
+                assert len(r) >= 1, msg
+
+                races = r
+
+        buyin_val = [buyin_val] if type(buyin_val) == str else buyin_val
+        hmo_val = [hmo_val] if type(hmo_val) == str else hmo_val
+
+        allowed_join = ['left', 'right', 'inner', 'outer']
+        if join not in allowed_join:
+            msg = f'join must be one of: {allowed_join}'
+            raise ValueError(msg)
+
+        keep_vars = [keep_vars] if type(keep_vars) == str else keep_vars
+
+        assert type(dask) == bool
+        assert type(verbose) == bool
+
+        Return = namedtuple(
+            'variables', [
+                'gender', 'ages', 'races', 'rti_race', 'race_col', 'buyin_val',
+                'hmo_val', 'join', 'keep_vars', 'dask', 'verbose'])
+        return Return(
+            gender=gender,
+            ages=ages,
+            races=races,
+            rti_race=rti_race,
+            race_col=race_col,
+            buyin_val=buyin_val,
+            hmo_val=hmo_val,
+            join=join,
+            keep_vars=keep_vars,
+            dask=dask,
+            verbose=verbose)
 
     def get_cohort(
             self,
@@ -207,6 +309,29 @@ class MedicareDF(object):
         if self.verbose:
             verbose = True
 
+        objs = self._get_cohort_type_check(
+            gender=gender,
+            ages=ages,
+            races=races,
+            rti_race=rti_race,
+            buyin_val=buyin_val,
+            hmo_val=hmo_val,
+            join=join,
+            keep_vars=keep_vars,
+            dask=dask,
+            verbose=verbose)
+        gender = objs.gender
+        ages = objs.ages
+        races = objs.races
+        rti_race = objs.rti_race
+        race_col = objs.race_col
+        buyin_val = objs.buyin_val
+        hmo_val = objs.hmo_val
+        join = objs.join
+        keep_vars = objs.keep_vars
+        dask = objs.dask
+        verbose = objs.verbose
+
         if verbose:
             t0 = time()
             msg = f"""\
@@ -220,55 +345,6 @@ class MedicareDF(object):
             - extra variables: {keep_vars}
             """
             print(_mywrap(msg))
-
-        if type(ages) == int:
-            ages = [ages]
-
-        race_col = 'rti_race_cd' if rti_race else 'race'
-        race_cbk = codebook('bsfab')[race_col]['values']
-        race_cbk = {v.lower(): k for k, v in race_cbk.items()}
-        if race_col == 'rti_race_cd':
-            race_cbk['white'] = race_cbk.pop('non-hispanic white')
-
-        if races is None:
-            pass
-        elif type(races) == list:
-            try:
-                races = [str(int(x)) for x in races]
-            except ValueError:
-                races_new = []
-                for race in races:
-                    r = [v for k, v in race_cbk.items() if re.search(race, k)]
-                    msg = f'`{race}` matches more than one race description'
-                    assert len(r) == 0, msg
-                    races_new.append(r)
-                races = races_new
-        else:
-            try:
-                races = [str(int(races))]
-            except ValueError:
-                races = [v for k, v in race_cbk.items() if re.search(races, k)]
-
-        gender_cbk = codebook('bsfab')['sex']['values']
-        gender_cbk = {v.lower(): k for k, v in gender_cbk.items()}
-        gender_cbk = {**gender_cbk, **{k[0]: v for k, v in gender_cbk.items()}}
-        if gender is None:
-            pass
-        else:
-            try:
-                gender = str(int(gender))
-            except ValueError:
-                gender = gender_cbk[gender.lower()]
-
-        buyin_val = [buyin_val] if type(buyin_val) == str else buyin_val
-        hmo_val = [hmo_val] if type(hmo_val) == str else hmo_val
-
-        allowed_join = ['left', 'right', 'inner', 'outer']
-        if join not in allowed_join:
-            msg = f'join must be one of: {allowed_join}'
-            raise ValueError(msg)
-
-        keep_vars = [keep_vars] if type(keep_vars) == str else keep_vars
 
         # Get list of variables to import for each year
         if ('age' in keep_vars) & (len(self.years) > 1):
@@ -525,7 +601,9 @@ class MedicareDF(object):
                             (int(m[1]) <= month) & (int(m[2]) == year + 1))]
 
                     pl[f'match_{year}'] = pl[f'match_{year}'].mask(
-                        (pl['dob_month'] == month) & (~pl[cols].isin(buyin_val)).all(axis=1), False)
+                        (pl['dob_month'] == month) &
+                        (~pl[cols].isin(buyin_val)).all(axis=1),
+                        False)
 
                 if not dask:
                     nobs_dropped[year]['buyin'] = (
@@ -562,7 +640,9 @@ class MedicareDF(object):
                             (int(m[1]) <= month) & (int(m[2]) == year + 1))]
 
                     pl[f'match_{year}'] = pl[f'match_{year}'].mask(
-                        (pl['dob_month'] == month) & (~pl[cols].isin(hmo_val)).all(axis=1), False)
+                        (pl['dob_month'] == month) &
+                        (~pl[cols].isin(hmo_val)).all(axis=1),
+                        False)
 
                 if not dask:
                     nobs_dropped[year]['hmo'] = (
@@ -640,38 +720,6 @@ class MedicareDF(object):
             print(_mywrap(msg))
 
     @staticmethod
-    def _check_code_types(var):
-        """Check type of hcpcs, icd9_dx, icd9_sg codes
-
-        Args:
-            var: variable to check types of
-
-        Returns:
-            var
-
-        Raises:
-            TypeError if wrong type
-        """
-
-        # If provided with str or compiled regex, coerce to list
-        if type(var) == str:
-            var = [var]
-        elif isinstance(var, re._pattern_type):
-            var = [var]
-        elif type(var) == list:
-            # Check all elements of list are same type
-            if type(var[0]) == str:
-                assert all((type(x) is str) for x in var)
-            elif isinstance(var[0], re._pattern_type):
-                assert all(isinstance(x, re._pattern_type) for x in var)
-            else:
-                raise TypeError('Codes must be str or compiled regex')
-        else:
-            raise TypeError('Codes must be str or compiled regex')
-
-        return var
-
-    @staticmethod
     def _get_pattern(obj):
         """
         If str, returns str. If compiled regex, returns pattern
@@ -689,13 +737,13 @@ class MedicareDF(object):
         Make dictionary where the keys are codes/pattern strings and values are
         new column names
         """
+
         # If the values of rename are lists, make sure they match up on length
         msg = f"""\
         If the values of the rename dictionary are lists, they need
         to match the length of the list of codes provided
         """
         msg = _mywrap(msg)
-
         if type(rename.get('hcpcs')) == list:
             assert len(rename.get('hcpcs')) == len(hcpcs), msg
         if type(rename.get('icd9_dx')) == list:
@@ -757,6 +805,125 @@ class MedicareDF(object):
 
         rename_new = {k: v for k, v in rename_new.items() if v != ''}
         return rename_new
+
+    @staticmethod
+    def _search_for_codes_type_check(
+            data_types, hcpcs, icd9_dx, icd9_dx_max_cols, icd9_sg, keep_vars,
+            collapse_codes, rename, convert_ehic, verbose):
+        """Check types and valid values for :func:`search_for_codes`
+
+        Also resolves input into correct value
+        """
+
+        if type(data_types) is str:
+            data_types = [data_types]
+
+        data_types = set(data_types)
+        ok_data_types = ['carc', 'carl', 'ipc', 'ipr', 'med', 'opc', 'opr']
+
+        # Check that all data types provided to search through exist
+        if not data_types.issubset(ok_data_types):
+            invalid_vals = list(data_types.difference(ok_data_types))
+            msg = f"""\
+            {invalid_vals} does not match any dataset.
+            Allowed `data_types` are {ok_data_types}.
+            """
+            raise ValueError(_mywrap(msg))
+
+        # Assert that keep_vars is a dict and that the keys are in ok_data_types
+        assert isinstance(keep_vars, dict)
+        if not set(keep_vars.keys()).issubset(ok_data_types):
+            invalid_vals = list(set(keep_vars.keys()).difference(ok_data_types))
+            msg = f"""\
+            {invalid_vals} does not match any dataset.
+            Allowed keys of `keep_vars` are {ok_data_types}.
+            """
+            raise ValueError(_mywrap(msg))
+
+        # Instantiate all data types in the keep_vars dict
+        for data_type in ok_data_types:
+            keep_vars[data_type] = keep_vars.get(data_type, [])
+
+            if type(keep_vars[data_type]) is str:
+                keep_vars[data_type] = [keep_vars[data_type]]
+
+        codes = {'hcpcs': hcpcs, 'icd9_dx': icd9_dx, 'icd9_sg': icd9_sg}
+
+        msg = f"""\
+        Codes to search through must be str, compiled regex, or a list of
+        either.
+        """
+        all_codes = []
+        for name, code in codes.items():
+            if code is None:
+                continue
+            if type(code) == str:
+                code = [code]
+            elif isinstance(code, re._pattern_type):
+                code = [code]
+            elif type(code) == list:
+                # Check all elements of list are same type
+                if type(code[0]) == str:
+                    assert all((type(x) is str) for x in code)
+                elif isinstance(code[0], re._pattern_type):
+                    assert all(isinstance(x, re._pattern_type) for x in code)
+                else:
+                    raise TypeError(_mywrap(msg))
+            else:
+                raise TypeError(_mywrap(msg))
+
+            codes[name] = code
+            all_codes.extend(code)
+
+        hcpcs = codes['hcpcs']
+        icd9_dx = codes['icd9_dx']
+        icd9_sg = codes['icd9_sg']
+
+        assert type(collapse_codes) == bool
+        assert isinstance(rename, dict)
+
+        if not set(rename.keys()).issubset(['hcpcs', 'icd9_dx', 'icd9_sg']):
+            msg = f"""\
+            Allowed keys of `rename` are ['hcpcs', 'icd9_dx', 'icd9_sg'].
+            """
+            raise ValueError(_mywrap(msg))
+
+        if not collapse_codes:
+            all_codes = [self._get_pattern(x) for x in all_codes]
+            msg = 'Code patterns given must be unique'
+            assert len(all_codes) == len(set(all_codes)), msg
+
+        if collapse_codes and any([x is not None for x in rename.values()]):
+            msg = f"""\
+            rename argument not allowed when collapse_codes is True
+            """
+            raise ValueError(_mywrap(msg))
+
+        if (icd9_dx is None) and (icd9_dx_max_cols is not None):
+            msg = f"""\
+            icd9_dx_max_cols argument not allowed when icd9_dx is None
+            """
+            raise ValueError(_mywrap(msg))
+
+        assert type(convert_ehic) == bool
+        assert type(verbose) == bool
+
+        Return = namedtuple(
+            'variables', [
+                'data_types', 'hcpcs', 'icd9_dx', 'icd9_dx_max_cols', 'icd9_sg',
+                'keep_vars', 'collapse_codes', 'rename', 'convert_ehic',
+                'verbose'])
+        return Return(
+            data_types=data_types,
+            hcpcs=hcpcs,
+            icd9_dx=icd9_dx,
+            icd9_dx_max_cols=icd9_dx_max_cols,
+            icd9_sg=icd9_sg,
+            keep_vars=keep_vars,
+            collapse_codes=collapse_codes,
+            rename=rename,
+            convert_ehic=convert_ehic,
+            verbose=verbose)
 
     def search_for_codes(
             self,
@@ -820,17 +987,27 @@ class MedicareDF(object):
         if self.verbose:
             verbose = True
 
-        if collapse_codes and any([x is not None for x in rename.values()]):
-            msg = f"""\
-            rename argument not allowed when collapse_codes is True
-            """
-            raise ValueError(_mywrap(msg))
-
-        if (icd9_dx is None) and (icd9_dx_max_cols is not None):
-            msg = f"""\
-            icd9_dx_max_cols argument not allowed when icd9_dx is None
-            """
-            raise ValueError(_mywrap(msg))
+        objs = self._search_for_codes_type_check(
+            data_types=data_types,
+            hcpcs=hcpcs,
+            icd9_dx=icd9_dx,
+            icd9_dx_max_cols=icd9_dx_max_cols,
+            icd9_sg=icd9_sg,
+            keep_vars=keep_vars,
+            collapse_codes=collapse_codes,
+            rename=rename,
+            convert_ehic=convert_ehic,
+            verbose=verbose)
+        data_types = objs.data_types
+        hcpcs = objs.hcpcs
+        icd9_dx = objs.icd9_dx
+        icd9_dx_max_cols = objs.icd9_dx_max_cols
+        icd9_sg = objs.icd9_sg
+        keep_vars = objs.keep_vars
+        collapse_codes = objs.collapse_codes
+        rename = objs.rename
+        convert_ehic = objs.convert_ehic
+        verbose = objs.verbose
 
         if verbose:
             t0 = time()
@@ -842,84 +1019,46 @@ class MedicareDF(object):
             """
             print(_mywrap(msg))
 
-        is_search_for_codes = (hcpcs or icd9_dx or icd9_sg) is not None
-
-        if type(data_types) is str:
-            data_types = [data_types]
-
-        data_types = set(data_types)
-        ok_data_types = ['carc', 'carl', 'ipc', 'ipr', 'med', 'opc', 'opr']
         ok_hcpcs_data_types = ['carl', 'ipr', 'opr']
         ok_dx_data_types = ['carc', 'carl', 'ipc', 'med', 'opc']
         ok_sg_data_types = ['ipc', 'med', 'opc']
 
-        # Instantiate all data types in the keep_vars dict
-        for data_type in ok_data_types:
-            keep_vars[data_type] = keep_vars.get(data_type, [])
+        # Print which codes are searched in which dataset
 
-            if type(keep_vars[data_type]) is str:
-                keep_vars[data_type] = [keep_vars[data_type]]
-
-        # Check that all data types provided to search through exist
-        if not data_types.issubset(ok_data_types):
-            invalid_vals = list(data_types.difference(ok_data_types))
+        if verbose and ((hcpcs or icd9_dx or icd9_sg) is not None):
             msg = f"""\
-            {invalid_vals} does not match any dataset.
-            - Allowed data_types: {ok_data_types}
+            Will check the following codes
+            - years: {list(self.years)}
             """
-            raise ValueError(_mywrap(msg))
+            msg = _mywrap(msg)
 
-        # Check types of codes given, i.e. that all are strings or
-        # compiled regexes, and print which codes are searched in which dataset
-        if is_search_for_codes:
-            if verbose:
-                msg = f"""\
-                Will check the following codes
-                - years: {list(self.years)}
-                """
-                msg = _mywrap(msg)
-
-            all_codes = []
             if hcpcs is not None:
-                hcpcs = self._check_code_types(hcpcs)
-                all_codes.extend(hcpcs)
-                if verbose:
-                    dts = list(data_types.intersection(ok_hcpcs_data_types))
-                    msg += _mywrap(
-                        f"""\
-                    - HCPCS codes: {hcpcs}
-                      in data types: {dts}
-                    """)
+                dts = list(data_types.intersection(ok_hcpcs_data_types))
+                msg += _mywrap(
+                    f"""\
+                - HCPCS codes: {hcpcs}
+                  in data types: {dts}
+                """)
 
             if icd9_dx is not None:
-                icd9_dx = self._check_code_types(icd9_dx)
-                all_codes.extend(icd9_dx)
-                if verbose:
-                    dts = list(data_types.intersection(ok_dx_data_types))
-                    msg += _mywrap(
-                        f"""\
-                    - ICD-9 diagnosis codes: {icd9_dx}
-                      in data types: {dts}
-                    """)
+                dts = list(data_types.intersection(ok_dx_data_types))
+                msg += _mywrap(
+                    f"""\
+                - ICD-9 diagnosis codes: {icd9_dx}
+                  in data types: {dts}
+                """)
 
             if icd9_sg is not None:
-                icd9_sg = self._check_code_types(icd9_sg)
-                all_codes.extend(icd9_sg)
-                if verbose:
-                    dts = list(data_types.intersection(ok_sg_data_types))
-                    msg += _mywrap(
-                        f"""\
-                    - ICD-9 procedure codes: {icd9_sg}
-                      in data types: {dts}
-                    """)
+                dts = list(data_types.intersection(ok_sg_data_types))
+                msg += _mywrap(
+                    f"""\
+                - ICD-9 procedure codes: {icd9_sg}
+                  in data types: {dts}
+                """)
 
-            if verbose:
-                print(msg)
+            print(msg)
 
-            all_codes = [self._get_pattern(x) for x in all_codes]
-            msg = 'Code patterns given must be unique'
-            assert len(all_codes) == len(set(all_codes)), msg
-
+        if not all([x is None for x in rename.values()]):
             rename = self._create_rename_dict(
                 hcpcs=hcpcs, icd9_dx=icd9_dx, icd9_sg=icd9_sg, rename=rename)
 
