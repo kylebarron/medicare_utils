@@ -772,10 +772,9 @@ class MedicareDF(object):
         rename_new = {k: v for k, v in rename_new.items() if v != ''}
         return rename_new
 
-    @staticmethod
     def _search_for_codes_type_check(
-            data_types, hcpcs, icd9_dx, icd9_dx_max_cols, icd9_sg, keep_vars,
-            collapse_codes, rename, convert_ehic, verbose):
+            self, data_types, hcpcs, icd9_dx, icd9_dx_max_cols, icd9_sg,
+            keep_vars, collapse_codes, rename, convert_ehic, verbose):
         """Check types and valid values for :func:`search_for_codes`
 
         Also resolves input into correct value
@@ -990,7 +989,6 @@ class MedicareDF(object):
         ok_sg_data_types = ['ipc', 'med', 'opc']
 
         # Print which codes are searched in which dataset
-
         if verbose and ((hcpcs or icd9_dx or icd9_sg) is not None):
             msg = f"""\
             Will check the following codes
