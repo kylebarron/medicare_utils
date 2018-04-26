@@ -1,6 +1,4 @@
 #! /usr/bin/env python3
-"""Main module."""
-
 from pathlib import Path
 from textwrap import dedent, fill
 
@@ -12,7 +10,7 @@ def pq_vars(ParquetFile):
     return ParquetFile.schema.names
 
 
-def mywrap(text):
+def _mywrap(text):
     text = dedent(text)
     lines = text.split('\n')
     lines = [fill(x, replace_whitespace=False, subsequent_indent='\t') for x in lines]
@@ -80,7 +78,7 @@ def fpath(
             percent provided is not valid.
             Valid arguments are: {list(pct_dict.keys())}
             """
-            raise ValueError(mywrap(msg))
+            raise ValueError(_mywrap(msg))
     elif type(percent) == str:
         if percent not in allowed_pcts:
             msg = f'percent must be one of: {allowed_pcts}'

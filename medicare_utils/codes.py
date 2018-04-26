@@ -11,7 +11,7 @@ from requests_html import HTMLSession
 from zipfile import ZipFile
 from multiprocessing import cpu_count
 
-from .utils import mywrap
+from .utils import _mywrap
 
 
 class npi(object):
@@ -59,7 +59,7 @@ class npi(object):
                 Must download data on first use.
                 Use download=True and give path to save data.
                 """
-                raise FileNotFoundError(mywrap(msg))
+                raise FileNotFoundError(_mywrap(msg))
 
         if load:
             self.codes = self.load(columns=columns, regex=regex)
@@ -112,7 +112,7 @@ class npi(object):
                         around 20 minutes, but only has to be done once, and
                         then has very fast read speeds.
                         """
-                        print(mywrap(msg))
+                        print(_mywrap(msg))
                         df = pd.read_csv(
                             f,
                             dtype=npi_dtypes,

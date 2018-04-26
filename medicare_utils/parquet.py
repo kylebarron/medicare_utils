@@ -10,7 +10,7 @@ from pandas.api.types import CategoricalDtype
 from time import time
 from joblib import Parallel, delayed
 
-from .utils import fpath, mywrap
+from .utils import fpath, _mywrap
 pkg_resources.require("pandas>=0.21.0")
 
 
@@ -200,7 +200,7 @@ def convert_med(
     - Percent: {pct}
     - Year {year}
     """
-    print(mywrap(msg))
+    print(_mywrap(msg))
 
     convert_file(
         infile=infile,
@@ -261,19 +261,19 @@ def convert_file(
     - infile: {infile_stub}.{infile_type}
     - time: {(time() - t0) / 60:.2f} minutes
     """
-    print(mywrap(msg))
+    print(_mywrap(msg))
 
     msg = f"""\
     Beginning scanning dtypes of file:
     - infile: {infile_stub}.{infile_type}
     - time: {(time() - t0) / 60:.2f} minutes
     """
-    print(mywrap(msg))
+    print(_mywrap(msg))
 
     if parquet_engine == 'pyarrow':
-        dtypes = scan_file(infile, categorical=False)
+        dtypes = _scan_file(infile, categorical=False)
     elif parquet_engine == 'fastparquet':
-        dtypes = scan_file(infile, categorical=True)
+        dtypes = _scan_file(infile, categorical=True)
 
     if rename_dict is not None:
         for old_name, new_name in rename_dict.items():
@@ -287,7 +287,7 @@ def convert_file(
     - infile: {infile_stub}.{infile_type}
     - time: {(time() - t0) / 60:.2f} minutes
     """
-    print(mywrap(msg))
+    print(_mywrap(msg))
 
     itr = pd.read_stata(infile, chunksize=nrow_rg)
     i = 0
@@ -299,7 +299,7 @@ def convert_file(
         - infile: {infile_stub}.{infile_type}
         - time: {(time() - t0) / 60:.2f} minutes
         """
-        print(mywrap(msg))
+        print(_mywrap(msg))
 
         if rename_dict is not None:
             df = df.rename(columns=rename_dict)
@@ -312,12 +312,12 @@ def convert_file(
         - infile: {infile_stub}.{infile_type}
         - time: {(time() - t0) / 60:.2f} minutes
         """
-        print(mywrap(msg))
+        print(_mywrap(msg))
 
         if parquet_engine == 'pyarrow':
             if i == 1:
                 if manual_schema:
-                    schema = create_parquet_schema(df.dtypes)
+                    schema = _create_parquet_schema(df.dtypes)
                 else:
                     schema = pa.Table.from_pandas(
                         df, preserve_index=False).schema
@@ -349,7 +349,7 @@ def convert_file(
         - infile: {infile_stub}.{infile_type}
         - time: {(time() - t0) / 60:.2f} minutes
         """
-        print(mywrap(msg))
+        print(_mywrap(msg))
 
     if parquet_engine == 'pyarrow':
         writer.close()
@@ -357,7 +357,7 @@ def convert_file(
     print('Wrote to .parquet:\n\tAll groups')
 
 
-def convert_dates(df, datecols):
+def _convert_dates(df, datecols):
     for col in datecols:
         if not pd.core.dtypes.common.is_datetimelike(df.iloc[:, col]):
             if df[col].dtype == np.number:
@@ -372,7 +372,7 @@ def convert_dates(df, datecols):
     return df
 
 
-def scan_file(infile, categorical=True, chunksize=100000, cat_threshold=0.1):
+def _scan_file(infile, categorical=True, chunksize=100000, cat_threshold=0.1):
     """Scan dta file to find minimal dtypes to hold data in
 
     For each of the chunks of df:
@@ -538,7 +538,7 @@ def scan_file(infile, categorical=True, chunksize=100000, cat_threshold=0.1):
     return dtypes_dict
 
 
-def create_parquet_schema(dtypes):
+def _create_parquet_schema(dtypes):
     """Create parquet schema from Pandas dtypes
 
     Args:

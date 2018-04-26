@@ -8,7 +8,7 @@ import pyarrow.parquet as pq
 from time import time
 from multiprocessing import cpu_count
 
-from .utils import fpath, mywrap
+from .utils import fpath, _mywrap
 from .codebook import codebook
 
 allowed_pcts = ['0001', '01', '05', '20', '100']
@@ -51,7 +51,7 @@ class MedicareDF(object):
                 percent provided is not valid.
                 Valid arguments are: {list(pct_dict.keys())}
                 """
-                raise ValueError(mywrap(msg))
+                raise ValueError(_mywrap(msg))
         elif type(percent) == str:
             if percent not in allowed_pcts:
                 msg = f'percent must be one of: {allowed_pcts}'
@@ -92,7 +92,7 @@ class MedicareDF(object):
         self.dta_path = dta_path
         self.pq_path = pq_path
 
-    def fpath(self, percent: str, year: int, data_type: str, dta: bool = False):
+    def _fpath(self, percent: str, year: int, data_type: str, dta: bool = False):
 
         return fpath(
             percent=percent,
@@ -123,7 +123,7 @@ class MedicareDF(object):
     #
     #     import_vars = list(set(import_vars))
     #
-    #     cols = fp.ParquetFile(self.fpath(self.percent, year, data_type)).columns
+    #     cols = fp.ParquetFile(self._fpath(self.percent, year, data_type)).columns
     #     tokeep_list = []
     #
     #     for var in import_vars[:]:
@@ -196,7 +196,7 @@ class MedicareDF(object):
             - HMO values: {hmo_val}
             - extra variables: {keep_vars}
             """
-            print(mywrap(msg))
+            print(_mywrap(msg))
 
         if type(ages) == int:
             ages = [ages]
@@ -252,7 +252,7 @@ class MedicareDF(object):
             keep_vars.remove('age')
             keep_vars.append('bene_dob')
             print(
-                mywrap(
+                _mywrap(
                     """\
             Warning: Can't export age variable, exporting bene_dob instead
             """))
@@ -280,10 +280,10 @@ class MedicareDF(object):
         tokeep_vars = {}
         for year in self.years:
             if self.parquet_engine == 'pyarrow':
-                pf = pq.ParquetFile(self.fpath(self.percent, year, 'bsfab'))
+                pf = pq.ParquetFile(self._fpath(self.percent, year, 'bsfab'))
                 cols = pf.schema.names
             elif self.parquet_engine == 'fastparquet':
-                pf = fp.ParquetFile(self.fpath(self.percent, year, 'bsfab'))
+                pf = fp.ParquetFile(self._fpath(self.percent, year, 'bsfab'))
                 cols = pf.columns
 
             tokeep_vars[year] = [x for x in cols if re.search(tokeep_regex, x)]
@@ -296,7 +296,7 @@ class MedicareDF(object):
                     WARNING: variable `{var}` in the keep_vars argument
                     was not found in bsfab for year {year}
                     """
-                    print(mywrap(msg))
+                    print(_mywrap(msg))
 
         # Now perform extraction
         extracted_dfs = []
@@ -313,23 +313,23 @@ class MedicareDF(object):
                 - columns: {tokeep_vars[year]}
                 - time elapsed: {(time() - t0) / 60:.2f} minutes
                 """
-                print(mywrap(msg))
+                print(_mywrap(msg))
 
             if dask:
                 pl = dd.read_parquet(
-                    self.fpath(self.percent, year, 'bsfab'),
+                    self._fpath(self.percent, year, 'bsfab'),
                     columns=tokeep_vars[year],
                     index=['bene_id'],
                     engine=self.parquet_engine)
             elif self.parquet_engine == 'pyarrow':
-                pf = pq.ParquetFile(self.fpath(self.percent, year, 'bsfab'))
+                pf = pq.ParquetFile(self._fpath(self.percent, year, 'bsfab'))
                 pl = pf.read(
                     columns=tokeep_vars[year],
                     nthreads=min(len(tokeep_vars[year]),
                                  self.parquet_nthreads)).to_pandas().set_index(
                                      'bene_id')
             elif self.parquet_engine == 'fastparquet':
-                pf = fp.ParquetFile(self.fpath(self.percent, year, 'bsfab'))
+                pf = fp.ParquetFile(self._fpath(self.percent, year, 'bsfab'))
                 pl = pf.to_pandas(columns=tokeep_vars[year], index='bene_id')
 
             if not dask:
@@ -413,7 +413,7 @@ class MedicareDF(object):
             - merge type: {join}
             - time elapsed: {(time() - t0) / 60:.2f} minutes
             """
-            print(mywrap(msg))
+            print(_mywrap(msg))
 
         # Unless no inter-year variables to check, always do an outer join.
         # Then after checking, perform desired join
@@ -482,7 +482,7 @@ class MedicareDF(object):
                 - year_type: {self.year_type}
                 - time elapsed: {(time() - t0) / 60:.2f} minutes
                 """
-                print(mywrap(msg))
+                print(_mywrap(msg))
 
             # Create indicator variable for each year if `buyin ==
             # buyin_val` for the 13 months starting in birthday month of
@@ -519,7 +519,7 @@ class MedicareDF(object):
                 - year_type: {self.year_type}
                 - time elapsed: {(time() - t0) / 60:.2f} minutes
                 """
-                print(mywrap(msg))
+                print(_mywrap(msg))
 
             # Create indicator variable for each year if `hmo ==
             # hmo_val` for the 13 months starting in birthday month of
@@ -614,7 +614,7 @@ class MedicareDF(object):
             - extra variables: {keep_vars}
             - time elapsed: {(time() - t0) / 60:.2f} minutes
             """
-            print(mywrap(msg))
+            print(_mywrap(msg))
 
     @staticmethod
     def _check_code_types(var):
@@ -649,7 +649,7 @@ class MedicareDF(object):
         return var
 
     @staticmethod
-    def get_pattern(obj):
+    def _get_pattern(obj):
         """
         If str, returns str. If compiled regex, returns pattern
         """
@@ -660,7 +660,7 @@ class MedicareDF(object):
         else:
             raise TypeError('Provided non string or regex to get_pattern()')
 
-    def create_rename_dict(
+    def _create_rename_dict(
             self, hcpcs=None, icd9_dx=None, icd9_sg=None, rename={}):
         """
         Make dictionary where the keys are codes/pattern strings and values are
@@ -671,7 +671,7 @@ class MedicareDF(object):
         If the values of the rename dictionary are lists, they need
         to match the length of the list of codes provided
         """
-        msg = mywrap(msg)
+        msg = _mywrap(msg)
 
         if type(rename.get('hcpcs')) == list:
             assert len(rename.get('hcpcs')) == len(hcpcs), msg
@@ -684,21 +684,21 @@ class MedicareDF(object):
         rename_new = {}
         if hcpcs is not None:
             for item in hcpcs:
-                rename_new[self.get_pattern(item)] = ''
+                rename_new[self._get_pattern(item)] = ''
 
         if icd9_dx is not None:
             for item in icd9_dx:
-                rename_new[self.get_pattern(item)] = ''
+                rename_new[self._get_pattern(item)] = ''
 
         if icd9_sg is not None:
             for item in icd9_sg:
-                rename_new[self.get_pattern(item)] = ''
+                rename_new[self._get_pattern(item)] = ''
 
         # Now fill in rename_new using rename
         msg = 'The values of the rename dictionary must be type list or dict'
         if type(rename.get('hcpcs')) == list:
             for i in range(len(rename['hcpcs'])):
-                key = self.get_pattern(hcpcs[i])
+                key = self._get_pattern(hcpcs[i])
                 val = rename['hcpcs'][i]
                 rename_new[key] = val
         elif type(rename.get('hcpcs')) == dict:
@@ -710,7 +710,7 @@ class MedicareDF(object):
 
         if type(rename.get('icd9_dx')) == list:
             for i in range(len(rename['icd9_dx'])):
-                key = self.get_pattern(icd9_dx[i])
+                key = self._get_pattern(icd9_dx[i])
                 val = rename['icd9_dx'][i]
                 rename_new[key] = val
         elif type(rename.get('icd9_dx')) == dict:
@@ -722,7 +722,7 @@ class MedicareDF(object):
 
         if type(rename.get('icd9_sg')) == list:
             for i in range(len(rename['icd9_sg'])):
-                key = self.get_pattern(icd9_sg[i])
+                key = self._get_pattern(icd9_sg[i])
                 val = rename['icd9_sg'][i]
                 rename_new[key] = val
         elif type(rename.get('icd9_sg')) == dict:
@@ -780,13 +780,13 @@ class MedicareDF(object):
             msg = f"""\
             rename argument not allowed when collapse_codes is True
             """
-            raise ValueError(mywrap(msg))
+            raise ValueError(_mywrap(msg))
 
         if (icd9_dx is None) and (icd9_dx_max_cols is not None):
             msg = f"""\
             icd9_dx_max_cols argument not allowed when icd9_dx is None
             """
-            raise ValueError(mywrap(msg))
+            raise ValueError(_mywrap(msg))
 
         if verbose:
             t0 = time()
@@ -796,7 +796,7 @@ class MedicareDF(object):
             - years: {list(self.years)}
             - data_types: {data_types}
             """
-            print(mywrap(msg))
+            print(_mywrap(msg))
 
         is_search_for_codes = (hcpcs or icd9_dx or icd9_sg) is not None
 
@@ -823,7 +823,7 @@ class MedicareDF(object):
             {invalid_vals} does not match any dataset.
             - Allowed data_types: {ok_data_types}
             """
-            raise ValueError(mywrap(msg))
+            raise ValueError(_mywrap(msg))
 
         # Check types of codes given, i.e. that all are strings or
         # compiled regexes, and print which codes are searched in which dataset
@@ -833,7 +833,7 @@ class MedicareDF(object):
                 Will check the following codes
                 - years: {list(self.years)}
                 """
-                msg = mywrap(msg)
+                msg = _mywrap(msg)
 
             all_codes = []
             if hcpcs is not None:
@@ -841,7 +841,7 @@ class MedicareDF(object):
                 all_codes.extend(hcpcs)
                 if verbose:
                     dts = list(data_types.intersection(ok_hcpcs_data_types))
-                    msg += mywrap(
+                    msg += _mywrap(
                         f"""\
                     - HCPCS codes: {hcpcs}
                       in data types: {dts}
@@ -852,7 +852,7 @@ class MedicareDF(object):
                 all_codes.extend(icd9_dx)
                 if verbose:
                     dts = list(data_types.intersection(ok_dx_data_types))
-                    msg += mywrap(
+                    msg += _mywrap(
                         f"""\
                     - ICD-9 diagnosis codes: {icd9_dx}
                       in data types: {dts}
@@ -863,7 +863,7 @@ class MedicareDF(object):
                 all_codes.extend(icd9_sg)
                 if verbose:
                     dts = list(data_types.intersection(ok_sg_data_types))
-                    msg += mywrap(
+                    msg += _mywrap(
                         f"""\
                     - ICD-9 procedure codes: {icd9_sg}
                       in data types: {dts}
@@ -872,11 +872,11 @@ class MedicareDF(object):
             if verbose:
                 print(msg)
 
-            all_codes = [self.get_pattern(x) for x in all_codes]
+            all_codes = [self._get_pattern(x) for x in all_codes]
             msg = 'Code patterns given must be unique'
             assert len(all_codes) == len(set(all_codes)), msg
 
-            rename = self.create_rename_dict(
+            rename = self._create_rename_dict(
                 hcpcs=hcpcs, icd9_dx=icd9_dx, icd9_sg=icd9_sg, rename=rename)
 
         data = {}
@@ -884,7 +884,7 @@ class MedicareDF(object):
             data[data_type] = {}
             for year in self.years:
                 if verbose:
-                    msg = mywrap(
+                    msg = _mywrap(
                         f"""\
                     Starting search for codes
                     - year: {year}
@@ -892,28 +892,28 @@ class MedicareDF(object):
                     """)
                     if data_type in ok_hcpcs_data_types:
                         if hcpcs is not None:
-                            msg += mywrap(
+                            msg += _mywrap(
                                 f"""\
                             - HCPCS codes: {hcpcs}
                             """)
                     if data_type in ok_dx_data_types:
                         if icd9_dx is not None:
-                            msg += mywrap(
+                            msg += _mywrap(
                                 f"""\
                             - ICD-9 diagnosis codes: {icd9_dx}
                             """)
                     if data_type in ok_sg_data_types:
                         if icd9_sg is not None:
-                            msg += mywrap(
+                            msg += _mywrap(
                                 f"""\
                             - ICD-9 procedure codes: {icd9_sg}
                             """)
                     if keep_vars[data_type] != []:
-                        msg += mywrap(
+                        msg += _mywrap(
                             f"""\
                         - Keeping variables: {keep_vars[data_type]}
                         """)
-                    msg += mywrap(
+                    msg += _mywrap(
                         f"""\
                     - time elapsed: {(time() - t0) / 60:.2f} minutes
                     """)
@@ -939,7 +939,7 @@ class MedicareDF(object):
             - data types: {data_types}
             - time elapsed: {(time() - t0) / 60:.2f} minutes
             """
-            print(mywrap(msg))
+            print(_mywrap(msg))
 
         years_ehic = [x for x in self.years if x < 2006]
         years_bene_id = [x for x in self.years if x >= 2006]
@@ -978,13 +978,13 @@ class MedicareDF(object):
                     # Read in all bsfab data
                     if self.parquet_engine == 'pyarrow':
                         pf = pq.ParquetFile(
-                            self.fpath(self.percent, year, 'bsfab'))
+                            self._fpath(self.percent, year, 'bsfab'))
                         pl = pf.read(
                             columns=['ehic', 'bene_id'],
                             nthreads=2).to_pandas().set_index('ehic')
                     elif self.parquet_engine == 'fastparquet':
                         pf = fp.ParquetFile(
-                            self.fpath(self.percent, year, 'bsfab'))
+                            self._fpath(self.percent, year, 'bsfab'))
                         pl = pf.to_pandas(columns=['bene_id'], index='ehic')
 
                     # Join bene_ids onto data using ehic
@@ -1044,7 +1044,7 @@ class MedicareDF(object):
             - data_types: {data_types}
             - time elapsed: {(time() - t0) / 60:.2f} minutes
             """
-            print(mywrap(msg))
+            print(_mywrap(msg))
 
     def _search_for_codes_single_year(
             self,
@@ -1135,10 +1135,10 @@ class MedicareDF(object):
 
         if self.parquet_engine == 'pyarrow':
             all_cols = pq.ParquetFile(
-                self.fpath(self.percent, year, data_type)).schema.names
+                self._fpath(self.percent, year, data_type)).schema.names
         elif self.parquet_engine == 'fastparquet':
             all_cols = fp.ParquetFile(
-                self.fpath(self.percent, year, data_type)).columns
+                self._fpath(self.percent, year, data_type)).columns
         cols = [x for x in all_cols if regex(x)]
 
         # Check cols against keep_vars
@@ -1149,7 +1149,7 @@ class MedicareDF(object):
                 WARNING: variable `{var}` in the keep_vars argument
                 was not found in {data_type}
                 """
-                print(mywrap(msg))
+                print(_mywrap(msg))
 
         cl_id_col = [x for x in cols if re.search(cl_id_regex, x)]
         if hcpcs is not None:
@@ -1180,7 +1180,7 @@ class MedicareDF(object):
         all_cl = []
 
         if self.parquet_engine == 'pyarrow':
-            pf = pq.ParquetFile(self.fpath(self.percent, year, data_type))
+            pf = pq.ParquetFile(self._fpath(self.percent, year, data_type))
             itr = (
                 pf.read_row_group(
                     i,
@@ -1188,7 +1188,7 @@ class MedicareDF(object):
                     nthreads=min(len(cols), self.parquet_nthreads)).to_pandas()
                 .set_index(pl_id_col) for i in range(pf.num_row_groups))
         elif self.parquet_engine == 'fastparquet':
-            pf = fp.ParquetFile(self.fpath(self.percent, year, data_type))
+            pf = fp.ParquetFile(self._fpath(self.percent, year, data_type))
             itr = pf.iter_row_groups(columns=cols, index=pl_id_col)
 
         for cl in itr:
@@ -1331,7 +1331,7 @@ class MedicareDF(object):
 
         return cl
 
-    def search_for_codes_pl(
+    def _search_for_codes_pl(
             self,
             data_types,
             hcpcs=None,
