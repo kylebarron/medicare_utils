@@ -25,17 +25,36 @@ def codebook(data_type):
         ``dict`` with variable values as keys and value descriptions as values
         of the ``dict``.
     Examples:
-        To get the labels of the values of ``clm_type``, in the ``bsfab`` file,
+        To get the labels of the values of ``clm_type``, in the ``med`` file,
         you could do
 
         .. code-block:: python
 
-            import medicare_utils as med
-            cbk = med.codebook('bsfab')['clm_type']['values']
+            >>> import medicare_utils as med
+            >>> cbk = med.codebook('med')['clm_type']['values']
 
         Now ``cbk`` is a ``dict`` where the keys of the ``dict`` are the values
         the variable can take, and the values of the ``dict`` are the labels of
         the variable's values.
+
+        .. code-block:: python
+
+            >>> from pprint import pprint
+            >>> pprint(cbk)
+            {'10': 'HHA claim',
+             '20': 'Non swing bed SNF claim',
+             '30': 'Swing bed SNF claim',
+             '40': 'Outpatient claim',
+             '50': 'Hospice claim',
+             '60': 'Inpatient claim',
+             '61': "Inpatient 'Full-Encounter' claim",
+             '62': 'Medicare Advantage IME/GME claims',
+             '63': 'Medicare Advantage (no-pay) claims',
+             '64': 'Medicare Advantage (paid as FFS) claim',
+             '71': 'RIC O local carrier non-DMEPOS claim',
+             '72': 'RIC O local carrier DMEPOS claim',
+             '81': 'RIC M DMERC non-DMEPOS claim',
+             '82': 'RIC M DMERC DMEPOS claim'}
     """
     path = pkg.resource_filename(
         'medicare_utils', f'data/codebook/{data_type}.json')
