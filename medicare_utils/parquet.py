@@ -18,6 +18,10 @@ def convert_med(
         pcts=['0001', '01', '05', '100'],
         years=range(2001, 2013),
         data_types=['carc', 'opc', 'bsfab', 'med'],
+        rg_size=2.5,
+        parquet_engine='pyarrow',
+        compression_type='SNAPPY',
+        manual_schema=False,
         n_jobs=6,
         med_dta='/disk/aging/medicare/data',
         med_pq='/homes/nber/barronk/agebulk1/raw/pq',
@@ -94,7 +98,14 @@ def convert_med(
     data_list = sorted([list(x) for x in set(tuple(y) for y in data_list)])
 
     Parallel(n_jobs=n_jobs)(
-        delayed(_convert_med)(*i, med_dta=med_dta, med_pq=med_pq, xw_dir=xw_dir)
+        delayed(_convert_med)(*i,
+                              rg_size=rg_size,
+                              parquet_engine=parquet_engine,
+                              compression_type=compression_type,
+                              manual_schema=manual_schema,
+                              med_dta=med_dta,
+                              med_pq=med_pq,
+                              xw_dir=xw_dir)
         for i in data_list)
 
 
