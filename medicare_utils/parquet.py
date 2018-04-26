@@ -14,7 +14,7 @@ from .utils import fpath, _mywrap
 pkg_resources.require("pandas>=0.21.0")
 
 
-def main(
+def convert_med(
         pcts=['0001', '01', '05', '100'],
         years=range(2001, 2013),
         med_types=['carc', 'opc', 'bsfab', 'med'],
@@ -94,11 +94,11 @@ def main(
     data_list = sorted([list(x) for x in set(tuple(y) for y in data_list)])
 
     Parallel(n_jobs=n_jobs)(
-        delayed(convert_med)(*i, med_dta=med_dta, med_pq=med_pq, xw_dir=xw_dir)
+        delayed(_convert_med)(*i, med_dta=med_dta, med_pq=med_pq, xw_dir=xw_dir)
         for i in data_list)
 
 
-def convert_med(
+def _convert_med(
         pct,
         year,
         data_type,
@@ -586,4 +586,4 @@ def _create_parquet_schema(dtypes):
 
 
 if __name__ == '__main__':
-    main()
+    convert_med()
