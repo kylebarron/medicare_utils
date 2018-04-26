@@ -13,7 +13,17 @@ from .utils import fpath, _mywrap
 from .codebook import codebook
 
 allowed_pcts = ['0001', '01', '05', '20', '100']
-pct_dict = {0.01: '0001', 1: '01', 5: '05', 20: '20', 100: '100'}
+pct_dict = {
+    0.01: '0001',
+    1: '01',
+    5: '05',
+    20: '20',
+    100: '100',
+    '0001': 0.01,
+    '01': 1,
+    '05': 5,
+    '20': 20,
+    '100': 100}
 
 
 class MedicareDF(object):
@@ -949,8 +959,9 @@ class MedicareDF(object):
             and indicator columns for each code provided.
         """
 
-        if self.verbose:
+        if self.verbose or verbose:
             verbose = True
+            t0 = time()
 
         objs = self._search_for_codes_type_check(
             data_types=data_types,
@@ -974,16 +985,6 @@ class MedicareDF(object):
         convert_ehic = objs.convert_ehic
         verbose = objs.verbose
 
-        if verbose:
-            t0 = time()
-            msg = f"""\
-            Starting searching for codes
-            - percent sample: {self.percent}
-            - years: {list(self.years)}
-            - data_types: {data_types}
-            """
-            print(_mywrap(msg))
-
         ok_hcpcs_data_types = ['carl', 'ipr', 'opr']
         ok_dx_data_types = ['carc', 'carl', 'ipc', 'med', 'opc']
         ok_sg_data_types = ['ipc', 'med', 'opc']
@@ -992,33 +993,37 @@ class MedicareDF(object):
         if verbose and ((hcpcs or icd9_dx or icd9_sg) is not None):
             msg = f"""\
             Will check the following codes
+            - percent sample: {pct_dict[self.percent]}%
             - years: {list(self.years)}
             """
             msg = _mywrap(msg)
 
             if hcpcs is not None:
                 dts = list(data_types.intersection(ok_hcpcs_data_types))
-                msg += _mywrap(
-                    f"""\
-                - HCPCS codes: {hcpcs}
-                  in data types: {dts}
-                """)
+                if dts != []:
+                    msg += _mywrap(
+                        f"""\
+                    - HCPCS codes: {hcpcs}
+                      in data types: {dts}
+                    """)
 
             if icd9_dx is not None:
                 dts = list(data_types.intersection(ok_dx_data_types))
-                msg += _mywrap(
-                    f"""\
-                - ICD-9 diagnosis codes: {icd9_dx}
-                  in data types: {dts}
-                """)
+                if dts != []:
+                    msg += _mywrap(
+                        f"""\
+                    - ICD-9 diagnosis codes: {icd9_dx}
+                      in data types: {dts}
+                    """)
 
             if icd9_sg is not None:
                 dts = list(data_types.intersection(ok_sg_data_types))
-                msg += _mywrap(
-                    f"""\
-                - ICD-9 procedure codes: {icd9_sg}
-                  in data types: {dts}
-                """)
+                if dts != []:
+                    msg += _mywrap(
+                        f"""\
+                    - ICD-9 procedure codes: {icd9_sg}
+                      in data types: {dts}
+                    """)
 
             print(msg)
 
