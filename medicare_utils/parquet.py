@@ -17,7 +17,7 @@ pkg_resources.require("pandas>=0.21.0")
 def convert_med(
         pcts=['0001', '01', '05', '100'],
         years=range(2001, 2013),
-        med_types=['carc', 'opc', 'bsfab', 'med'],
+        data_types=['carc', 'opc', 'bsfab', 'med'],
         n_jobs=6,
         med_dta='/disk/aging/medicare/data',
         med_pq='/homes/nber/barronk/agebulk1/raw/pq',
@@ -71,14 +71,14 @@ def convert_med(
     else:
         raise TypeError('years must be int, range, or list of ints')
 
-    if type(med_types) is str:
-        med_types = [med_types]
-    elif type(med_types) is list:
+    if type(data_types) is str:
+        data_types = [data_types]
+    elif type(data_types) is list:
         pass
     else:
-        raise TypeError('med_types must be string or list of strings')
+        raise TypeError('data_types must be string or list of strings')
 
-    data_list = [[x, y, z] for x in pcts for y in years for z in med_types]
+    data_list = [[x, y, z] for x in pcts for y in years for z in data_types]
 
     # Drop 100% carrier:
     # data_list = [
