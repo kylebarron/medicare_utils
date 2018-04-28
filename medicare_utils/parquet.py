@@ -24,7 +24,7 @@ def convert_med(
         manual_schema=False,
         n_jobs=6,
         med_dta='/disk/aging/medicare/data',
-        med_pq='/homes/nber/barronk/agebulk1/raw/pq',
+        med_pq='/disk/agebulk3/medicare.work/doyle-dua51929/barronk-dua51929/raw/pq',
         xw_dir='/disk/aging/medicare/data/docs'):
     """Convert Medicare Stata files to parquet
 
@@ -146,7 +146,7 @@ def _convert_med(
         compression_type='SNAPPY',
         manual_schema=False,
         med_dta='/disk/aging/medicare/data',
-        med_pq='/homes/nber/barronk/agebulk1/raw/pq',
+        med_pq='/disk/agebulk3/medicare.work/doyle-dua51929/barronk-dua51929/raw/pq',
         xw_dir='/disk/aging/medicare/data/docs'):
     """Top-level function to convert a single file of a given
     percent sample, year, and data type of file to parquet format.
