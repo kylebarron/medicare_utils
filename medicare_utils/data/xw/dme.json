@@ -676,7 +676,7 @@
         },
         "desc": "clinical trial number"
     },
-    "claimindex": {
+    "clm_id": {
         "2002": {
             "format": "%12.0g",
             "name": "claimindex",
@@ -697,9 +697,6 @@
             "name": "claimindex",
             "type": "long"
         },
-        "desc": "claimindex"
-    },
-    "clm_id": {
         "2006": {
             "format": "%15s",
             "name": "clm_id",

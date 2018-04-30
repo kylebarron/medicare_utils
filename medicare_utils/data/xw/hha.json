@@ -744,29 +744,6 @@
         },
         "desc": "62. fi requested claim cancel reason code"
     },
-    "claimindex": {
-        "2002": {
-            "format": "%12.0g",
-            "name": "claimindex",
-            "type": "long"
-        },
-        "2003": {
-            "format": "%12.0g",
-            "name": "claimindex",
-            "type": "long"
-        },
-        "2004": {
-            "format": "%12.0g",
-            "name": "claimindex",
-            "type": "long"
-        },
-        "2005": {
-            "format": "%12.0g",
-            "name": "claimindex",
-            "type": "long"
-        },
-        "desc": "claimindex"
-    },
     "clm_cntl": {
         "1999": {
             "format": "%23s",
@@ -806,6 +783,26 @@
         "desc": "19. fi document claim control number"
     },
     "clm_id": {
+        "2002": {
+            "format": "%12.0g",
+            "name": "claimindex",
+            "type": "long"
+        },
+        "2003": {
+            "format": "%12.0g",
+            "name": "claimindex",
+            "type": "long"
+        },
+        "2004": {
+            "format": "%12.0g",
+            "name": "claimindex",
+            "type": "long"
+        },
+        "2005": {
+            "format": "%12.0g",
+            "name": "claimindex",
+            "type": "long"
+        },
         "2006": {
             "format": "%15s",
             "name": "clm_id",

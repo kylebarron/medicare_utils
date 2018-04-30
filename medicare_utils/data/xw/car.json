@@ -1275,29 +1275,6 @@
         },
         "desc": "carr_nch_edit_cd_cnt"
     },
-    "claimindex": {
-        "2002": {
-            "format": "%12.0g",
-            "name": "claimindex",
-            "type": "long"
-        },
-        "2003": {
-            "format": "%12.0g",
-            "name": "claimindex",
-            "type": "long"
-        },
-        "2004": {
-            "format": "%12.0g",
-            "name": "claimindex",
-            "type": "long"
-        },
-        "2005": {
-            "format": "%12.0g",
-            "name": "claimindex",
-            "type": "long"
-        },
-        "desc": "claimindex"
-    },
     "cliaalrt": {
         "1999": {
             "format": "%1s",
@@ -1370,6 +1347,26 @@
         "desc": "80. carrier claim line count"
     },
     "clm_id": {
+        "2002": {
+            "format": "%12.0g",
+            "name": "claimindex",
+            "type": "long"
+        },
+        "2003": {
+            "format": "%12.0g",
+            "name": "claimindex",
+            "type": "long"
+        },
+        "2004": {
+            "format": "%12.0g",
+            "name": "claimindex",
+            "type": "long"
+        },
+        "2005": {
+            "format": "%12.0g",
+            "name": "claimindex",
+            "type": "long"
+        },
         "2006": {
             "format": "%15s",
             "name": "clm_id",
