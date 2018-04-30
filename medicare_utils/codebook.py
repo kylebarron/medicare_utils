@@ -57,7 +57,7 @@ def codebook(data_type):
              '82': 'RIC M DMERC DMEPOS claim'}
     """
     path = pkg.resource_filename(
-        'medicare_utils', f'data/codebook/{data_type}.json')
+        'medicare_utils', f'metadata/codebook/{data_type}.json')
 
     try:
         with open(path) as f:
