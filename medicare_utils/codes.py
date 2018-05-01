@@ -203,7 +203,7 @@ class hcpcs(object):
         try:
             pq.ParquetFile(hcpcs_path)
         except:
-            self.download(hcpcs_path=hcpcs_path)
+            self._download(hcpcs_path=hcpcs_path)
 
         df = pd.read_parquet(hcpcs_path, engine='pyarrow')
         self.codes = df.loc[df['year'] == year]
