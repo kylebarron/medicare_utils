@@ -24,7 +24,7 @@ def fpath(
         data_type: str,
         dta: bool = False,
         dta_path: str = '/disk/aging/medicare/data',
-        pq_path: str = '/homes/nber/barronk/agebulk1/raw/pq') -> str:
+        pq_path: str = '/disk/agebulk3/medicare.work/doyle-dua51929/barronk-dua51929/raw/pq') -> str:
     """Generate path to Medicare files
 
     Args:

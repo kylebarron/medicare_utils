@@ -54,7 +54,7 @@ class MedicareDF(object):
             parquet_engine: str = 'pyarrow',
             parquet_nthreads=None,
             dta_path: str = '/disk/aging/medicare/data',
-            pq_path: str = '/homes/nber/barronk/agebulk1/raw/pq'):
+            pq_path: str = '/disk/agebulk3/medicare.work/doyle-dua51929/barronk-dua51929/raw/pq'):
         """Instantiate a MedicareDF object
 
         Attributes:
