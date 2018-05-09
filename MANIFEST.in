@@ -4,7 +4,7 @@ include CONTRIBUTING.md
 include LICENSE
 include README.md
 
-recursive-include medicare_utils/data *.json
+recursive-include medicare_utils/metadata *.json
 
 recursive-include tests *
 recursive-exclude * __pycache__
