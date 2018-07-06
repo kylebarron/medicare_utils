@@ -8,8 +8,8 @@
 
 Scripts to assist working with Medicare data.
 
-<!-- -   Free software: MIT license -->
-<!-- -   Documentation: <https://medicare-utils.readthedocs.io>. -->
+-   Free software: MIT license
+-   Documentation: [medicare-utils.readthedocs.io](https://medicare-utils.readthedocs.io).
 
 ## Features
 
@@ -45,5 +45,6 @@ mdf.search_for_codes(2010, 'med', icd9_diag='41071')
 ```
 
 It has attributes that refer to different levels of the data, when applicable:
+
 - `mdf.pl`: patient-level data. Here the index of the data is `bene_id` for data post-2005, or `ehic` for data pre-2005.
 - `mdf.cl`: claim-level data.

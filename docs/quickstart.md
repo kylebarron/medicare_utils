@@ -2,8 +2,9 @@
 
 ## Importing the package
 
-First, make sure you've [installed](installation.md) `medicare_utils`.
-Then to use the package, you need to import it with the following line:
+First, make sure you've [installed](installation.html) `medicare_utils`.
+Then to use the package, you need to import it:
+
 ```py
 import medicare_utils as med
 ```
@@ -22,4 +23,4 @@ Note that the `range` function includes integers up to but not including the sec
 Then I can get a cohort of white women aged 66-75
 
 
-
+In recent years, Python has become the `fastest growing major programming language <https://stackoverflow.blog/2017/09/06/incredible-growth-python/>`_, largely due to its widespread use among data scientists. This popularity has fostered packages that work with data, such as `Pandas <https://pandas.pydata.org/>`_, the standard for in-memory data analysis. A newer package, `Dask <https://dask.pydata.org/en/latest/dataframe.html>`_, has been developed to parallelize Pandas operations and work with data larger than memory.

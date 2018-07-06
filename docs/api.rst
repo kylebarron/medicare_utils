@@ -1,5 +1,5 @@
-medicare\_utils package
-=======================
+API
+===
 
 medicare\_utils.codebook
 ------------------------

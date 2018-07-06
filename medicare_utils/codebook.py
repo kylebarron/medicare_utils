@@ -33,8 +33,8 @@ def codebook(data_type):
             >>> import medicare_utils as med
             >>> cbk = med.codebook('med')['clm_type']['values']
 
-        Now ``cbk`` is a ``dict`` where the keys of the ``dict`` are the values
-        the variable can take, and the values of the ``dict`` are the labels of
+        Now ``cbk`` is a ``dict`` where the keys are the values
+        the variable can take, and the values are the labels of
         the variable's values.
 
         .. code-block:: python

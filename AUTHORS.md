@@ -1,12 +1,9 @@
-Credits
-=======
+# Credits
 
-Development Lead
-----------------
+## Development Lead
 
 -   Kyle Barron <barronk@mit.edu>
 
-Contributors
-------------
+## Contributors
 
 None yet. Why not be the first?
