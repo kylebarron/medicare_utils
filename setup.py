@@ -11,25 +11,19 @@ with open('README.md') as readme_file:
 with open('CHANGELOG.md') as history_file:
     history = history_file.read()
 
-requirements = [
-    'dask >= 0.17.1',
-    'distributed >= 1.21.1',
-    'fastparquet >= 0.1.4',
-    'joblib >= 0.11',
-    'numpy >= 1.14.1',
-    'pandas >= 0.22.0',
-    'pyarrow >= 0.9.0',
-    'requests >= 2.18.4',
-    'requests-html >= 0.9.0',
-    'tqdm >= 4.19.9',
-]
+with open('requirements.txt') as requirements_file:
+    requirements = requirements_file.readlines()
+    requirements = [x[:-1] for x in requirements]
+
+with open('requirements_dev.txt') as test_requirements_file:
+    test_requirements = test_requirements_file.readlines()
+    test_requirements = [x[:-1] for x in test_requirements]
+
 
 setup_requirements = [
     'setuptools >= 38.6.0',
     'twine >= 1.11.0'
 ]
-
-test_requirements = []
 
 setup(
     author="Kyle Barron",

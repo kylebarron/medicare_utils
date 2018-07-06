@@ -1,0 +1,10 @@
+dask>=0.17.1
+distributed>=1.21.1
+fastparquet>=0.1.4
+joblib>=0.11
+numpy>=1.14.1
+pandas>=0.22.0
+pyarrow>=0.9.0
+requests>=2.18.4
+requests-html>=0.9.0
+tqdm>=4.19.9
