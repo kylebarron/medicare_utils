@@ -24,6 +24,16 @@ Install the package with:
 pip install git+https://github.com/kylebarron/medicare_utils --upgrade
 ```
 
+You'll also need to manually install the `python-snappy` package. This is easiest with:
+```
+conda install -c conda-forge python-snappy
+```
+
+Otherwise you need to first install the Snappy C library and then run
+```
+pip install python-snappy
+```
+
 ## Usage
 
 The class is initialized with
@@ -37,4 +47,3 @@ mdf.search_for_codes(2010, 'med', icd9_diag='41071')
 It has attributes that refer to different levels of the data, when applicable:
 - `mdf.pl`: patient-level data. Here the index of the data is `bene_id` for data post-2005, or `ehic` for data pre-2005.
 - `mdf.cl`: claim-level data.
-
