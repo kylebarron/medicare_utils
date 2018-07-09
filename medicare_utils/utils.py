@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 from pathlib import Path
 from textwrap import dedent, fill
+from typing import Union
 
 allowed_pcts = ['0001', '01', '05', '20', '100']
 pct_dict = {0.01: '0001', 1: '01', 5: '05', 20: '20', 100: '100'}
@@ -10,21 +11,25 @@ def pq_vars(ParquetFile):
     return ParquetFile.schema.names
 
 
-def _mywrap(text):
+def _mywrap(text: str) -> str:
     text = dedent(text)
     lines = text.split('\n')
-    lines = [fill(x, replace_whitespace=False, subsequent_indent='\t') for x in lines]
+    lines = [
+        fill(x, replace_whitespace=False, subsequent_indent='    ')
+        for x in lines]
     text = '\n'.join(lines)
     return text
 
 
 def fpath(
-        percent,
-        year: int,
+        percent: Union[float, int, str],
+        year: Union[int, str],
         data_type: str,
         dta: bool = False,
         dta_path: str = '/disk/aging/medicare/data',
-        pq_path: str = '/disk/agebulk3/medicare.work/doyle-dua51929/barronk-dua51929/raw/pq') -> str:
+        pq_path:
+        str = '/disk/agebulk3/medicare.work/doyle-dua51929/barronk-dua51929/raw/pq'
+        ) -> str:
     """Generate path to Medicare files
 
     Args:
@@ -89,7 +94,7 @@ def fpath(
     try:
         year = int(year)
     except ValueError:
-        raise TypeError('year must be int')
+        raise TypeError('Invalid year provided')
 
     if (type(percent) == float) or (type(percent) == int):
         try:
