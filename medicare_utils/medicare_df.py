@@ -98,8 +98,10 @@ class MedicareDF(object):
 
         if type(years) == int:
             years = [years]
-        else:
+        elif (type(years) == list) | (type(years) == range):
             years = years
+        else:
+            raise TypeError('years must be a number or list of numbers')
 
         if (len(years) == 1) & (year_type == 'age'):
             msg = "year_type can't be `age` when only one year is given"
