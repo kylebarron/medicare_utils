@@ -187,6 +187,129 @@ class TestGetCohortTypeCheck(object):
             verbose=True)
         assert result.races == expected
 
+    @pytest.mark.parametrize('buyin_val,expected', [
+    ('3', ['3']),
+    (['3'], ['3'])
+    ])
+    def test_buyin_val(self, buyin_val, expected):
+        mdf = med.MedicareDF('01', 2012)
+        result = mdf._get_cohort_type_check(
+            gender=None,
+            ages=None,
+            races=None,
+            rti_race=False,
+            buyin_val=buyin_val,
+            hmo_val=None,
+            join='left',
+            keep_vars=None,
+            dask=True,
+            verbose=True)
+        assert result.buyin_val == expected
+
+    @pytest.mark.parametrize('hmo_val,expected', [
+    ('3', ['3']),
+    (['3'], ['3'])
+    ])
+    def test_hmo_val(self, hmo_val, expected):
+        mdf = med.MedicareDF('01', 2012)
+        result = mdf._get_cohort_type_check(
+            gender=None,
+            ages=None,
+            races=None,
+            rti_race=False,
+            buyin_val=None,
+            hmo_val=hmo_val,
+            join='left',
+            keep_vars=None,
+            dask=True,
+            verbose=True)
+        assert result.hmo_val == expected
+
+    @pytest.mark.parametrize('keep_vars,expected', [
+    ('3', ['3']),
+    (['3'], ['3'])
+    ])
+    def test_keep_vars(self, keep_vars, expected):
+        mdf = med.MedicareDF('01', 2012)
+        result = mdf._get_cohort_type_check(
+            gender=None,
+            ages=None,
+            races=None,
+            rti_race=False,
+            buyin_val=None,
+            hmo_val=None,
+            join='left',
+            keep_vars=keep_vars,
+            dask=True,
+            verbose=True)
+        assert result.keep_vars == expected
+
+    @pytest.mark.parametrize('allowed_join,expected', [
+    ('left', 'left'),
+    ('right', 'right'),
+    ('inner', 'inner'),
+    ('outer', 'outer')
+    ])
+    def test_allowed_join(self, allowed_join, expected):
+        mdf = med.MedicareDF('01', 2012)
+        result = mdf._get_cohort_type_check(
+            gender=None,
+            ages=None,
+            races=None,
+            rti_race=False,
+            buyin_val=None,
+            hmo_val=None,
+            join=allowed_join,
+            keep_vars=None,
+            dask=True,
+            verbose=True)
+        assert result.join == expected
+
+    def test_allowed_join_value_error(self):
+        mdf = med.MedicareDF('01', 2012)
+        with pytest.raises(ValueError):
+            mdf._get_cohort_type_check(
+                gender=None,
+                ages=None,
+                races=None,
+                rti_race=False,
+                buyin_val=None,
+                hmo_val=None,
+                join='other',
+                keep_vars=None,
+                dask=True,
+                verbose=True)
+
+    def test_dask_type_error(self):
+        mdf = med.MedicareDF('01', 2012)
+        with pytest.raises(TypeError):
+            mdf._get_cohort_type_check(
+                gender=None,
+                ages=None,
+                races=None,
+                rti_race=False,
+                buyin_val=None,
+                hmo_val=None,
+                join='left',
+                keep_vars=None,
+                dask='string',
+                verbose=True)
+
+    def test_verbose_type_error(self):
+        mdf = med.MedicareDF('01', 2012)
+        with pytest.raises(TypeError):
+            mdf._get_cohort_type_check(
+                gender=None,
+                ages=None,
+                races=None,
+                rti_race=False,
+                buyin_val=None,
+                hmo_val=None,
+                join='left',
+                keep_vars=None,
+                dask=True,
+                verbose='string')
+
 
 # gender
 # ages

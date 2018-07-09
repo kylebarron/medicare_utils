@@ -238,8 +238,10 @@ class MedicareDF(object):
 
         keep_vars = [keep_vars] if type(keep_vars) == str else keep_vars
 
-        assert type(dask) == bool
-        assert type(verbose) == bool
+        if type(dask) != bool:
+            raise TypeError('dask must be type bool')
+        if type(verbose) != bool:
+            raise TypeError('verbose must be type bool')
 
         class Return(NamedTuple):
             gender: Optional[str]
