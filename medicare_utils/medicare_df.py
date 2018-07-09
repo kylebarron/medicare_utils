@@ -153,10 +153,12 @@ class MedicareDF(object):
         # Check gender
         if gender is None:
             pass
-        else:
+        elif type(gender) == str:
             try:
                 gender = str(int(gender))
-            except ValueError:
+                if int(gender) not in range(0, 3):
+                    raise ValueError(f'{gender} is invalid value for `gender`')
+            except (ValueError, AssertionError):
                 gender_cbk = codebook('bsfab')['sex']['values']
                 gender_cbk = {v.lower(): k for k, v in gender_cbk.items()}
                 gender_cbk = {
@@ -167,10 +169,19 @@ class MedicareDF(object):
                     gender = gender_cbk[gender.lower()]
                 except KeyError:
                     raise ValueError(f'{gender} is invalid value for `gender`')
+        else:
+            raise TypeError('gender must be str or None')
 
         # Check ages
-        if type(ages) == int:
+        if (ages is None) | (type(ages) == range):
+            pass
+        elif type(ages) == list:
+            if not all(isinstance(x, int) for x in ages):
+                raise TypeError('ages must be int or list of ints')
+        elif type(ages) == int:
             ages = [ages]
+        else:
+            raise TypeError('ages must be int or list of ints')
 
         # check races
         assert (rti_race is None) | (type(rti_race) is bool)
