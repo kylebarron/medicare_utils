@@ -40,10 +40,13 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
+    # Must be loaded after napoleon
+    'sphinx_autodoc_typehints'
 ]
 
 napoleon_google_docstring = True
-napoleon_use_param = False
+# Must be True to work with sphinx_autodoc_typehints
+napoleon_use_param = True
 napoleon_use_ivar = True
 
 # Add any paths that contain templates here, relative to this directory.
