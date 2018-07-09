@@ -4,34 +4,37 @@ import re
 import math
 import inspect
 import pkg_resources
-import pandas as pd
 import numpy as np
-from pandas.api.types import CategoricalDtype
+import pandas as pd
+
 from time import time
 from joblib import Parallel, delayed
+from typing import Any, Dict, List, Union
+from pandas.api.types import CategoricalDtype
 
 from .utils import fpath, _mywrap
 pkg_resources.require("pandas>=0.21.0")
 
 
 def convert_med(
-        pcts=['0001', '01', '05', '100'],
-        years=range(2001, 2013),
-        data_types=['carc', 'opc', 'bsfab', 'med'],
-        rg_size=2.5,
-        parquet_engine='pyarrow',
-        compression_type='SNAPPY',
-        manual_schema=False,
-        n_jobs=6,
-        med_dta='/disk/aging/medicare/data',
-        med_pq='/disk/agebulk3/medicare.work/doyle-dua51929/barronk-dua51929/raw/pq',
-        xw_dir='/disk/aging/medicare/data/docs'):
+        pcts: Union[str, List[str]] = ['0001', '01', '05', '100'],
+        years: Union[int, List[int]] = range(2001, 2013),
+        data_types: Union[str, List[str]] = ['carc', 'opc', 'bsfab', 'med'],
+        rg_size: float = 2.5,
+        parquet_engine: str = 'pyarrow',
+        compression_type: str = 'SNAPPY',
+        manual_schema: bool = False,
+        n_jobs: int = 6,
+        med_dta: str = '/disk/aging/medicare/data',
+        med_pq:
+        str = '/disk/agebulk3/medicare.work/doyle-dua51929/barronk-dua51929/raw/pq',
+        xw_dir: str = '/disk/aging/medicare/data/docs') -> None:
     """Convert Medicare Stata files to parquet
 
     Args:
-        pcts (str or list[str]): percent samples to convert
-        years (int, range, or list[int]): file years to convert
-        data_types (str or list[str]):
+        pcts: percent samples to convert
+        years: file years to convert
+        data_types:
             types of data files to convert
 
             - ``bsfab`` (`Beneficiary Summary File, Base segment`_)
@@ -76,15 +79,15 @@ def convert_med(
             .. _`Skilled Nursing Facility File, Claims segment`: https://kylebarron.github.io/medicare-documentation/resdac/snf-rif/#skilled-nursing-facility-rif_1
             .. _`Skilled Nursing Facility File, Revenue Center segment`: https://kylebarron.github.io/medicare-documentation/resdac/snf-rif/#revenue-center-file
 
-        rg_size (float): size in GB of each Parquet row group
-        parquet_engine (str): either 'fastparquet' or 'pyarrow'
-        compression_type (str): 'SNAPPY' or 'GZIP'
-        manual_schema (bool): whether to create manual parquet schema. Doesn't
+        rg_size: size in GB of each Parquet row group
+        parquet_engine: either 'fastparquet' or 'pyarrow'
+        compression_type: 'SNAPPY' or 'GZIP'
+        manual_schema: whether to create manual parquet schema. Doesn't
             always work.
-        n_jobs (int): number of processes to use
-        med_dta (str): top of tree for medicare stata files
-        med_pq (str): top of tree to output new parquet files
-        xw_dir (str): directory with variable name crosswalks
+        n_jobs: number of processes to use
+        med_dta: top of tree for medicare stata files
+        med_pq: top of tree to output new parquet files
+        xw_dir: directory with variable name crosswalks
     """
 
     if type(pcts) is str:
@@ -126,35 +129,35 @@ def convert_med(
     data_list = sorted([list(x) for x in set(tuple(y) for y in data_list)])
 
     Parallel(n_jobs=n_jobs)(
-        delayed(_convert_med)(*i,
-                              rg_size=rg_size,
-                              parquet_engine=parquet_engine,
-                              compression_type=compression_type,
-                              manual_schema=manual_schema,
-                              med_dta=med_dta,
-                              med_pq=med_pq,
-                              xw_dir=xw_dir)
-        for i in data_list)
+        delayed(_convert_med)(
+            *i,
+            rg_size=rg_size,
+            parquet_engine=parquet_engine,
+            compression_type=compression_type,
+            manual_schema=manual_schema,
+            med_dta=med_dta,
+            med_pq=med_pq,
+            xw_dir=xw_dir) for i in data_list)
 
 
 def _convert_med(
-        pct,
-        year,
-        data_type,
-        rg_size=2.5,
-        parquet_engine='pyarrow',
-        compression_type='SNAPPY',
-        manual_schema=False,
-        med_dta='/disk/aging/medicare/data',
-        med_pq='/disk/agebulk3/medicare.work/doyle-dua51929/barronk-dua51929/raw/pq',
-        xw_dir='/disk/aging/medicare/data/docs'):
-    """Top-level function to convert a single file of a given
-    percent sample, year, and data type of file to parquet format.
+        pct: str,
+        year: int,
+        data_type: Union[str, List[str]],
+        rg_size: float = 2.5,
+        parquet_engine: str = 'pyarrow',
+        compression_type: str = 'SNAPPY',
+        manual_schema: bool = False,
+        med_dta: str = '/disk/aging/medicare/data',
+        med_pq:
+        str = '/disk/agebulk3/medicare.work/doyle-dua51929/barronk-dua51929/raw/pq',
+        xw_dir: str = '/disk/aging/medicare/data/docs') -> None:
+    """Convert a single Medicare file to parquet format.
 
     Args:
-        pct (int, float, or str): percent sample to convert
-        year (int): year of data to convert
-        data_type (str or list[str]):
+        pct: percent sample to convert
+        year: year of data to convert
+        data_type:
             type of data files to convert
 
             - ``bsfab`` Beneficiary Summary File, Base segment
@@ -178,14 +181,14 @@ def _convert_med(
             - ``snfc``  Skilled Nursing Facility File, Claims segment
             - ``snfr``  Skilled Nursing Facility File, Revenue Center segment
             - ``xw``    Crosswalks files for ``ehic`` - ``bene_id``
-        rg_size (float): size in GB of each Parquet row group
-        parquet_engine (str): either 'fastparquet' or 'pyarrow'
-        compression_type (str): 'SNAPPY' or 'GZIP'
-        manual_schema (bool): whether to create manual parquet schema. Doesn't
+        rg_size: size in GB of each Parquet row group
+        parquet_engine: either 'fastparquet' or 'pyarrow'
+        compression_type: 'SNAPPY' or 'GZIP'
+        manual_schema: whether to create manual parquet schema. Doesn't
             always work.
-        med_dta (str): canonical path for raw medicare dta files
-        med_pq (str): top of tree to output new parquet files
-        xw_dir (str): directory with variable name crosswalks
+        med_dta: canonical path for raw medicare dta files
+        med_pq: top of tree to output new parquet files
+        xw_dir: directory with variable name crosswalks
     Returns:
         nothing. Writes parquet file to disk.
     Raises:
@@ -258,23 +261,25 @@ def _convert_med(
 
 
 def convert_file(
-        infile,
-        outfile,
-        rename_dict=None,
-        rg_size=2.5,
-        parquet_engine='pyarrow',
-        compression_type='SNAPPY',
-        manual_schema=False):
+        infile: str,
+        outfile: str,
+        rename_dict: Dict[str, str] = None,
+        rg_size: float = 2.5,
+        parquet_engine: str = 'pyarrow',
+        compression_type: str = 'SNAPPY',
+        manual_schema: bool = False) -> None:
     """Convert arbitrary Stata file to Parquet format
 
     Args:
-        infile (str): path of file to read from
-        outfile (str): path of file to export to
-        rename_dict (dict): keys should be initial variable names; values should
+        infile: path of file to read from
+        outfile: path of file to export to
+        rename_dict: keys should be initial variable names; values should
             be new variable names
-        rg_size (float): Size in GB of the individual row groups
-        parquet_engine (str): either 'pyarrow' or 'fastparquet'
-        manual_schema (bool): Create parquet schema manually. For use with
+        rg_size: Size in GB of the individual row groups
+        parquet_engine: either ``pyarrow`` or ``fastparquet``
+        compression_type: Compression algorithm to use. Can be ``SNAPPY`` or
+            ``GZIP``.
+        manual_schema: Create parquet schema manually. For use with
             pyarrow; doesn't always work
     Returns:
         Writes .parquet file to disk.
@@ -418,7 +423,11 @@ def _convert_dates(df, datecols):
     return df
 
 
-def _scan_file(infile, categorical=True, chunksize=100000, cat_threshold=0.1):
+def _scan_file(
+        infile: str,
+        categorical: bool = True,
+        chunksize: int = 100000,
+        cat_threshold: float = 0.1) -> Dict[str, Any]:
     """Scan dta file to find minimal dtypes to hold data in
 
     For each of the chunks of df:

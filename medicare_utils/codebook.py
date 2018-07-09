@@ -2,11 +2,11 @@ import json
 import pkg_resources as pkg
 
 
-def codebook(data_type):
+def codebook(data_type: str) -> dict:
     """Load variable codebook
 
     Args:
-        data_type (str):
+        data_type:
 
             Type of file to get codebook for
 

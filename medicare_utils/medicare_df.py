@@ -5,7 +5,9 @@ import pandas as pd
 import fastparquet as fp
 import dask.dataframe as dd
 import pyarrow.parquet as pq
+
 from time import time
+from typing import Dict, List, NamedTuple, Optional, Pattern, Union
 from collections import namedtuple
 from multiprocessing import cpu_count
 
@@ -47,26 +49,28 @@ class MedicareDF(object):
 
     def __init__(
             self,
-            percent,
-            years,
+            percent: Union[str, int, float],
+            years: Union[int, List[int]],
             year_type: str = 'calendar',
             verbose: bool = False,
             parquet_engine: str = 'pyarrow',
-            parquet_nthreads=None,
+            parquet_nthreads: Optional[int] = None,
             dta_path: str = '/disk/aging/medicare/data',
-            pq_path: str = '/disk/agebulk3/medicare.work/doyle-dua51929/barronk-dua51929/raw/pq'):
+            pq_path:
+            str = '/disk/agebulk3/medicare.work/doyle-dua51929/barronk-dua51929/raw/pq'
+            ) -> None:
         """Instantiate a MedicareDF object
 
         Attributes:
-            percent (str, int, or float): percent sample of data to use
-            years (list[int]): years of data to use
-            year_type (str): ``calendar`` to work with multiple years as
+            percent: percent sample of data to use
+            years: years of data to use
+            year_type: ``calendar`` to work with multiple years as
                 calendar years; ``age`` to work with patients' age years
-            verbose (bool): Print progress status of program to console
-            parquet_engine (str): ``pyarrow`` or ``fastparquet``
-            parquet_nthreads (int): number of threads to use when reading file
-            dta_path (str): path to Stata Medicare files
-            pq_path (str): path to Parquet Medicare files
+            verbose: Print progress status of program to console
+            parquet_engine: ``pyarrow`` or ``fastparquet``
+            parquet_nthreads: number of threads to use when reading file
+            dta_path: path to Stata Medicare files
+            pq_path: path to Parquet Medicare files
         Returns:
             ``MedicareDF`` object. Can then create a cohort with
             :func:`get_cohort` or search for patients with a given diagnosis
@@ -121,7 +125,8 @@ class MedicareDF(object):
         self.pq_path = pq_path
 
     def _fpath(
-            self, percent: str, year: int, data_type: str, dta: bool = False):
+            self, percent: str, year: int, data_type: str,
+            dta: bool = False) -> str:
 
         return fpath(
             percent=percent,
@@ -133,8 +138,11 @@ class MedicareDF(object):
 
     @staticmethod
     def _get_cohort_type_check(
-            gender, ages, races, rti_race, buyin_val, hmo_val, join, keep_vars,
-            dask, verbose):
+            gender: Optional[str], ages: Union[int, List[int], None],
+            races: Union[str, List[str], None], rti_race: bool,
+            buyin_val: Union[str, List[str], None],
+            hmo_val: Union[str, List[str], None], join: str,
+            keep_vars: List[str], dask: bool, verbose: bool):
         """Check types and valid values for :func:`get_cohort`
 
         Also resolves input into correct value
@@ -217,10 +225,19 @@ class MedicareDF(object):
         assert type(dask) == bool
         assert type(verbose) == bool
 
-        Return = namedtuple(
-            'variables', [
-                'gender', 'ages', 'races', 'rti_race', 'race_col', 'buyin_val',
-                'hmo_val', 'join', 'keep_vars', 'dask', 'verbose'])
+        class Return(NamedTuple):
+            gender: Optional[str]
+            ages: Optional[List[int]]
+            races: Optional[List[str]]
+            rti_race: bool
+            race_col: str
+            buyin_val: Optional[List[str]]
+            hmo_val: Optional[List[str]]
+            join: str
+            keep_vars: List[str]
+            dask: bool
+            verbose: bool
+
         return Return(
             gender=gender,
             ages=ages,
@@ -236,16 +253,16 @@ class MedicareDF(object):
 
     def get_cohort(
             self,
-            gender=None,
-            ages=None,
-            races=None,
-            rti_race=False,
-            buyin_val=None,
-            hmo_val=None,
-            join='outer',
-            keep_vars=[],
-            dask=False,
-            verbose=False):
+            gender: Optional[str] = None,
+            ages: Union[int, List[int], None] = None,
+            races: Union[str, List[str], None] = None,
+            rti_race: bool = False,
+            buyin_val: Union[str, List[str], None] = None,
+            hmo_val: Union[str, List[str], None] = None,
+            join: str = 'outer',
+            keep_vars: List[str] = [],
+            dask: bool = False,
+            verbose: bool = False):
         """Get cohort given demographic and enrollment characteristics
 
         Creates ``.pl`` attribute with patient-level data in the form of a
@@ -254,27 +271,27 @@ class MedicareDF(object):
         always be returned as a column.
 
         Args:
-            gender (str): ``M``, ``F``, ``Male``, ``Female``, or ``None`` (keep both)
-            ages (range, list[int], int):
+            gender: ``M``, ``F``, ``Male``, ``Female``, or ``None`` (keep both)
+            ages:
                 Range of ages to include. When ``year_type`` is ``calendar``,
                 keeps anyone whose age was in ``ages`` at the end of the
                 calendar year. When ``year_type`` is ``age``, keeps anyone whose
                 age was in ``ages`` at any point during the year.
-            races (list[str], str): Races to include
-            rti_race (bool): Whether to use the Research Triangle
+            races: Races to include
+            rti_race: Whether to use the Research Triangle
                 Institute race code instead of the default race code.
-            buyin_val (list[str], str): The values ``buyinXX`` can take
-            hmo_val (list[str], str): The values ``hmoindXX`` can take
-            join (str): method for joining across years. Options: ``outer``,
+            buyin_val: The values ``buyinXX`` can take
+            hmo_val: The values ``hmoindXX`` can take
+            join: method for joining across years. Options: ``outer``,
                 ``inner``, ``left``, ``right``. ``outer`` keeps all patients who
                 matched desired characteristics in **any** year. ``inner`` keeps
                 all patients who matched desired characteristics in **all**
                 years. ``left`` keeps all people who matched desired
                 characteristics in the **first** year. ``right`` keeps all
                 people who matched desired characteristics in the **last** year.
-            keep_vars (list[str]): Variable names to keep in final output
-            dask (bool): Use dask library for out of core computation
-            verbose (bool): Print progress of program to console
+            keep_vars: Variable names to keep in final output
+            dask: Use dask library for out of core computation
+            verbose: Print progress of program to console
 
         Returns:
             Creates attributes ``.pl`` with patient-level data in pandas
@@ -902,25 +919,25 @@ class MedicareDF(object):
 
     def search_for_codes(
             self,
-            data_types,
-            hcpcs=None,
-            icd9_dx=None,
-            icd9_dx_max_cols=None,
-            icd9_sg=None,
-            keep_vars={},
-            collapse_codes=True,
-            rename={
+            data_types: Union[str, List[str]],
+            hcpcs: Union[str, Pattern, List[str], List[Pattern], None] = None,
+            icd9_dx: Union[str, Pattern, List[str], List[Pattern], None] = None,
+            icd9_dx_max_cols: Optional[int] = None,
+            icd9_sg: Union[str, Pattern, List[str], List[Pattern], None] = None,
+            keep_vars: Dict[str, Union[str, List[str]]] = {},
+            collapse_codes: bool = True,
+            rename: Dict[str, Union[str, List[str], Dict[str, str], None]] = {
                 'hcpcs': None,
                 'icd9_dx': None,
                 'icd9_sg': None},
-            convert_ehic=True,
+            convert_ehic: bool = True,
             verbose=False):
         """Search in claim-level datasets for HCPCS and/or ICD9 codes
 
         Note: Each code given must be distinct, or ``collapse_codes`` must be ``True``
 
         Args:
-            data_types (str or list[str]):
+            data_types:
                 Files to search through. The following are allowed:
 
                 - ``carc``  (`Carrier File, Claims segment`_)
@@ -938,25 +955,23 @@ class MedicareDF(object):
                 .. _`MedPAR File`: https://kylebarron.github.io/medicare-documentation/resdac/medpar-rif/#medpar-rif_1
                 .. _`Outpatient File, Claims segment`: https://kylebarron.github.io/medicare-documentation/resdac/op-rif/#outpatient-rif_1
                 .. _`Outpatient File, Revenue Center segment`: https://kylebarron.github.io/medicare-documentation/resdac/op-rif/#revenue-center-file
-            hcpcs (str, compiled regex, list[str], list[compiled regex]):
-                HCPCS codes to search for
-            icd9_dx (str, compiled regex, list[str], list[compiled regex]):
-                ICD-9 diagnosis codes to search for
-            icd9_dx_max_cols (int): Max number of ICD9 diagnosis code columns to
-                search through
-            icd9_sg (str, compiled regex, list[str], list[compiled regex]):
-                ICD-9 procedure codes to search for
-            keep_vars (dict[data_type: list[str]]): dict of column names to
-                return
-            collapse_codes (bool): If ``True``, returns a single column
-                ``match``; otherwise returns a column for each code provided
-            convert_ehic (bool): If ``True``, merges on ``bene_id`` for years <
+            hcpcs: HCPCS codes to search for
+            icd9_dx: ICD-9 diagnosis codes to search for
+            icd9_dx_max_cols: Max number of ICD9 diagnosis code columns to
+                search through. If ``None``, will search through all columns.
+            icd9_sg: ICD-9 procedure codes to search for
+            keep_vars: column names to return
+            collapse_codes: If ``True``, returns a single column named
+                ``match`` that is ``True`` for the claims with a matched code and ``False`` otherwise. If ``collapse_codes`` is ``False``, returns a column for each code provided
+            rename: Match columns to rename when ``collapse_codes`` is ``False``.
+            convert_ehic: If ``True``, merges on ``bene_id`` for years <
                 2006
+            verbose: Print progress of program to console
 
         Returns:
-            Creates ``.cl`` attribute; a dict where keys are the data_types
-            provided and values are pandas DataFrames with ``bene_id`` as index
-            and indicator columns for each code provided.
+            Creates ``.cl`` attribute. This is a dict where keys are the
+            data_types provided and values are pandas DataFrames with
+            ``bene_id`` as index and indicator columns for each code provided.
         """
 
         if self.verbose or verbose:

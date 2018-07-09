@@ -5,10 +5,12 @@ import requests
 import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
+
 from tqdm import tqdm
+from typing import List, Optional, Pattern, Union
 from pathlib import Path
-from requests_html import HTMLSession
 from zipfile import ZipFile
+from requests_html import HTMLSession
 from multiprocessing import cpu_count
 
 from .utils import _mywrap
@@ -19,11 +21,11 @@ class npi(object):
 
     def __init__(
             self,
-            columns=None,
-            regex=None,
+            columns: Union[List[str], str, None] = None,
+            regex: Optional[Pattern] = None,
             download: bool = False,
             path: str = '',
-            load: bool = True):
+            load: bool = True) -> None:
         self.num_cpu = cpu_count()
 
         if download:
@@ -133,7 +135,10 @@ class npi(object):
 
         print('Finished Parquet conversion.')
 
-    def load(self, columns=None, regex=None):
+    def load(
+            self,
+            columns: Union[List[str], str] = None,
+            regex: Optional[Pattern] = None) -> pd.DataFrame:
         if type(columns) == str:
             columns = [columns]
 
@@ -171,7 +176,7 @@ class npi(object):
 class hcpcs(object):
     """A class to work with HCPCS codes"""
 
-    def __init__(self, year: int, path: str = ''):
+    def __init__(self, year: int, path: str = '') -> None:
         self.num_cpu = cpu_count()
 
         # Check for ~/.medicare_utils.json file
@@ -428,7 +433,7 @@ class hcpcs(object):
 class icd9(object):
     """A class to work with ICD9 codes"""
 
-    def __init__(self, year: int, long: bool = True, path: str = ''):
+    def __init__(self, year: int, long: bool = True, path: str = '') -> None:
         self.num_cpu = cpu_count()
 
         # Check for ~/.medicare_utils.json file
