@@ -184,7 +184,8 @@ class MedicareDF(object):
             raise TypeError('ages must be int or list of ints')
 
         # check races
-        assert (rti_race is None) | (type(rti_race) is bool)
+        if type(rti_race) != bool:
+            raise TypeError('rti_race must be bool')
         race_col = 'rti_race_cd' if rti_race else 'race'
 
         if races is None:

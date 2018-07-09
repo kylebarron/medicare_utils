@@ -54,7 +54,7 @@ class TestGetCohortTypeCheck(object):
             gender=gender,
             ages=None,
             races=None,
-            rti_race=None,
+            rti_race=False,
             buyin_val=None,
             hmo_val=None,
             join='left',
@@ -71,7 +71,7 @@ class TestGetCohortTypeCheck(object):
                 gender=gender,
                 ages=None,
                 races=None,
-                rti_race=None,
+                rti_race=False,
                 buyin_val=None,
                 hmo_val=None,
                 join='left',
@@ -87,7 +87,7 @@ class TestGetCohortTypeCheck(object):
                 gender=gender,
                 ages=None,
                 races=None,
-                rti_race=None,
+                rti_race=False,
                 buyin_val=None,
                 hmo_val=None,
                 join='left',
@@ -103,13 +103,30 @@ class TestGetCohortTypeCheck(object):
                 gender=None,
                 ages=ages,
                 races=None,
-                rti_race=None,
+                rti_race=False,
                 buyin_val=None,
                 hmo_val=None,
                 join='left',
                 keep_vars=None,
                 dask=True,
                 verbose=True)
+
+    @pytest.mark.parametrize('rti_race', ['1', 1])
+    def test_rti_race(self, rti_race):
+        mdf = med.MedicareDF('01', 2012)
+        with pytest.raises(TypeError):
+            mdf._get_cohort_type_check(
+                gender=None,
+                ages=None,
+                races=None,
+                rti_race=rti_race,
+                buyin_val=None,
+                hmo_val=None,
+                join='left',
+                keep_vars=None,
+                dask=True,
+                verbose=True)
+
 
 # gender
 # ages
