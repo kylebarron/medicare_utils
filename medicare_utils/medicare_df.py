@@ -181,27 +181,30 @@ class MedicareDF(object):
         elif type(ages) == int:
             ages = [ages]
         else:
-            raise TypeError('ages must be int or list of ints')
+            raise TypeError('ages must be int or list of int')
 
         # check races
         if type(rti_race) != bool:
             raise TypeError('rti_race must be bool')
         race_col = 'rti_race_cd' if rti_race else 'race'
 
+        race_cbk = codebook('bsfab')[race_col]['values']
+        race_cbk = {v.lower(): k for k, v in race_cbk.items()}
+        if race_col == 'rti_race_cd':
+            # Don't want races='hispanic' to match 'non-hispanic white'
+            race_cbk['white'] = race_cbk.pop('non-hispanic white')
+
         if races is None:
             pass
         elif type(races) == list:
             try:
                 races = [str(int(x)) for x in races]
+                if any(int(x) not in range(0, 7) for x in races):
+                    raise ValueError(f'{races} is invalid value for `races`')
             except ValueError:
-                race_cbk = codebook('bsfab')[race_col]['values']
-                race_cbk = {v.lower(): k for k, v in race_cbk.items()}
-                if race_col == 'rti_race_cd':
-                    race_cbk['white'] = race_cbk.pop('non-hispanic white')
-
                 races_new = []
                 for race in races:
-                    r = [v for k, v in race_cbk.items() if re.search(race, k)]
+                    r = [v for k, v in race_cbk.items() if race.lower() in k]
                     msg = f'`{race}` matches more than one race description'
                     assert len(r) <= 1, msg
                     msg = f'`{race}` matches no race description'
@@ -209,22 +212,21 @@ class MedicareDF(object):
                     races_new.extend(r)
 
                 races = races_new
-        else:
+        elif type(races) == str:
             try:
                 races = [str(int(races))]
+                if int(races[0]) not in range(0, 7):
+                    raise ValueError(f'{races} is invalid value for `races`')
             except ValueError:
-                race_cbk = codebook('bsfab')[race_col]['values']
-                race_cbk = {v.lower(): k for k, v in race_cbk.items()}
-                if race_col == 'rti_race_cd':
-                    race_cbk['white'] = race_cbk.pop('non-hispanic white')
-
-                r = [v for k, v in race_cbk.items() if re.search(races, k)]
-                msg = f'`{race}` matches more than one race description'
+                r = [v for k, v in race_cbk.items() if races.lower() in k]
+                msg = f'`{races}` matches more than one race description'
                 assert len(r) <= 1, msg
-                msg = f'`{race}` matches no race description'
+                msg = f'`{races}` matches no race description'
                 assert len(r) >= 1, msg
 
                 races = r
+        else:
+            raise TypeError('races must be str or list of str')
 
         buyin_val = [buyin_val] if type(buyin_val) == str else buyin_val
         hmo_val = [hmo_val] if type(hmo_val) == str else hmo_val

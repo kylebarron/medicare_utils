@@ -79,7 +79,8 @@ class TestGetCohortTypeCheck(object):
                 dask=True,
                 verbose=True)
 
-    @pytest.mark.parametrize('gender', ['ma', 'mal', 'fem', 'femal', '3', '-1', 'unkn'])
+    @pytest.mark.parametrize(
+        'gender', ['ma', 'mal', 'fem', 'femal', '3', '-1', 'unkn'])
     def test_gender_value_error(self, gender):
         mdf = med.MedicareDF('01', 2012)
         with pytest.raises(ValueError):
@@ -126,6 +127,65 @@ class TestGetCohortTypeCheck(object):
                 keep_vars=None,
                 dask=True,
                 verbose=True)
+
+    @pytest.mark.parametrize(
+        'races,expected',
+        [(None, None), ('unknown', ['0']), ('white', ['1']),
+         ('black (or african-american)', ['2']), ('black', ['2']),
+         ('african-american', ['2']), ('other', ['3']),
+         ('asian pacific islander', ['4']), ('asian', ['4']),
+         ('hispanic', ['5']), ('american indian alaska native', ['6']),
+         ('american indian', ['6']), ('UNKNOWN', ['0']), ('WHITE', ['1']),
+         ('BLACK (OR AFRICAN-AMERICAN)', ['2']), ('BLACK', ['2']),
+         ('AFRICAN-AMERICAN', ['2']), ('OTHER', ['3']),
+         ('ASIAN PACIFIC ISLANDER', ['4']), ('ASIAN', ['4']),
+         ('HISPANIC', ['5']), ('AMERICAN INDIAN ALASKA NATIVE', ['6']),
+         ('AMERICAN INDIAN', ['6']), (['white', 'black'], ['1', '2']),
+         (['white', 'black', 'asian'], ['1', '2', '4']),
+         (['white', 'asian'], ['1', '4']), (['black', 'asian'], ['2', '4']),
+         (['0', '1', '2'], ['0', '1', '2']), ('0', ['0']), ('1', ['1']),
+         ('2', ['2']), ('3', ['3']), ('4', ['4']), ('5', ['5']), ('6', ['6'])])
+    def test_races_rti_true(self, races, expected):
+        mdf = med.MedicareDF('01', 2012)
+        result = mdf._get_cohort_type_check(
+            gender=None,
+            ages=None,
+            races=races,
+            rti_race=True,
+            buyin_val=None,
+            hmo_val=None,
+            join='left',
+            keep_vars=None,
+            dask=True,
+            verbose=True)
+        assert result.races == expected
+
+    @pytest.mark.parametrize(
+        'races,expected',
+        [(None, None), ('unknown', ['0']), ('white', ['1']), ('black', ['2']),
+         ('other', ['3']), ('asian', ['4']), ('hispanic', ['5']),
+         ('north american native', ['6']), ('UNKNOWN', ['0']), ('WHITE', ['1']),
+         ('BLACK', ['2']), ('OTHER', ['3']), ('ASIAN', ['4']),
+         ('HISPANIC', ['5']), ('NORTH AMERICAN NATIVE', ['6']),
+         (['white', 'black'], ['1', '2']),
+         (['white', 'black', 'asian'], ['1', '2', '4']),
+         (['white', 'asian'], ['1', '4']), (['black', 'asian'], ['2', '4']),
+         (['0', '1', '2'], ['0', '1', '2']), ('0', ['0']), ('1', ['1']),
+         ('2', ['2']), ('3', ['3']), ('4', ['4']), ('5', ['5']), ('6', ['6'])])
+    def test_races_rti_false(self, races, expected):
+        mdf = med.MedicareDF('01', 2012)
+        result = mdf._get_cohort_type_check(
+            gender=None,
+            ages=None,
+            races=races,
+            rti_race=False,
+            buyin_val=None,
+            hmo_val=None,
+            join='left',
+            keep_vars=None,
+            dask=True,
+            verbose=True)
+        assert result.races == expected
 
 
 # gender
