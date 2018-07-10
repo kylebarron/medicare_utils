@@ -1,3 +1,4 @@
+import re
 import pytest
 import medicare_utils as med
 
@@ -310,14 +311,55 @@ class TestGetCohortTypeCheck(object):
                 dask=True,
                 verbose='string')
 
+class TestGetPattern(object):
+    def test_get_pattern_str(self):
+        mdf = med.MedicareDF('01', 2012)
+        assert mdf._get_pattern('string') == 'string'
 
-# gender
-# ages
-# races
-# rti_race
-# buyin_val
-# hmo_val
-# join='left'
-# keep_vars
-# dask
+    def test_get_pattern_regex(self):
+        mdf = med.MedicareDF('01', 2012)
+        regex = re.compile('regex_match')
+        assert mdf._get_pattern(regex) == 'regex_match'
+
+    @pytest.mark.parametrize('obj', [True, 1, 1.0, ['string'], [re.compile('regex')]])
+    def test_get_pattern_invalid_type(self, obj):
+        mdf = med.MedicareDF('01', 2012)
+        with pytest.raises(TypeError):
+            mdf._get_pattern(obj)
+
+
+
+
+class TestCreateRenameDict(object):
+    @pytest.mark.parametrize('hcpcs,icd9_dx,icd9_sg,rename,expected', [
+        (None, None, None, {}, {}),
+        # ('a', 'b', 'c', {'hcpcs': '1', 'icd9_dx': '2', 'icd9_sg': '3'}, {'a': '1', 'b': '2', 'c': '3'}),
+        ('a', 'b', 'c', {'hcpcs': ['1'], 'icd9_dx': ['2'], 'icd9_sg': ['3']}, {'a': '1', 'b': '2', 'c': '3'}),
+        (['a'], ['b'], ['c'], {'hcpcs': ['1'], 'icd9_dx': ['2'], 'icd9_sg': ['3']}, {'a': '1', 'b': '2', 'c': '3'}),
+        (['a'], ['b'], ['c'], {'hcpcs': {'a': '1'}, 'icd9_dx': {'b': '2'}, 'icd9_sg': {'c': '3'}}, {'a': '1', 'b': '2', 'c': '3'}),
+        (['a', 'd'], ['b', 'e'], ['c', 'f'],
+         {'hcpcs': ['1', '4'], 'icd9_dx': ['2', '5'], 'icd9_sg': ['3', '6']},
+         {'a': '1', 'b': '2', 'c': '3', 'd': '4', 'e': '5', 'f': '6'})
+
+    ])
+    def test_hcpcs_list_rename(self, hcpcs, icd9_dx, icd9_sg, rename, expected):
+        mdf = med.MedicareDF('01', 2012)
+        result = mdf._create_rename_dict(hcpcs=hcpcs, icd9_dx=icd9_dx, icd9_sg=icd9_sg, rename=rename)
+        assert result == expected
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # verbose
