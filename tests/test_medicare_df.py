@@ -256,9 +256,8 @@ class TestGetCohortTypeCheck(object):
             verbose=True)
         assert result.races == expected
 
-    @pytest.mark.parametrize('buyin_val,expected', [
-        ('3', ['3']),
-        (['3'], ['3'])])
+    @pytest.mark.parametrize(
+        'buyin_val,expected', [('3', ['3']), (['3'], ['3'])])
     def test_buyin_val(self, buyin_val, expected):
         mdf = med.MedicareDF('01', 2012)
         result = mdf._get_cohort_type_check(
@@ -274,9 +273,7 @@ class TestGetCohortTypeCheck(object):
             verbose=True)
         assert result.buyin_val == expected
 
-    @pytest.mark.parametrize('hmo_val,expected', [
-        ('3', ['3']),
-        (['3'], ['3'])])
+    @pytest.mark.parametrize('hmo_val,expected', [('3', ['3']), (['3'], ['3'])])
     def test_hmo_val(self, hmo_val, expected):
         mdf = med.MedicareDF('01', 2012)
         result = mdf._get_cohort_type_check(
@@ -292,10 +289,8 @@ class TestGetCohortTypeCheck(object):
             verbose=True)
         assert result.hmo_val == expected
 
-    @pytest.mark.parametrize('keep_vars,expected', [
-    ('3', ['3']),
-    (['3'], ['3'])
-    ])
+    @pytest.mark.parametrize(
+        'keep_vars,expected', [('3', ['3']), (['3'], ['3'])])
     def test_keep_vars(self, keep_vars, expected):
         mdf = med.MedicareDF('01', 2012)
         result = mdf._get_cohort_type_check(
@@ -378,6 +373,7 @@ class TestGetCohortTypeCheck(object):
                 dask=True,
                 verbose='string')
 
+
 class TestGetPattern(object):
     def test_get_pattern_str(self):
         mdf = med.MedicareDF('01', 2012)
@@ -388,13 +384,12 @@ class TestGetPattern(object):
         regex = re.compile('regex_match')
         assert mdf._get_pattern(regex) == 'regex_match'
 
-    @pytest.mark.parametrize('obj', [True, 1, 1.0, ['string'], [re.compile('regex')]])
+    @pytest.mark.parametrize(
+        'obj', [True, 1, 1.0, ['string'], [re.compile('regex')]])
     def test_get_pattern_invalid_type(self, obj):
         mdf = med.MedicareDF('01', 2012)
         with pytest.raises(TypeError):
             mdf._get_pattern(obj)
-
-
 
 
 class TestCreateRenameDict(object):
@@ -421,7 +416,8 @@ class TestCreateRenameDict(object):
             {'a': '1', 'c': '2', 'e': '3'}),
     ])
     # yapf: enable
-    def test_rename_dict_noerror(self, hcpcs, icd9_dx, icd9_sg, rename, expected):
+    def test_rename_dict_noerror(
+            self, hcpcs, icd9_dx, icd9_sg, rename, expected):
         codes = {'hcpcs': hcpcs, 'icd9_dx': icd9_dx, 'icd9_sg': icd9_sg}
         mdf = med.MedicareDF('01', 2012)
         result = mdf._create_rename_dict(codes=codes, rename=rename)
@@ -460,17 +456,19 @@ class TestCreateRenameDict(object):
              'icd9_sg': {'c': '3', 'z': '7'}}),
     ])
     # yapf: enable
-    def test_rename_dict_wrong_dict_length(self, hcpcs, icd9_dx, icd9_sg, rename):
+    def test_rename_dict_wrong_dict_length(
+            self, hcpcs, icd9_dx, icd9_sg, rename):
         mdf = med.MedicareDF('01', 2012)
         codes = {'hcpcs': hcpcs, 'icd9_dx': icd9_dx, 'icd9_sg': icd9_sg}
         with pytest.raises(AssertionError):
             mdf._create_rename_dict(codes=codes, rename=rename)
 
-
-    @pytest.mark.parametrize('hcpcs,icd9_dx,icd9_sg,rename', [
-        (None, None, None, {'wrongkey': ['new_name']}),
-        ('a', 'b', 'c', {'wrongkey': ['new_name']})
-    ])
+    @pytest.mark.parametrize(
+        'hcpcs,icd9_dx,icd9_sg,rename',
+        [(None, None, None, {
+            'wrongkey': ['new_name']}),
+         ('a', 'b', 'c', {
+             'wrongkey': ['new_name']})])
     def test_rename_dict_wrong_dict_key(self, hcpcs, icd9_dx, icd9_sg, rename):
         mdf = med.MedicareDF('01', 2012)
         codes = {'hcpcs': hcpcs, 'icd9_dx': icd9_dx, 'icd9_sg': icd9_sg}
