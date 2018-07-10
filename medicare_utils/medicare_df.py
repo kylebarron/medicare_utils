@@ -58,7 +58,7 @@ class MedicareDF(object):
             dta_path: str = '/disk/aging/medicare/data',
             pq_path:
             str = '/disk/agebulk3/medicare.work/doyle-dua51929/barronk-dua51929/raw/pq'
-            ) -> None:
+            ) -> None: # yapf: disable
         """Instantiate a MedicareDF object
 
         Attributes:
@@ -742,80 +742,110 @@ class MedicareDF(object):
         else:
             raise TypeError('Provided non string or regex to get_pattern()')
 
+    def _create_rename_dict_each(
+            self, codes: Union[None, List[str], List[Pattern]],
+            rename: Union[str, None, List[str], Dict[str, str]]
+            ) -> Dict[str, str]: # yapf: disable
+        """Create rename dictionary for single code at a time.
+
+        Args:
+            codes: codes to search for. In this function, this refers to only codes for _either_ `hcpcs`, `icd9_dx`, or `icd9_sg`.
+            rename: how to rename codes.
+        Returns:
+            ``dict`` where keys are codes to match and values are new names for each.
+        Raises:
+            AssertionError if the length of ``rename`` list doesn't match the length of ``codes``
+            TypeError if rename is not a str, dict, or list of str
+        """
+        # If rename is non missing, make sure codes is not None
+        if rename is None:
+            return {}
+        if rename == '':
+            return {}
+
+        # Therefore length of codes should be >= 1
+        assert codes is not None
+
+        if isinstance(rename, str):
+            # Assert length of codes is 1
+            assert len(codes) == 1
+            d = {self._get_pattern(codes): rename}
+            return d
+
+        if isinstance(rename, dict):
+            # Make sure keys of dict are in codes
+            all_codes = [self._get_pattern(code) for code in codes]
+            msg = _mywrap(f"""\
+            Keys of the inner rename dict need to be a subset of the codes provided to search through
+            """)
+            assert rename.keys() <= set(all_codes), msg
+            return rename
+
+        if isinstance(rename, list):
+            # If the values of rename are lists, make sure they match up on length
+            msg = f"""\
+            If the values of the rename dictionary are lists, they need
+            to match the length of the list of codes provided
+            """
+            msg = _mywrap(msg)
+            assert len(codes) == len(rename), msg
+
+            d = {self._get_pattern(code): y for code, y in zip(codes, rename)}
+            return d
+
+        msg = 'values of rename dict must be str, dict, or list of str'
+        raise TypeError(msg)
+
     def _create_rename_dict(
-            self, hcpcs=None, icd9_dx=None, icd9_sg=None, rename={}):
+            self,
+            codes: Dict[str, Union[None, List[str], List[Pattern]]] = {},
+            rename: Dict[str, Union[str, None, List[str], Dict[str, str]]] = {}
+            ) -> Dict[str, str]: # yapf: disable
+        """Make dictionary where the keys are codes/pattern strings and values
+        are new column names
+
+        Args:
+            codes: dict of codes provided to :func:`search_for_codes`
+                {'hcpcs': hcpcs_codes,
+                'icd9_dx': icd9_dx_codes,
+                'icd9_sg': icd9_sg_codes}
+            rename: dict to describe how to rename extracted variables
+                - keys must be `'hcpcs'`, `'icd9_dx'`, `'icd9_sg'`
+                - values for each can either be str, dict, or list of str.
+
+        Returns:
+            ``dict`` where keys are codes to match and values are new names for each.
+        Raises:
+            ValueError if the keys of ``rename`` dict are not a subset of 'hcpcs', 'icd9_dx', and 'icd9_sg'.
+
         """
-        Make dictionary where the keys are codes/pattern strings and values are
-        new column names
-        """
 
-        # If the values of rename are lists, make sure they match up on length
-        msg = f"""\
-        If the values of the rename dictionary are lists, they need
-        to match the length of the list of codes provided
-        """
-        msg = _mywrap(msg)
-        if type(rename.get('hcpcs')) == list:
-            assert len(rename.get('hcpcs')) == len(hcpcs), msg
-        if type(rename.get('icd9_dx')) == list:
-            assert len(rename.get('icd9_dx')) == len(icd9_dx), msg
-        if type(rename.get('icd9_sg')) == list:
-            assert len(rename.get('icd9_sg')) == len(icd9_sg), msg
+        # Only allowed keys of rename are 'hcpcs', 'icd9_dx', and 'icd9_sg'
+        if not rename.keys() <= set(['hcpcs', 'icd9_dx', 'icd9_sg']):
+            msg = "Only allowed keys of rename dict are 'hcpcs', 'icd9_dx', and 'icd9_sg'"
+            raise ValueError(msg)
 
-        # Generate a key with empty value for every variable
-        rename_new = {}
-        if hcpcs is not None:
-            for item in hcpcs:
-                rename_new[self._get_pattern(item)] = ''
+        rename_new = []
+        for var in ['hcpcs', 'icd9_dx', 'icd9_sg']:
+            if rename.get(var) is not None:
+                d = self._create_rename_dict_each(codes[var], rename[var])
+                rename_new.append(d)
+            else:
+                rename_new.append({})
 
-        if icd9_dx is not None:
-            for item in icd9_dx:
-                rename_new[self._get_pattern(item)] = ''
+        # Assert all keys are unique
+        keys = [list(x.keys()) for x in rename_new]
+        keys = [item for sublist in keys for item in sublist]
+        msg = 'Codes given must be unique'
+        assert len(keys) == len(set(keys)), msg
 
-        if icd9_sg is not None:
-            for item in icd9_sg:
-                rename_new[self._get_pattern(item)] = ''
+        # Assert all values are unique
+        vals = [list(x.values()) for x in rename_new]
+        vals = [item for sublist in vals for item in sublist]
+        msg = 'Values of rename dict must be unique'
+        assert len(vals) == len(set(vals)), msg
 
-        # Now fill in rename_new using rename
-        msg = 'The values of the rename dictionary must be type list or dict'
-        if type(rename.get('hcpcs')) == list:
-            for i in range(len(rename['hcpcs'])):
-                key = self._get_pattern(hcpcs[i])
-                val = rename['hcpcs'][i]
-                rename_new[key] = val
-        elif type(rename.get('hcpcs')) == dict:
-            rename_new = {**rename_new, **rename['hcpcs']}
-        elif rename.get('hcpcs') == None:
-            pass
-        else:
-            raise TypeError(msg)
-
-        if type(rename.get('icd9_dx')) == list:
-            for i in range(len(rename['icd9_dx'])):
-                key = self._get_pattern(icd9_dx[i])
-                val = rename['icd9_dx'][i]
-                rename_new[key] = val
-        elif type(rename.get('icd9_dx')) == dict:
-            rename_new = {**rename_new, **rename['icd9_dx']}
-        elif rename.get('icd9_dx') == None:
-            pass
-        else:
-            raise TypeError(msg)
-
-        if type(rename.get('icd9_sg')) == list:
-            for i in range(len(rename['icd9_sg'])):
-                key = self._get_pattern(icd9_sg[i])
-                val = rename['icd9_sg'][i]
-                rename_new[key] = val
-        elif type(rename.get('icd9_sg')) == dict:
-            rename_new = {**rename_new, **rename['icd9_sg']}
-        elif rename.get('icd9_sg') == None:
-            pass
-        else:
-            raise TypeError(msg)
-
-        rename_new = {k: v for k, v in rename_new.items() if v != ''}
-        return rename_new
+        return {k: v for d in rename_new for k, v in d.items()}
 
     def _search_for_codes_type_check(
             self, data_types, hcpcs, icd9_dx, icd9_dx_max_cols, icd9_sg,
@@ -1061,8 +1091,8 @@ class MedicareDF(object):
             print(msg)
 
         if not all([x is None for x in rename.values()]):
-            rename = self._create_rename_dict(
-                hcpcs=hcpcs, icd9_dx=icd9_dx, icd9_sg=icd9_sg, rename=rename)
+            codes = {'hcpcs': hcpcs, 'icd9_dx': icd9_dx, 'icd9_sg': icd9_sg}
+            rename = self._create_rename_dict(codes=codes, rename=rename)
 
         data = {}
         for data_type in data_types:

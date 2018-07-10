@@ -245,12 +245,14 @@ class TestGetCohortTypeCheck(object):
             verbose=True)
         assert result.keep_vars == expected
 
+    # yapf: disable
     @pytest.mark.parametrize('allowed_join,expected', [
     ('left', 'left'),
     ('right', 'right'),
     ('inner', 'inner'),
     ('outer', 'outer')
     ])
+    # yapf: enable
     def test_allowed_join(self, allowed_join, expected):
         mdf = med.MedicareDF('01', 2012)
         result = mdf._get_cohort_type_check(
@@ -331,23 +333,80 @@ class TestGetPattern(object):
 
 
 class TestCreateRenameDict(object):
+    # yapf: disable
     @pytest.mark.parametrize('hcpcs,icd9_dx,icd9_sg,rename,expected', [
         (None, None, None, {}, {}),
-        # ('a', 'b', 'c', {'hcpcs': '1', 'icd9_dx': '2', 'icd9_sg': '3'}, {'a': '1', 'b': '2', 'c': '3'}),
-        ('a', 'b', 'c', {'hcpcs': ['1'], 'icd9_dx': ['2'], 'icd9_sg': ['3']}, {'a': '1', 'b': '2', 'c': '3'}),
-        (['a'], ['b'], ['c'], {'hcpcs': ['1'], 'icd9_dx': ['2'], 'icd9_sg': ['3']}, {'a': '1', 'b': '2', 'c': '3'}),
-        (['a'], ['b'], ['c'], {'hcpcs': {'a': '1'}, 'icd9_dx': {'b': '2'}, 'icd9_sg': {'c': '3'}}, {'a': '1', 'b': '2', 'c': '3'}),
+        ('a', 'b', 'c',
+            {'hcpcs': '1', 'icd9_dx': '2', 'icd9_sg': '3'},
+            {'a': '1', 'b': '2', 'c': '3'}),
+        ('a', 'b', 'c',
+            {'hcpcs': ['1'], 'icd9_dx': ['2'], 'icd9_sg': ['3']},
+            {'a': '1', 'b': '2', 'c': '3'}),
+        (['a'], ['b'], ['c'],
+            {'hcpcs': ['1'], 'icd9_dx': ['2'], 'icd9_sg': ['3']},
+            {'a': '1', 'b': '2', 'c': '3'}),
+        (['a'], ['b'], ['c'],
+            {'hcpcs': {'a': '1'}, 'icd9_dx': {'b': '2'}, 'icd9_sg': {'c': '3'}},
+            {'a': '1', 'b': '2', 'c': '3'}),
         (['a', 'd'], ['b', 'e'], ['c', 'f'],
-         {'hcpcs': ['1', '4'], 'icd9_dx': ['2', '5'], 'icd9_sg': ['3', '6']},
-         {'a': '1', 'b': '2', 'c': '3', 'd': '4', 'e': '5', 'f': '6'})
-
+             {'hcpcs': ['1', '4'], 'icd9_dx': ['2', '5'], 'icd9_sg': ['3', '6']},
+             {'a': '1', 'b': '2', 'c': '3', 'd': '4', 'e': '5', 'f': '6'}),
+        (['a', 'b'], ['c', 'd'], ['e', 'f'],
+            {'hcpcs': {'a': '1'}, 'icd9_dx': {'c': '2'}, 'icd9_sg': {'e': '3'}},
+            {'a': '1', 'c': '2', 'e': '3'}),
     ])
-    def test_hcpcs_list_rename(self, hcpcs, icd9_dx, icd9_sg, rename, expected):
+    # yapf: enable
+    def test_rename_dict_noerror(self, hcpcs, icd9_dx, icd9_sg, rename, expected):
+        codes = {'hcpcs': hcpcs, 'icd9_dx': icd9_dx, 'icd9_sg': icd9_sg}
         mdf = med.MedicareDF('01', 2012)
-        result = mdf._create_rename_dict(hcpcs=hcpcs, icd9_dx=icd9_dx, icd9_sg=icd9_sg, rename=rename)
+        result = mdf._create_rename_dict(codes=codes, rename=rename)
         assert result == expected
 
+    @pytest.mark.parametrize('hcpcs,icd9_dx,icd9_sg,rename', [
+        (None, None, None,
+            {'hcpcs': ['1', '2'],
+             'icd9_dx': ['2', '3'],
+             'icd9_sg': ['3', '4']}),
+        ('a', 'b', 'c',
+            {'hcpcs': ['1', '2'],
+             'icd9_dx': ['2', '3'],
+             'icd9_sg': ['3', '4']}),
+        ('a', 'b', 'c', {'hcpcs': [], 'icd9_dx': [], 'icd9_sg': []}),
+        (['a', 'b'], ['c', 'd'], ['e', 'f'],
+            {'hcpcs': [], 'icd9_dx': [], 'icd9_sg': []}),
+        (['a', 'b'], ['c', 'd'], ['e', 'f'],
+            {'hcpcs': '1', 'icd9_dx': '2', 'icd9_sg': '3'}),
+    ])
+    def test_rename_dict_wrong_list_len(self, hcpcs, icd9_dx, icd9_sg, rename):
+        mdf = med.MedicareDF('01', 2012)
+        codes = {'hcpcs': hcpcs, 'icd9_dx': icd9_dx, 'icd9_sg': icd9_sg}
+        with pytest.raises(AssertionError):
+            mdf._create_rename_dict(codes=codes, rename=rename)
 
+    @pytest.mark.parametrize('hcpcs,icd9_dx,icd9_sg,rename', [
+        (None, None, None,
+            {'hcpcs': '1', 'icd9_dx': '2', 'icd9_sg': '3'}),
+        ('a', 'b', 'c',
+            {'hcpcs': {'a': '1', 'x': '5'},
+             'icd9_dx': {'b': '2', 'y': '6'},
+             'icd9_sg': {'c': '3', 'z': '7'}}),
+    ])
+    def test_rename_dict_wrong_dict_length(self, hcpcs, icd9_dx, icd9_sg, rename):
+        mdf = med.MedicareDF('01', 2012)
+        codes = {'hcpcs': hcpcs, 'icd9_dx': icd9_dx, 'icd9_sg': icd9_sg}
+        with pytest.raises(AssertionError):
+            mdf._create_rename_dict(codes=codes, rename=rename)
+
+
+    @pytest.mark.parametrize('hcpcs,icd9_dx,icd9_sg,rename', [
+        (None, None, None, {'wrongkey': ['new_name']}),
+        ('a', 'b', 'c', {'wrongkey': ['new_name']})
+    ])
+    def test_rename_dict_wrong_dict_key(self, hcpcs, icd9_dx, icd9_sg, rename):
+        mdf = med.MedicareDF('01', 2012)
+        codes = {'hcpcs': hcpcs, 'icd9_dx': icd9_dx, 'icd9_sg': icd9_sg}
+        with pytest.raises(ValueError):
+            mdf._create_rename_dict(codes=codes, rename=rename)
 
 
 
