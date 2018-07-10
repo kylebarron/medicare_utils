@@ -4,10 +4,20 @@ import medicare_utils as med
 
 
 class TestInit(object):
+    # yapf: disable
     @pytest.mark.parametrize(
-        'pct,pct_act', [('0001', '0001'), ('01', '01'), ('05', '05'),
-                        ('20', '20'), ('100', '100'), (0.01, '0001'), (1, '01'),
-                        (5, '05'), (20, '20'), (100, '100')])
+        'pct,pct_act',
+        [('0001', '0001'),
+         ('01', '01'),
+         ('05', '05'),
+         ('20', '20'),
+         ('100', '100'),
+         (0.01, '0001'),
+         (1, '01'),
+         (5, '05'),
+         (20, '20'),
+         (100, '100')])
+    # yapf: enable
     def test_percents(self, pct, pct_act):
         mdf = med.MedicareDF(pct, 2012)
         assert mdf.percent == pct_act
@@ -17,10 +27,13 @@ class TestInit(object):
         with pytest.raises(ValueError):
             med.MedicareDF(pct, 2012)
 
+    # yapf: disable
     @pytest.mark.parametrize(
         'years,years_act',
-        [(2005, [2005]), (range(2010, 2013), range(2010, 2013)),
+        [(2005, [2005]),
+         (range(2010, 2013), range(2010, 2013)),
          ([2010, 2011, 2012], [2010, 2011, 2012])])
+    # yapf: enable
     def test_years(self, years, years_act):
         mdf = med.MedicareDF('01', years)
         assert mdf.years == years_act
@@ -43,12 +56,26 @@ class TestInit(object):
 
 
 class TestGetCohortTypeCheck(object):
+    # yapf: disable
     @pytest.mark.parametrize(
         'gender,expected',
-        [(None, None), ('unknown', '0'), ('male', '1'), ('female', '2'),
-         ('u', '0'), ('m', '1'), ('f', '2'), ('UNKNOWN', '0'), ('MALE', '1'),
-         ('FEMALE', '2'), ('U', '0'), ('M', '1'), ('F', '2'), ('0', '0'),
-         ('1', '1'), ('2', '2')])
+        [(None, None),
+         ('unknown', '0'),
+         ('male', '1'),
+         ('female', '2'),
+         ('u', '0'),
+         ('m', '1'),
+         ('f', '2'),
+         ('UNKNOWN', '0'),
+         ('MALE', '1'),
+         ('FEMALE', '2'),
+         ('U', '0'),
+         ('M', '1'),
+         ('F', '2'),
+         ('0', '0'),
+         ('1', '1'),
+         ('2', '2')])
+    # yapf: enable
     def test_gender(self, gender, expected):
         mdf = med.MedicareDF('01', 2012)
         result = mdf._get_cohort_type_check(
@@ -129,23 +156,45 @@ class TestGetCohortTypeCheck(object):
                 dask=True,
                 verbose=True)
 
+    # yapf: disable
     @pytest.mark.parametrize(
         'races,expected',
-        [(None, None), ('unknown', ['0']), ('white', ['1']),
-         ('black (or african-american)', ['2']), ('black', ['2']),
-         ('african-american', ['2']), ('other', ['3']),
-         ('asian pacific islander', ['4']), ('asian', ['4']),
-         ('hispanic', ['5']), ('american indian alaska native', ['6']),
-         ('american indian', ['6']), ('UNKNOWN', ['0']), ('WHITE', ['1']),
-         ('BLACK (OR AFRICAN-AMERICAN)', ['2']), ('BLACK', ['2']),
-         ('AFRICAN-AMERICAN', ['2']), ('OTHER', ['3']),
-         ('ASIAN PACIFIC ISLANDER', ['4']), ('ASIAN', ['4']),
-         ('HISPANIC', ['5']), ('AMERICAN INDIAN ALASKA NATIVE', ['6']),
-         ('AMERICAN INDIAN', ['6']), (['white', 'black'], ['1', '2']),
+        [(None, None),
+         ('unknown', ['0']),
+         ('white', ['1']),
+         ('black (or african-american)', ['2']),
+         ('black', ['2']),
+         ('african-american', ['2']),
+         ('other', ['3']),
+         ('asian pacific islander', ['4']),
+         ('asian', ['4']),
+         ('hispanic', ['5']),
+         ('american indian alaska native', ['6']),
+         ('american indian', ['6']),
+         ('UNKNOWN', ['0']),
+         ('WHITE', ['1']),
+         ('BLACK (OR AFRICAN-AMERICAN)', ['2']),
+         ('BLACK', ['2']),
+         ('AFRICAN-AMERICAN', ['2']),
+         ('OTHER', ['3']),
+         ('ASIAN PACIFIC ISLANDER', ['4']),
+         ('ASIAN', ['4']),
+         ('HISPANIC', ['5']),
+         ('AMERICAN INDIAN ALASKA NATIVE', ['6']),
+         ('AMERICAN INDIAN', ['6']),
+         (['white', 'black'], ['1', '2']),
          (['white', 'black', 'asian'], ['1', '2', '4']),
-         (['white', 'asian'], ['1', '4']), (['black', 'asian'], ['2', '4']),
-         (['0', '1', '2'], ['0', '1', '2']), ('0', ['0']), ('1', ['1']),
-         ('2', ['2']), ('3', ['3']), ('4', ['4']), ('5', ['5']), ('6', ['6'])])
+         (['white', 'asian'], ['1', '4']),
+         (['black', 'asian'], ['2', '4']),
+         (['0', '1', '2'], ['0', '1', '2']),
+         ('0', ['0']),
+         ('1', ['1']),
+         ('2', ['2']),
+         ('3', ['3']),
+         ('4', ['4']),
+         ('5', ['5']),
+         ('6', ['6'])])
+    # yapf: enable
     def test_races_rti_true(self, races, expected):
         mdf = med.MedicareDF('01', 2012)
         result = mdf._get_cohort_type_check(
@@ -161,18 +210,37 @@ class TestGetCohortTypeCheck(object):
             verbose=True)
         assert result.races == expected
 
+    # yapf: disable
     @pytest.mark.parametrize(
         'races,expected',
-        [(None, None), ('unknown', ['0']), ('white', ['1']), ('black', ['2']),
-         ('other', ['3']), ('asian', ['4']), ('hispanic', ['5']),
-         ('north american native', ['6']), ('UNKNOWN', ['0']), ('WHITE', ['1']),
-         ('BLACK', ['2']), ('OTHER', ['3']), ('ASIAN', ['4']),
-         ('HISPANIC', ['5']), ('NORTH AMERICAN NATIVE', ['6']),
+        [(None, None),
+         ('unknown', ['0']),
+         ('white', ['1']),
+         ('black', ['2']),
+         ('other', ['3']),
+         ('asian', ['4']),
+         ('hispanic', ['5']),
+         ('north american native', ['6']),
+         ('UNKNOWN', ['0']),
+         ('WHITE', ['1']),
+         ('BLACK', ['2']),
+         ('OTHER', ['3']),
+         ('ASIAN', ['4']),
+         ('HISPANIC', ['5']),
+         ('NORTH AMERICAN NATIVE', ['6']),
          (['white', 'black'], ['1', '2']),
          (['white', 'black', 'asian'], ['1', '2', '4']),
-         (['white', 'asian'], ['1', '4']), (['black', 'asian'], ['2', '4']),
-         (['0', '1', '2'], ['0', '1', '2']), ('0', ['0']), ('1', ['1']),
-         ('2', ['2']), ('3', ['3']), ('4', ['4']), ('5', ['5']), ('6', ['6'])])
+         (['white', 'asian'], ['1', '4']),
+         (['black', 'asian'], ['2', '4']),
+         (['0', '1', '2'], ['0', '1', '2']),
+         ('0', ['0']),
+         ('1', ['1']),
+         ('2', ['2']),
+         ('3', ['3']),
+         ('4', ['4']),
+         ('5', ['5']),
+         ('6', ['6'])])
+    # yapf: enable
     def test_races_rti_false(self, races, expected):
         mdf = med.MedicareDF('01', 2012)
         result = mdf._get_cohort_type_check(
@@ -189,9 +257,8 @@ class TestGetCohortTypeCheck(object):
         assert result.races == expected
 
     @pytest.mark.parametrize('buyin_val,expected', [
-    ('3', ['3']),
-    (['3'], ['3'])
-    ])
+        ('3', ['3']),
+        (['3'], ['3'])])
     def test_buyin_val(self, buyin_val, expected):
         mdf = med.MedicareDF('01', 2012)
         result = mdf._get_cohort_type_check(
@@ -208,9 +275,8 @@ class TestGetCohortTypeCheck(object):
         assert result.buyin_val == expected
 
     @pytest.mark.parametrize('hmo_val,expected', [
-    ('3', ['3']),
-    (['3'], ['3'])
-    ])
+        ('3', ['3']),
+        (['3'], ['3'])])
     def test_hmo_val(self, hmo_val, expected):
         mdf = med.MedicareDF('01', 2012)
         result = mdf._get_cohort_type_check(
@@ -246,12 +312,11 @@ class TestGetCohortTypeCheck(object):
         assert result.keep_vars == expected
 
     # yapf: disable
-    @pytest.mark.parametrize('allowed_join,expected', [
-    ('left', 'left'),
-    ('right', 'right'),
-    ('inner', 'inner'),
-    ('outer', 'outer')
-    ])
+    @pytest.mark.parametrize('allowed_join,expected',
+        [('left', 'left'),
+         ('right', 'right'),
+         ('inner', 'inner'),
+         ('outer', 'outer')])
     # yapf: enable
     def test_allowed_join(self, allowed_join, expected):
         mdf = med.MedicareDF('01', 2012)
@@ -362,6 +427,7 @@ class TestCreateRenameDict(object):
         result = mdf._create_rename_dict(codes=codes, rename=rename)
         assert result == expected
 
+    # yapf: disable
     @pytest.mark.parametrize('hcpcs,icd9_dx,icd9_sg,rename', [
         (None, None, None,
             {'hcpcs': ['1', '2'],
@@ -377,12 +443,14 @@ class TestCreateRenameDict(object):
         (['a', 'b'], ['c', 'd'], ['e', 'f'],
             {'hcpcs': '1', 'icd9_dx': '2', 'icd9_sg': '3'}),
     ])
+    # yapf: enable
     def test_rename_dict_wrong_list_len(self, hcpcs, icd9_dx, icd9_sg, rename):
         mdf = med.MedicareDF('01', 2012)
         codes = {'hcpcs': hcpcs, 'icd9_dx': icd9_dx, 'icd9_sg': icd9_sg}
         with pytest.raises(AssertionError):
             mdf._create_rename_dict(codes=codes, rename=rename)
 
+    # yapf: disable
     @pytest.mark.parametrize('hcpcs,icd9_dx,icd9_sg,rename', [
         (None, None, None,
             {'hcpcs': '1', 'icd9_dx': '2', 'icd9_sg': '3'}),
@@ -391,6 +459,7 @@ class TestCreateRenameDict(object):
              'icd9_dx': {'b': '2', 'y': '6'},
              'icd9_sg': {'c': '3', 'z': '7'}}),
     ])
+    # yapf: enable
     def test_rename_dict_wrong_dict_length(self, hcpcs, icd9_dx, icd9_sg, rename):
         mdf = med.MedicareDF('01', 2012)
         codes = {'hcpcs': hcpcs, 'icd9_dx': icd9_dx, 'icd9_sg': icd9_sg}
