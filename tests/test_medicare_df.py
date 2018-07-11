@@ -381,7 +381,7 @@ class TestSearchForCodesTypeCheck(object):
             ['carc', 'carl', 'ipc', 'ipr', 'med', 'opc', 'opr']),
         ])
     # yapf: enable
-    def test_data_types(self, init, mdf, data_types, expected):
+    def test_data_types(self, mdf, init, data_types, expected):
         init['data_types'] = data_types
         result = mdf._search_for_codes_type_check(**init)
         assert result.data_types == expected
@@ -394,10 +394,31 @@ class TestSearchForCodesTypeCheck(object):
          ('sdb', ValueError),
          (1, TypeError)])
     # yapf: enable
-    def test_wrong_data_types(self, init, mdf, data_types, error):
+    def test_wrong_data_types(self, mdf, init, data_types, error):
         init['data_types'] = data_types
         with pytest.raises(error):
             mdf._search_for_codes_type_check(**init)
+
+    # yapf: disable
+    @pytest.mark.parametrize(
+        'codes,error',
+        [(1, TypeError),
+         (1.1, TypeError),
+         ([1], TypeError),
+         ([1.1], TypeError),
+         ([['a']], TypeError),
+         (['a', ['b']], TypeError),
+         ([[re.compile('a')]], TypeError),
+         ([re.compile('a'), [re.compile('b')]], TypeError),
+         (['a', re.compile('b')], TypeError),
+         ([re.compile('b'), 'a'], TypeError),
+         ])
+    # yapf: enable
+    def test_codes_error(self, mdf, init, codes, error):
+        for x in ['hcpcs', 'icd9_dx', 'icd9_sg']:
+            init[x] = codes
+            with pytest.raises(error):
+                mdf._search_for_codes_type_check(**init)
 
 
 

@@ -906,9 +906,10 @@ class MedicareDF(object):
             if isinstance(code, str) | isinstance(code, re._pattern_type):
                 code = [code]
             elif type(code) == list:
-                # Check all elements of list are same type
-                if not all(isinstance(x, type(code[0])) for x in code):
-                    raise TypeError(_mywrap(msg))
+                # Check all elements of list are either str or Pattern
+                if not all(isinstance(x, str) for x in code):
+                    if not all(isinstance(x, re._pattern_type) for x in code):
+                        raise TypeError(_mywrap(msg))
             else:
                 raise TypeError(_mywrap(msg))
 
