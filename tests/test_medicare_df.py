@@ -463,28 +463,61 @@ class TestCreateRenameDict(object):
         with pytest.raises(AssertionError):
             mdf._create_rename_dict(codes=codes, rename=rename)
 
+class TestSearchForCodesTypeCheck(object):
+
+
+    # yapf: disable
     @pytest.mark.parametrize(
-        'hcpcs,icd9_dx,icd9_sg,rename',
-        [(None, None, None, {
-            'wrongkey': ['new_name']}),
-         ('a', 'b', 'c', {
-             'wrongkey': ['new_name']})])
-    def test_rename_dict_wrong_dict_key(self, hcpcs, icd9_dx, icd9_sg, rename):
+        'data_types,expected',
+        [('carc', ['carc']),
+         (['carc'], ['carc']),
+         (['carc', 'carl', 'ipc', 'ipr', 'med', 'opc', 'opr'],
+            ['carc', 'carl', 'ipc', 'ipr', 'med', 'opc', 'opr']),
+        ])
+    # yapf: enable
+    def test_data_types(self, data_types, expected):
         mdf = med.MedicareDF('01', 2012)
-        codes = {'hcpcs': hcpcs, 'icd9_dx': icd9_dx, 'icd9_sg': icd9_sg}
-        with pytest.raises(ValueError):
-            mdf._create_rename_dict(codes=codes, rename=rename)
+        result = mdf._search_for_codes_type_check(
+            data_types=data_types,
+            hcpcs=None,
+            icd9_dx=None,
+            icd9_dx_max_cols=None,
+            icd9_sg=None,
+            keep_vars={},
+            collapse_codes=True,
+            rename={
+                'hcpcs': None,
+                'icd9_dx': None,
+                'icd9_sg': None},
+            convert_ehic=True,
+            verbose=False)
+        assert result.data_types == expected
 
-
-
-
-
-
-
-
-
-
-
+    # yapf: disable
+    @pytest.mark.parametrize(
+        'data_types,error',
+        [(None, TypeError),
+         ('a', ValueError),
+         ('sdb', ValueError),
+         (1, TypeError)])
+    # yapf: enable
+    def test_wrong_data_types(self, data_types, error):
+        mdf = med.MedicareDF('01', 2012)
+        with pytest.raises(error):
+            mdf._search_for_codes_type_check(
+                data_types=data_types,
+                hcpcs=None,
+                icd9_dx=None,
+                icd9_dx_max_cols=None,
+                icd9_sg=None,
+                keep_vars={},
+                collapse_codes=True,
+                rename={
+                    'hcpcs': None,
+                    'icd9_dx': None,
+                    'icd9_sg': None},
+                convert_ehic=True,
+                verbose=False)
 
 
 

@@ -820,11 +820,6 @@ class MedicareDF(object):
 
         """
 
-        # Only allowed keys of rename are 'hcpcs', 'icd9_dx', and 'icd9_sg'
-        if not rename.keys() <= set(['hcpcs', 'icd9_dx', 'icd9_sg']):
-            msg = "Only allowed keys of rename dict are 'hcpcs', 'icd9_dx', and 'icd9_sg'"
-            raise ValueError(msg)
-
         rename_new = []
         for var in ['hcpcs', 'icd9_dx', 'icd9_sg']:
             if rename.get(var) is not None:
@@ -848,30 +843,43 @@ class MedicareDF(object):
         return {k: v for d in rename_new for k, v in d.items()}
 
     def _search_for_codes_type_check(
-            self, data_types, hcpcs, icd9_dx, icd9_dx_max_cols, icd9_sg,
-            keep_vars, collapse_codes, rename, convert_ehic, verbose):
+            self,
+            data_types: Union[str, List[str]],
+            hcpcs: Union[str, Pattern, List[str], List[Pattern], None],
+            icd9_dx: Union[str, Pattern, List[str], List[Pattern], None],
+            icd9_dx_max_cols: Optional[int],
+            icd9_sg: Union[str, Pattern, List[str], List[Pattern], None],
+            keep_vars: Dict[str, Union[str, List[str]]],
+            collapse_codes: bool,
+            rename: Dict[str, Union[str, List[str], Dict[str, str], None]],
+            convert_ehic: bool,
+            verbose: bool):
         """Check types and valid values for :func:`search_for_codes`
 
         Also resolves input into correct value
         """
 
-        if type(data_types) is str:
-            data_types = [data_types]
-
-        data_types = set(data_types)
         ok_data_types = ['carc', 'carl', 'ipc', 'ipr', 'med', 'opc', 'opr']
 
-        # Check that all data types provided to search through exist
-        if not data_types.issubset(ok_data_types):
-            invalid_vals = list(data_types.difference(ok_data_types))
-            msg = f"""\
-            {invalid_vals} does not match any dataset.
-            Allowed `data_types` are {ok_data_types}.
-            """
-            raise ValueError(_mywrap(msg))
+        if data_types is None:
+            raise TypeError('data_types cannot be None')
+        if type(data_types) == str:
+            data_types = [data_types]
+        if type(data_types) == list:
+            # Check that all data types provided to search through exist
+            if not set(data_types).issubset(ok_data_types):
+                invalid_vals = list(set(data_types).difference(ok_data_types))
+                msg = f"""\
+                {invalid_vals} does not match any dataset.
+                Allowed `data_types` are {ok_data_types}.
+                """
+                raise ValueError(_mywrap(msg))
+        else:
+            raise TypeError('data_types must be str or List[str]')
 
         # Assert that keep_vars is a dict and that the keys are in ok_data_types
-        assert isinstance(keep_vars, dict)
+        if not isinstance(keep_vars, dict):
+            raise TypeError('keep_vars must be dict')
         if not set(keep_vars.keys()).issubset(ok_data_types):
             invalid_vals = list(set(keep_vars.keys()).difference(ok_data_types))
             msg = f"""\
@@ -880,34 +888,26 @@ class MedicareDF(object):
             """
             raise ValueError(_mywrap(msg))
 
-        # Instantiate all data types in the keep_vars dict
-        for data_type in ok_data_types:
-            keep_vars[data_type] = keep_vars.get(data_type, [])
-
-            if type(keep_vars[data_type]) is str:
-                keep_vars[data_type] = [keep_vars[data_type]]
+        # Make sure values of keep_vars are lists
+        for k, v in keep_vars.items():
+            if not isinstance(v, list):
+                keep_vars[k] = [v]
 
         codes = {'hcpcs': hcpcs, 'icd9_dx': icd9_dx, 'icd9_sg': icd9_sg}
 
         msg = f"""\
-        Codes to search through must be str, compiled regex, or a list of
-        either.
+        Codes to search through must be str, compiled regex, List[str], or
+        List[compiled regex].
         """
         all_codes = []
         for name, code in codes.items():
             if code is None:
                 continue
-            if type(code) == str:
-                code = [code]
-            elif isinstance(code, re._pattern_type):
+            if isinstance(code, str) | isinstance(code, re._pattern_type):
                 code = [code]
             elif type(code) == list:
                 # Check all elements of list are same type
-                if type(code[0]) == str:
-                    assert all((type(x) is str) for x in code)
-                elif isinstance(code[0], re._pattern_type):
-                    assert all(isinstance(x, re._pattern_type) for x in code)
-                else:
+                if not all(isinstance(x, type(code[0])) for x in code):
                     raise TypeError(_mywrap(msg))
             else:
                 raise TypeError(_mywrap(msg))
@@ -915,16 +915,20 @@ class MedicareDF(object):
             codes[name] = code
             all_codes.extend(code)
 
-        hcpcs = codes['hcpcs']
-        icd9_dx = codes['icd9_dx']
-        icd9_sg = codes['icd9_sg']
+        if not isinstance(collapse_codes, bool):
+            raise TypeError('collapse_codes must be bool')
+        if not isinstance(convert_ehic, bool):
+            raise TypeError('convert_ehic must be bool')
+        if not isinstance(verbose, bool):
+            raise TypeError('verbose must be bool')
+        if not isinstance(rename, dict):
+            raise TypeError('rename must be dict')
 
-        assert type(collapse_codes) == bool
-        assert isinstance(rename, dict)
-
-        if not set(rename.keys()).issubset(['hcpcs', 'icd9_dx', 'icd9_sg']):
+        # Only allowed keys of rename are 'hcpcs', 'icd9_dx', and 'icd9_sg'
+        if not rename.keys() <= set(['hcpcs', 'icd9_dx', 'icd9_sg']):
             msg = f"""\
-            Allowed keys of `rename` are ['hcpcs', 'icd9_dx', 'icd9_sg'].
+            Only allowed keys of rename dict are 'hcpcs', 'icd9_dx', and
+            'icd9_sg'
             """
             raise ValueError(_mywrap(msg))
 
@@ -939,26 +943,26 @@ class MedicareDF(object):
             """
             raise ValueError(_mywrap(msg))
 
-        if (icd9_dx is None) and (icd9_dx_max_cols is not None):
+        if (codes['icd9_dx'] is None) and (icd9_dx_max_cols is not None):
             msg = f"""\
             icd9_dx_max_cols argument not allowed when icd9_dx is None
             """
             raise ValueError(_mywrap(msg))
 
-        assert type(convert_ehic) == bool
-        assert type(verbose) == bool
+        class Return(NamedTuple):
+            data_types: List[str]
+            codes: Dict[str, Union[List[str], List[Pattern]]]
+            icd9_dx_max_cols: Optional[int]
+            keep_vars: Dict[str, List[str]]
+            collapse_codes: bool
+            rename: Dict[str, Union[str, List[str], Dict[str, str], None]]
+            convert_ehic: bool
+            verbose: bool
 
-        Return = namedtuple(
-            'variables', [
-                'data_types', 'hcpcs', 'icd9_dx', 'icd9_dx_max_cols', 'icd9_sg',
-                'keep_vars', 'collapse_codes', 'rename', 'convert_ehic',
-                'verbose'])
         return Return(
             data_types=data_types,
-            hcpcs=hcpcs,
-            icd9_dx=icd9_dx,
+            codes=codes,
             icd9_dx_max_cols=icd9_dx_max_cols,
-            icd9_sg=icd9_sg,
             keep_vars=keep_vars,
             collapse_codes=collapse_codes,
             rename=rename,
@@ -979,7 +983,7 @@ class MedicareDF(object):
                 'icd9_dx': None,
                 'icd9_sg': None},
             convert_ehic: bool = True,
-            verbose=False):
+            verbose: bool=False):
         """Search in claim-level datasets for HCPCS and/or ICD9 codes
 
         Note: Each code given must be distinct, or ``collapse_codes`` must be ``True``
@@ -1038,10 +1042,8 @@ class MedicareDF(object):
             convert_ehic=convert_ehic,
             verbose=verbose)
         data_types = objs.data_types
-        hcpcs = objs.hcpcs
-        icd9_dx = objs.icd9_dx
+        codes = objs.codes
         icd9_dx_max_cols = objs.icd9_dx_max_cols
-        icd9_sg = objs.icd9_sg
         keep_vars = objs.keep_vars
         collapse_codes = objs.collapse_codes
         rename = objs.rename
