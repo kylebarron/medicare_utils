@@ -56,6 +56,23 @@ class TestInit(object):
 
 
 class TestGetCohortTypeCheck(object):
+    @pytest.fixture
+    def init(self):
+        return {'gender': None,
+            'ages': None,
+            'races': None,
+            'rti_race': False,
+            'buyin_val': None,
+            'hmo_val': None,
+            'join': 'left',
+            'keep_vars': None,
+            'dask': True,
+            'verbose': True}
+
+    @pytest.fixture
+    def mdf(self):
+        return med.MedicareDF('01', 2012)
+
     # yapf: disable
     @pytest.mark.parametrize(
         'gender,expected',
@@ -76,85 +93,41 @@ class TestGetCohortTypeCheck(object):
          ('1', '1'),
          ('2', '2')])
     # yapf: enable
-    def test_gender(self, gender, expected):
-        mdf = med.MedicareDF('01', 2012)
-        result = mdf._get_cohort_type_check(
-            gender=gender,
-            ages=None,
-            races=None,
-            rti_race=False,
-            buyin_val=None,
-            hmo_val=None,
-            join='left',
-            keep_vars=None,
-            dask=True,
-            verbose=True)
+    def test_gender(self, mdf, init, gender, expected):
+        init['gender'] = gender
+        result = mdf._get_cohort_type_check(**init)
         assert result.gender == expected
 
-    @pytest.mark.parametrize('gender', [['string_in_list'], [1], 1, 2, 0.1])
-    def test_gender_type_error(self, gender):
-        mdf = med.MedicareDF('01', 2012)
-        with pytest.raises(TypeError):
-            mdf._get_cohort_type_check(
-                gender=gender,
-                ages=None,
-                races=None,
-                rti_race=False,
-                buyin_val=None,
-                hmo_val=None,
-                join='left',
-                keep_vars=None,
-                dask=True,
-                verbose=True)
-
-    @pytest.mark.parametrize(
-        'gender', ['ma', 'mal', 'fem', 'femal', '3', '-1', 'unkn'])
-    def test_gender_value_error(self, gender):
-        mdf = med.MedicareDF('01', 2012)
-        with pytest.raises(ValueError):
-            mdf._get_cohort_type_check(
-                gender=gender,
-                ages=None,
-                races=None,
-                rti_race=False,
-                buyin_val=None,
-                hmo_val=None,
-                join='left',
-                keep_vars=None,
-                dask=True,
-                verbose=True)
+    @pytest.mark.parametrize('gender,error', [
+        (['string_in_list'], TypeError),
+        ([1], TypeError),
+        (1, TypeError),
+        (2, TypeError),
+        (0.1, TypeError),
+        ('ma', ValueError),
+        ('mal', ValueError),
+        ('fem', ValueError),
+        ('femal', ValueError),
+        ('3', ValueError),
+        ('-1', ValueError),
+        ('unkn', ValueError),
+        ])
+    def test_gender_type_error(self, mdf, init, gender, error):
+        init['gender'] = gender
+        with pytest.raises(error):
+            mdf._get_cohort_type_check(**init)
 
     @pytest.mark.parametrize('ages', ['65', 65.5, ['65'], [65, '66'], True])
-    def test_ages_type_error(self, ages):
-        mdf = med.MedicareDF('01', 2012)
+    def test_ages_type_error(self, mdf, init, ages):
+        init['ages'] = ages
         with pytest.raises(TypeError):
-            mdf._get_cohort_type_check(
-                gender=None,
-                ages=ages,
-                races=None,
-                rti_race=False,
-                buyin_val=None,
-                hmo_val=None,
-                join='left',
-                keep_vars=None,
-                dask=True,
-                verbose=True)
+            mdf._get_cohort_type_check(**init)
 
-    @pytest.mark.parametrize('rti_race', ['1', 1])
-    def test_rti_race(self, rti_race):
-        mdf = med.MedicareDF('01', 2012)
+    @pytest.mark.parametrize('rti_race', ['1', '0', 0, 1])
+    def test_rti_race(self, mdf, init, rti_race):
+        init['rti_race'] = rti_race
         with pytest.raises(TypeError):
-            mdf._get_cohort_type_check(
-                gender=None,
-                ages=None,
-                races=None,
-                rti_race=rti_race,
-                buyin_val=None,
-                hmo_val=None,
-                join='left',
-                keep_vars=None,
-                dask=True,
-                verbose=True)
+            mdf._get_cohort_type_check(**init)
 
     # yapf: disable
     @pytest.mark.parametrize(
@@ -195,19 +168,10 @@ class TestGetCohortTypeCheck(object):
          ('5', ['5']),
          ('6', ['6'])])
     # yapf: enable
-    def test_races_rti_true(self, races, expected):
-        mdf = med.MedicareDF('01', 2012)
-        result = mdf._get_cohort_type_check(
-            gender=None,
-            ages=None,
-            races=races,
-            rti_race=True,
-            buyin_val=None,
-            hmo_val=None,
-            join='left',
-            keep_vars=None,
-            dask=True,
-            verbose=True)
+    def test_races_rti_true(self, mdf, init, races, expected):
+        init['rti_race'] = True
+        init['races'] = races
+        result = mdf._get_cohort_type_check(**init)
         assert result.races == expected
 
     # yapf: disable
@@ -241,158 +205,84 @@ class TestGetCohortTypeCheck(object):
          ('5', ['5']),
          ('6', ['6'])])
     # yapf: enable
-    def test_races_rti_false(self, races, expected):
-        mdf = med.MedicareDF('01', 2012)
-        result = mdf._get_cohort_type_check(
-            gender=None,
-            ages=None,
-            races=races,
-            rti_race=False,
-            buyin_val=None,
-            hmo_val=None,
-            join='left',
-            keep_vars=None,
-            dask=True,
-            verbose=True)
+    def test_races_rti_false(self, mdf, init, races, expected):
+        init['rti_race'] = False
+        init['races'] = races
+        result = mdf._get_cohort_type_check(**init)
         assert result.races == expected
 
     @pytest.mark.parametrize(
         'buyin_val,expected', [('3', ['3']), (['3'], ['3'])])
-    def test_buyin_val(self, buyin_val, expected):
-        mdf = med.MedicareDF('01', 2012)
-        result = mdf._get_cohort_type_check(
-            gender=None,
-            ages=None,
-            races=None,
-            rti_race=False,
-            buyin_val=buyin_val,
-            hmo_val=None,
-            join='left',
-            keep_vars=None,
-            dask=True,
-            verbose=True)
+    def test_buyin_val(self, mdf, init, buyin_val, expected):
+        init['buyin_val'] = buyin_val
+        result = mdf._get_cohort_type_check(**init)
         assert result.buyin_val == expected
 
     @pytest.mark.parametrize('hmo_val,expected', [('3', ['3']), (['3'], ['3'])])
-    def test_hmo_val(self, hmo_val, expected):
-        mdf = med.MedicareDF('01', 2012)
-        result = mdf._get_cohort_type_check(
-            gender=None,
-            ages=None,
-            races=None,
-            rti_race=False,
-            buyin_val=None,
-            hmo_val=hmo_val,
-            join='left',
-            keep_vars=None,
-            dask=True,
-            verbose=True)
+    def test_hmo_val(self, mdf, init, hmo_val, expected):
+        init['hmo_val'] = hmo_val
+        result = mdf._get_cohort_type_check(**init)
         assert result.hmo_val == expected
 
     @pytest.mark.parametrize(
         'keep_vars,expected', [('3', ['3']), (['3'], ['3'])])
-    def test_keep_vars(self, keep_vars, expected):
-        mdf = med.MedicareDF('01', 2012)
-        result = mdf._get_cohort_type_check(
-            gender=None,
-            ages=None,
-            races=None,
-            rti_race=False,
-            buyin_val=None,
-            hmo_val=None,
-            join='left',
-            keep_vars=keep_vars,
-            dask=True,
-            verbose=True)
+    def test_keep_vars(self, mdf, init, keep_vars, expected):
+        init['keep_vars'] = keep_vars
+        result = mdf._get_cohort_type_check(**init)
         assert result.keep_vars == expected
 
     # yapf: disable
-    @pytest.mark.parametrize('allowed_join,expected',
+    @pytest.mark.parametrize('join,expected',
         [('left', 'left'),
          ('right', 'right'),
          ('inner', 'inner'),
          ('outer', 'outer')])
     # yapf: enable
-    def test_allowed_join(self, allowed_join, expected):
-        mdf = med.MedicareDF('01', 2012)
-        result = mdf._get_cohort_type_check(
-            gender=None,
-            ages=None,
-            races=None,
-            rti_race=False,
-            buyin_val=None,
-            hmo_val=None,
-            join=allowed_join,
-            keep_vars=None,
-            dask=True,
-            verbose=True)
+    def test_allowed_join(self, mdf, init, join, expected):
+        init['join'] = join
+        result = mdf._get_cohort_type_check(**init)
         assert result.join == expected
 
-    def test_allowed_join_value_error(self):
-        mdf = med.MedicareDF('01', 2012)
+    def test_allowed_join_value_error(self, mdf, init):
+        init['join'] = 'invalid_string'
         with pytest.raises(ValueError):
-            mdf._get_cohort_type_check(
-                gender=None,
-                ages=None,
-                races=None,
-                rti_race=False,
-                buyin_val=None,
-                hmo_val=None,
-                join='other',
-                keep_vars=None,
-                dask=True,
-                verbose=True)
+            mdf._get_cohort_type_check(**init)
 
-    def test_dask_type_error(self):
-        mdf = med.MedicareDF('01', 2012)
+    def test_dask_type_error(self, mdf, init):
+        init['dask'] = 'string'
         with pytest.raises(TypeError):
-            mdf._get_cohort_type_check(
-                gender=None,
-                ages=None,
-                races=None,
-                rti_race=False,
-                buyin_val=None,
-                hmo_val=None,
-                join='left',
-                keep_vars=None,
-                dask='string',
-                verbose=True)
+            mdf._get_cohort_type_check(**init)
 
-    def test_verbose_type_error(self):
-        mdf = med.MedicareDF('01', 2012)
+    def test_verbose_type_error(self, mdf, init):
+        init['verbose'] = 'string'
         with pytest.raises(TypeError):
-            mdf._get_cohort_type_check(
-                gender=None,
-                ages=None,
-                races=None,
-                rti_race=False,
-                buyin_val=None,
-                hmo_val=None,
-                join='left',
-                keep_vars=None,
-                dask=True,
-                verbose='string')
+            mdf._get_cohort_type_check(**init)
 
 
 class TestGetPattern(object):
-    def test_get_pattern_str(self):
-        mdf = med.MedicareDF('01', 2012)
+    @pytest.fixture
+    def mdf(self):
+        return med.MedicareDF('01', 2012)
+
+    def test_get_pattern_str(self, mdf):
         assert mdf._get_pattern('string') == 'string'
 
-    def test_get_pattern_regex(self):
-        mdf = med.MedicareDF('01', 2012)
+    def test_get_pattern_regex(self, mdf):
         regex = re.compile('regex_match')
         assert mdf._get_pattern(regex) == 'regex_match'
 
     @pytest.mark.parametrize(
         'obj', [True, 1, 1.0, ['string'], [re.compile('regex')]])
-    def test_get_pattern_invalid_type(self, obj):
-        mdf = med.MedicareDF('01', 2012)
+    def test_get_pattern_invalid_type(self, mdf, obj):
         with pytest.raises(TypeError):
             mdf._get_pattern(obj)
 
 
 class TestCreateRenameDict(object):
+    @pytest.fixture
+    def mdf(self):
+        return med.MedicareDF('01', 2012)
+
     # yapf: disable
     @pytest.mark.parametrize('hcpcs,icd9_dx,icd9_sg,rename,expected', [
         (None, None, None, {}, {}),
@@ -417,9 +307,8 @@ class TestCreateRenameDict(object):
     ])
     # yapf: enable
     def test_rename_dict_noerror(
-            self, hcpcs, icd9_dx, icd9_sg, rename, expected):
+            self, mdf, hcpcs, icd9_dx, icd9_sg, rename, expected):
         codes = {'hcpcs': hcpcs, 'icd9_dx': icd9_dx, 'icd9_sg': icd9_sg}
-        mdf = med.MedicareDF('01', 2012)
         result = mdf._create_rename_dict(codes=codes, rename=rename)
         assert result == expected
 
@@ -440,8 +329,7 @@ class TestCreateRenameDict(object):
             {'hcpcs': '1', 'icd9_dx': '2', 'icd9_sg': '3'}),
     ])
     # yapf: enable
-    def test_rename_dict_wrong_list_len(self, hcpcs, icd9_dx, icd9_sg, rename):
-        mdf = med.MedicareDF('01', 2012)
+    def test_rename_dict_wrong_list_len(self, mdf, hcpcs, icd9_dx, icd9_sg, rename):
         codes = {'hcpcs': hcpcs, 'icd9_dx': icd9_dx, 'icd9_sg': icd9_sg}
         with pytest.raises(AssertionError):
             mdf._create_rename_dict(codes=codes, rename=rename)
@@ -457,14 +345,32 @@ class TestCreateRenameDict(object):
     ])
     # yapf: enable
     def test_rename_dict_wrong_dict_length(
-            self, hcpcs, icd9_dx, icd9_sg, rename):
-        mdf = med.MedicareDF('01', 2012)
+            self, mdf, hcpcs, icd9_dx, icd9_sg, rename):
         codes = {'hcpcs': hcpcs, 'icd9_dx': icd9_dx, 'icd9_sg': icd9_sg}
         with pytest.raises(AssertionError):
             mdf._create_rename_dict(codes=codes, rename=rename)
 
 class TestSearchForCodesTypeCheck(object):
+    @pytest.fixture
+    def init(self):
+        init = {'data_types': 'med',
+        'hcpcs': None,
+        'icd9_dx': None,
+        'icd9_dx_max_cols': None,
+        'icd9_sg': None,
+        'keep_vars': {},
+        'collapse_codes': True,
+        'rename': {
+            'hcpcs': None,
+            'icd9_dx': None,
+            'icd9_sg': None},
+        'convert_ehic': True,
+        'verbose': False}
+        return init
 
+    @pytest.fixture
+    def mdf(self):
+        return med.MedicareDF('01', 2012)
 
     # yapf: disable
     @pytest.mark.parametrize(
@@ -475,22 +381,9 @@ class TestSearchForCodesTypeCheck(object):
             ['carc', 'carl', 'ipc', 'ipr', 'med', 'opc', 'opr']),
         ])
     # yapf: enable
-    def test_data_types(self, data_types, expected):
-        mdf = med.MedicareDF('01', 2012)
-        result = mdf._search_for_codes_type_check(
-            data_types=data_types,
-            hcpcs=None,
-            icd9_dx=None,
-            icd9_dx_max_cols=None,
-            icd9_sg=None,
-            keep_vars={},
-            collapse_codes=True,
-            rename={
-                'hcpcs': None,
-                'icd9_dx': None,
-                'icd9_sg': None},
-            convert_ehic=True,
-            verbose=False)
+    def test_data_types(self, init, mdf, data_types, expected):
+        init['data_types'] = data_types
+        result = mdf._search_for_codes_type_check(**init)
         assert result.data_types == expected
 
     # yapf: disable
@@ -501,23 +394,10 @@ class TestSearchForCodesTypeCheck(object):
          ('sdb', ValueError),
          (1, TypeError)])
     # yapf: enable
-    def test_wrong_data_types(self, data_types, error):
-        mdf = med.MedicareDF('01', 2012)
+    def test_wrong_data_types(self, init, mdf, data_types, error):
+        init['data_types'] = data_types
         with pytest.raises(error):
-            mdf._search_for_codes_type_check(
-                data_types=data_types,
-                hcpcs=None,
-                icd9_dx=None,
-                icd9_dx_max_cols=None,
-                icd9_sg=None,
-                keep_vars={},
-                collapse_codes=True,
-                rename={
-                    'hcpcs': None,
-                    'icd9_dx': None,
-                    'icd9_sg': None},
-                convert_ehic=True,
-                verbose=False)
+            mdf._search_for_codes_type_check(**init)
 
 
 
