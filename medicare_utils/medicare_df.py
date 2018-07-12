@@ -109,6 +109,7 @@ class MedicareDF(object):
         self.years = years
         self.year_type = year_type
         self.verbose = verbose
+        self.tc = time()
 
         if parquet_engine not in ['pyarrow', 'fastparquet']:
             raise ValueError('parquet_engine must be pyarrow or fastparquet')
@@ -316,8 +317,9 @@ class MedicareDF(object):
             dropped due to each filter.
         """
 
-        if self.verbose:
+        if self.verbose | verbose:
             verbose = True
+            t0 = time()
 
         objs = self._get_cohort_type_check(
             gender=gender,
@@ -343,7 +345,6 @@ class MedicareDF(object):
         verbose = objs.verbose
 
         if verbose:
-            t0 = time()
             msg = f"""\
             Starting cohort retrieval
             (`None` means no restriction)
@@ -422,7 +423,8 @@ class MedicareDF(object):
                 Importing bsfab file
                 - year: {year}
                 - columns: {tokeep_vars[year]}
-                - time elapsed: {(time() - t0) / 60:.2f} minutes
+                - time in function: {(time() - t0) / 60:.2f} minutes
+                - time in class: {(time() - self.tc) / 60:.2f} minutes
                 """
                 print(_mywrap(msg))
 
@@ -522,7 +524,8 @@ class MedicareDF(object):
             Merging together beneficiary files
             - years: {list(self.years)}
             - merge type: {join}
-            - time elapsed: {(time() - t0) / 60:.2f} minutes
+            - time in function: {(time() - t0) / 60:.2f} minutes
+            - time in class: {(time() - self.tc) / 60:.2f} minutes
             """
             print(_mywrap(msg))
 
@@ -591,7 +594,8 @@ class MedicareDF(object):
                 Filtering based on buyin_val
                 - values: {buyin_val}
                 - year_type: {self.year_type}
-                - time elapsed: {(time() - t0) / 60:.2f} minutes
+                - time in function: {(time() - t0) / 60:.2f} minutes
+                - time in class: {(time() - self.tc) / 60:.2f} minutes
                 """
                 print(_mywrap(msg))
 
@@ -630,7 +634,8 @@ class MedicareDF(object):
                 Filtering based on hmo_val
                 - values: {hmo_val}
                 - year_type: {self.year_type}
-                - time elapsed: {(time() - t0) / 60:.2f} minutes
+                - time in function: {(time() - t0) / 60:.2f} minutes
+                - time in class: {(time() - self.tc) / 60:.2f} minutes
                 """
                 print(_mywrap(msg))
 
@@ -727,7 +732,8 @@ class MedicareDF(object):
             - buyin values: {buyin_val}
             - HMO values: {hmo_val}
             - extra variables: {keep_vars}
-            - time elapsed: {(time() - t0) / 60:.2f} minutes
+            - time in function: {(time() - t0) / 60:.2f} minutes
+            - time in class: {(time() - self.tc) / 60:.2f} minutes
             """
             print(_mywrap(msg))
 
@@ -1140,7 +1146,8 @@ class MedicareDF(object):
                         """)
                     msg += _mywrap(
                         f"""\
-                    - time elapsed: {(time() - t0) / 60:.2f} minutes
+                    - time in function: {(time() - t0) / 60:.2f} minutes
+                    - time in class: {(time() - self.tc) / 60:.2f} minutes
                     """)
                     print(msg)
 
@@ -1162,7 +1169,8 @@ class MedicareDF(object):
             Concatenating matched codes across years
             - years: {list(self.years)}
             - data types: {data_types}
-            - time elapsed: {(time() - t0) / 60:.2f} minutes
+            - time in function: {(time() - t0) / 60:.2f} minutes
+            - time in class: {(time() - self.tc) / 60:.2f} minutes
             """
             print(_mywrap(msg))
 
@@ -1267,7 +1275,8 @@ class MedicareDF(object):
             - percent sample: {self.percent}
             - years: {list(self.years)}
             - data_types: {data_types}
-            - time elapsed: {(time() - t0) / 60:.2f} minutes
+            - time in function: {(time() - t0) / 60:.2f} minutes
+            - time in class: {(time() - self.tc) / 60:.2f} minutes
             """
             print(_mywrap(msg))
 
