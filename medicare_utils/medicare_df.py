@@ -269,8 +269,11 @@ class MedicareDF(object):
             dask=dask,
             verbose=verbose)
 
-    def _get_cohort_get_vars_toload(self, keep_vars: List[str],
-                                    race_col: str) -> Dict[int, List[str]]:
+    def _get_cohort_get_vars_toload(
+            self, gender: Optional[str], ages: Optional[List[int]],
+            races: Optional[List[str]], race_col: str,
+            buyin_val: Optional[List[str]], hmo_val: Optional[List[str]],
+            keep_vars: List[str]) -> Dict[int, List[str]]:
         """Get variables to import for each year
 
         Args:
@@ -528,7 +531,8 @@ class MedicareDF(object):
             """
             print(_mywrap(msg))
 
-        toload_vars = self._get_cohort_get_vars_toload(keep_vars, race_col)
+        toload_vars = self._get_cohort_get_vars_toload(
+            gender, ages, races, race_col, buyin_val, hmo_val, keep_vars)
 
         # Now perform extraction
         extracted_dfs = []
