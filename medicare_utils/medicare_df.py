@@ -270,22 +270,11 @@ class MedicareDF(object):
             verbose=verbose)
 
     def _get_cohort_extract_each_year(
-        self,
-        year: int,
-        toload_vars: List[str],
-        t0,
-        nobs_dropped,
-        gender: Optional[str],
-        ages: Optional[List[int]],
-        races: Optional[List[str]],
-        rti_race: bool,
-        race_col: str,
-        buyin_val: Optional[List[str]],
-        hmo_val: Optional[List[str]],
-        join: str,
-        keep_vars: List[str],
-        dask: bool,
-        verbose: bool):
+            self, year: int, toload_vars: List[str], t0, nobs_dropped,
+            gender: Optional[str], ages: Optional[List[int]],
+            races: Optional[List[str]], rti_race: bool, race_col: str,
+            buyin_val: Optional[List[str]], hmo_val: Optional[List[str]],
+            join: str, keep_vars: List[str], dask: bool, verbose: bool):
 
         if verbose:
             msg = f"""\
@@ -307,9 +296,9 @@ class MedicareDF(object):
             pf = pq.ParquetFile(self._fpath(self.percent, year, 'bsfab'))
             pl = pf.read(
                 columns=toload_vars,
-                nthreads=min(len(toload_vars),
-                             self.parquet_nthreads)).to_pandas().set_index(
-                                 'bene_id')
+                nthreads=min(
+                    len(toload_vars),
+                    self.parquet_nthreads)).to_pandas().set_index('bene_id')
         elif self.parquet_engine == 'fastparquet':
             pf = fp.ParquetFile(self._fpath(self.percent, year, 'bsfab'))
             pl = pf.to_pandas(columns=toload_vars, index='bene_id')
@@ -813,7 +802,8 @@ class MedicareDF(object):
         if isinstance(rename, dict):
             # Make sure keys of dict are in codes
             all_codes = [self._get_pattern(code) for code in codes]
-            msg = _mywrap(f"""\
+            msg = _mywrap(
+                f"""\
             Keys of the inner rename dict need to be a subset of the codes provided to search through
             """)
             assert rename.keys() <= set(all_codes), msg
@@ -881,17 +871,14 @@ class MedicareDF(object):
         return {k: v for d in rename_new for k, v in d.items()}
 
     def _search_for_codes_type_check(
-            self,
-            data_types: Union[str, List[str]],
+            self, data_types: Union[str, List[str]],
             hcpcs: Union[str, Pattern, List[str], List[Pattern], None],
             icd9_dx: Union[str, Pattern, List[str], List[Pattern], None],
             icd9_dx_max_cols: Optional[int],
             icd9_sg: Union[str, Pattern, List[str], List[Pattern], None],
-            keep_vars: Dict[str, Union[str, List[str]]],
-            collapse_codes: bool,
+            keep_vars: Dict[str, Union[str, List[str]]], collapse_codes: bool,
             rename: Dict[str, Union[str, List[str], Dict[str, str], None]],
-            convert_ehic: bool,
-            verbose: bool):
+            convert_ehic: bool, verbose: bool):
         """Check types and valid values for :func:`search_for_codes`
 
         Also resolves input into correct value
@@ -1028,7 +1015,7 @@ class MedicareDF(object):
                 'icd9_dx': None,
                 'icd9_sg': None},
             convert_ehic: bool = True,
-            verbose: bool=False):
+            verbose: bool = False):
         """Search in claim-level datasets for HCPCS and/or ICD9 codes
 
         Note: Each code given must be distinct, or ``collapse_codes`` must be ``True``
