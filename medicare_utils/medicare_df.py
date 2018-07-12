@@ -269,6 +269,125 @@ class MedicareDF(object):
             dask=dask,
             verbose=verbose)
 
+    def _get_cohort_extract_each_year(
+        self,
+        year: int,
+        toload_vars: List[str],
+        t0,
+        nobs_dropped,
+        gender: Optional[str],
+        ages: Optional[List[int]],
+        races: Optional[List[str]],
+        rti_race: bool,
+        race_col: str,
+        buyin_val: Optional[List[str]],
+        hmo_val: Optional[List[str]],
+        join: str,
+        keep_vars: List[str],
+        dask: bool,
+        verbose: bool):
+
+        if verbose:
+            msg = f"""\
+            Importing bsfab file
+            - year: {year}
+            - columns: {toload_vars}
+            - time in function: {(time() - t0) / 60:.2f} minutes
+            - time in class: {(time() - self.tc) / 60:.2f} minutes
+            """
+            print(_mywrap(msg))
+
+        if dask:
+            pl = dd.read_parquet(
+                self._fpath(self.percent, year, 'bsfab'),
+                columns=toload_vars,
+                index=['bene_id'],
+                engine=self.parquet_engine)
+        elif self.parquet_engine == 'pyarrow':
+            pf = pq.ParquetFile(self._fpath(self.percent, year, 'bsfab'))
+            pl = pf.read(
+                columns=toload_vars,
+                nthreads=min(len(toload_vars),
+                             self.parquet_nthreads)).to_pandas().set_index(
+                                 'bene_id')
+        elif self.parquet_engine == 'fastparquet':
+            pf = fp.ParquetFile(self._fpath(self.percent, year, 'bsfab'))
+            pl = pf.to_pandas(columns=toload_vars, index='bene_id')
+
+        if not dask:
+            nobs = len(pl)
+
+        if gender is not None:
+            if pl['sex'].dtype.name == 'category':
+                if pl['sex'].dtype.categories.dtype == object:
+                    var_type = 'string'
+                else:
+                    var_type = 'numeric'
+            elif np.issubdtype(pl['sex'].dtype, np.number):
+                var_type = 'numeric'
+            else:
+                var_type = 'string'
+
+            if var_type == 'string':
+                pl = pl.loc[pl['sex'] == gender]
+            else:
+                pl = pl.loc[pl['sex'] == int(gender)]
+
+            if 'sex' not in keep_vars:
+                pl = pl.drop('sex', axis=1)
+
+            if not dask:
+                nobs_dropped[year]['gender'] = 1 - (len(pl) / nobs)
+                nobs = len(pl)
+
+        if ages is not None:
+            pl = pl.loc[pl['age'].isin(ages)]
+
+            if not dask:
+                nobs_dropped[year]['age'] = 1 - (len(pl) / nobs)
+                nobs = len(pl)
+
+            if 'age' not in keep_vars:
+                pl = pl.drop('age', axis=1)
+
+        if races is not None:
+            pl = pl.loc[pl[race_col].isin(races)]
+
+            if not dask:
+                nobs_dropped[year]['race'] = 1 - (len(pl) / nobs)
+                nobs = len(pl)
+
+            if race_col not in keep_vars:
+                pl = pl.drop(race_col, axis=1)
+
+        if (buyin_val is not None) and (self.year_type == 'calendar'):
+            regex = re.compile(r'^buyin\d{2}').search
+            buyin_cols = [x for x in pl.columns if regex(x)]
+            pl = pl.loc[(pl[buyin_cols].isin(buyin_val)).all(axis=1)]
+            pl = pl.drop(set(buyin_cols).difference(keep_vars), axis=1)
+
+            if not dask:
+                nobs_dropped[year]['buyin_val'] = 1 - (len(pl) / nobs)
+                nobs = len(pl)
+
+        if (hmo_val is not None) and (self.year_type == 'calendar'):
+            regex = re.compile(r'^hmoind\d{2}').search
+            hmo_cols = [x for x in pl.columns if regex(x)]
+            pl = pl.loc[(pl[hmo_cols].isin(hmo_val)).all(axis=1)]
+            pl = pl.drop(set(hmo_cols).difference(keep_vars), axis=1)
+
+            if not dask:
+                nobs_dropped[year]['hmo_val'] = 1 - (len(pl) / nobs)
+                nobs = len(pl)
+
+        pl.columns = [f'{x}{year}' for x in pl.columns]
+
+        # Indicator for which patients exist in which year
+        if (join != 'inner') or (self.year_type == 'age'):
+            pl[f'match_{year}'] = True
+
+        return pl, nobs_dropped
+
     def get_cohort(
             self,
             gender: Optional[str] = None,
@@ -408,111 +527,27 @@ class MedicareDF(object):
 
         # Now perform extraction
         extracted_dfs = []
-        if not dask:
-            nobs_dropped = {year: {} for year in self.years}
+        nobs_dropped = {year: {} for year in self.years}
 
-        # Do filtering for all vars that are
-        # checkable within a single year's data
+        # Do filtering for all vars that are checkable within a single year's
+        # data
         for year in self.years:
-            if verbose:
-                msg = f"""\
-                Importing bsfab file
-                - year: {year}
-                - columns: {tokeep_vars[year]}
-                - time in function: {(time() - t0) / 60:.2f} minutes
-                - time in class: {(time() - self.tc) / 60:.2f} minutes
-                """
-                print(_mywrap(msg))
-
-            if dask:
-                pl = dd.read_parquet(
-                    self._fpath(self.percent, year, 'bsfab'),
-                    columns=tokeep_vars[year],
-                    index=['bene_id'],
-                    engine=self.parquet_engine)
-            elif self.parquet_engine == 'pyarrow':
-                pf = pq.ParquetFile(self._fpath(self.percent, year, 'bsfab'))
-                pl = pf.read(
-                    columns=tokeep_vars[year],
-                    nthreads=min(len(tokeep_vars[year]),
-                                 self.parquet_nthreads)).to_pandas().set_index(
-                                     'bene_id')
-            elif self.parquet_engine == 'fastparquet':
-                pf = fp.ParquetFile(self._fpath(self.percent, year, 'bsfab'))
-                pl = pf.to_pandas(columns=tokeep_vars[year], index='bene_id')
-
-            if not dask:
-                nobs = len(pl)
-
-            if gender is not None:
-                if pl['sex'].dtype.name == 'category':
-                    if pl['sex'].dtype.categories.dtype == object:
-                        var_type = 'string'
-                    else:
-                        var_type = 'numeric'
-                elif np.issubdtype(pl['sex'].dtype, np.number):
-                    var_type = 'numeric'
-                else:
-                    var_type = 'string'
-
-                if var_type == 'string':
-                    pl = pl.loc[pl['sex'] == gender]
-                else:
-                    pl = pl.loc[pl['sex'] == int(gender)]
-
-                if 'sex' not in keep_vars:
-                    pl = pl.drop('sex', axis=1)
-
-                if not dask:
-                    nobs_dropped[year]['gender'] = 1 - (len(pl) / nobs)
-                    nobs = len(pl)
-
-            if ages is not None:
-                pl = pl.loc[pl['age'].isin(ages)]
-
-                if not dask:
-                    nobs_dropped[year]['age'] = 1 - (len(pl) / nobs)
-                    nobs = len(pl)
-
-                if 'age' not in keep_vars:
-                    pl = pl.drop('age', axis=1)
-
-            if races is not None:
-                pl = pl.loc[pl[race_col].isin(races)]
-
-                if not dask:
-                    nobs_dropped[year]['race'] = 1 - (len(pl) / nobs)
-                    nobs = len(pl)
-
-                if race_col not in keep_vars:
-                    pl = pl.drop(race_col, axis=1)
-
-            if (buyin_val is not None) and (self.year_type == 'calendar'):
-                regex = re.compile(r'^buyin\d{2}').search
-                buyin_cols = [x for x in pl.columns if regex(x)]
-                pl = pl.loc[(pl[buyin_cols].isin(buyin_val)).all(axis=1)]
-                pl = pl.drop(set(buyin_cols).difference(keep_vars), axis=1)
-
-                if not dask:
-                    nobs_dropped[year]['buyin_val'] = 1 - (len(pl) / nobs)
-                    nobs = len(pl)
-
-            if (hmo_val is not None) and (self.year_type == 'calendar'):
-                regex = re.compile(r'^hmoind\d{2}').search
-                hmo_cols = [x for x in pl.columns if regex(x)]
-                pl = pl.loc[(pl[hmo_cols].isin(hmo_val)).all(axis=1)]
-                pl = pl.drop(set(hmo_cols).difference(keep_vars), axis=1)
-
-                if not dask:
-                    nobs_dropped[year]['hmo_val'] = 1 - (len(pl) / nobs)
-                    nobs = len(pl)
-
-            pl.columns = [f'{x}{year}' for x in pl.columns]
-
-            # Indicator for which patients exist in which year
-            if (join != 'inner') or (self.year_type == 'age'):
-                pl[f'match_{year}'] = True
-
+            pl, nobs_dropped = self._get_cohort_extract_each_year(
+                year=year,
+                toload_vars=toload_vars[year],
+                nobs_dropped=nobs_dropped,
+                gender=gender,
+                ages=ages,
+                races=races,
+                rti_race=rti_race,
+                race_col=race_col,
+                buyin_val=buyin_val,
+                hmo_val=hmo_val,
+                join=join,
+                keep_vars=keep_vars,
+                dask=dask,
+                verbose=verbose,
+                t0=t0)
             extracted_dfs.append(pl)
 
         if verbose & (len(extracted_dfs) > 1):
