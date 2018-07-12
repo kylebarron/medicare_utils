@@ -335,7 +335,7 @@ class MedicareDF(object):
         return toload_vars
 
     def _get_cohort_extract_each_year(
-            self, year: int, toload_vars: List[str], t0, nobs_dropped,
+            self, year: int, toload_vars: List[str], nobs_dropped,
             gender: Optional[str], ages: Optional[List[int]],
             races: Optional[List[str]], rti_race: bool, race_col: str,
             buyin_val: Optional[List[str]], hmo_val: Optional[List[str]],
@@ -346,7 +346,7 @@ class MedicareDF(object):
             Importing bsfab file
             - year: {year}
             - columns: {toload_vars}
-            - time in function: {(time() - t0) / 60:.2f} minutes
+            - time in function: {(time() - self.t0) / 60:.2f} minutes
             - time in class: {(time() - self.tc) / 60:.2f} minutes
             """
             print(_mywrap(msg))
@@ -504,7 +504,7 @@ class MedicareDF(object):
 
         if self.verbose | verbose:
             verbose = True
-            t0 = time()
+            self.t0 = time()
 
         objs = self._get_cohort_type_check(
             gender=gender,
@@ -567,8 +567,7 @@ class MedicareDF(object):
                 join=join,
                 keep_vars=keep_vars,
                 dask=dask,
-                verbose=verbose,
-                t0=t0)
+                verbose=verbose)
             extracted_dfs.append(pl)
 
         if verbose & (len(extracted_dfs) > 1):
@@ -576,7 +575,7 @@ class MedicareDF(object):
             Merging together beneficiary files
             - years: {list(self.years)}
             - merge type: {join}
-            - time in function: {(time() - t0) / 60:.2f} minutes
+            - time in function: {(time() - self.t0) / 60:.2f} minutes
             - time in class: {(time() - self.tc) / 60:.2f} minutes
             """
             print(_mywrap(msg))
@@ -646,7 +645,7 @@ class MedicareDF(object):
                 Filtering based on buyin_val
                 - values: {buyin_val}
                 - year_type: {self.year_type}
-                - time in function: {(time() - t0) / 60:.2f} minutes
+                - time in function: {(time() - self.t0) / 60:.2f} minutes
                 - time in class: {(time() - self.tc) / 60:.2f} minutes
                 """
                 print(_mywrap(msg))
@@ -686,7 +685,7 @@ class MedicareDF(object):
                 Filtering based on hmo_val
                 - values: {hmo_val}
                 - year_type: {self.year_type}
-                - time in function: {(time() - t0) / 60:.2f} minutes
+                - time in function: {(time() - self.t0) / 60:.2f} minutes
                 - time in class: {(time() - self.tc) / 60:.2f} minutes
                 """
                 print(_mywrap(msg))
@@ -784,7 +783,7 @@ class MedicareDF(object):
             - buyin values: {buyin_val}
             - HMO values: {hmo_val}
             - extra variables: {keep_vars}
-            - time in function: {(time() - t0) / 60:.2f} minutes
+            - time in function: {(time() - self.t0) / 60:.2f} minutes
             - time in class: {(time() - self.tc) / 60:.2f} minutes
             """
             print(_mywrap(msg))
@@ -1092,7 +1091,7 @@ class MedicareDF(object):
 
         if self.verbose or verbose:
             verbose = True
-            t0 = time()
+            self.t0 = time()
 
         objs = self._search_for_codes_type_check(
             data_types=data_types,
@@ -1196,7 +1195,7 @@ class MedicareDF(object):
                         """)
                     msg += _mywrap(
                         f"""\
-                    - time in function: {(time() - t0) / 60:.2f} minutes
+                    - time in function: {(time() - self.t0) / 60:.2f} minutes
                     - time in class: {(time() - self.tc) / 60:.2f} minutes
                     """)
                     print(msg)
@@ -1219,7 +1218,7 @@ class MedicareDF(object):
             Concatenating matched codes across years
             - years: {list(self.years)}
             - data types: {data_types}
-            - time in function: {(time() - t0) / 60:.2f} minutes
+            - time in function: {(time() - self.t0) / 60:.2f} minutes
             - time in class: {(time() - self.tc) / 60:.2f} minutes
             """
             print(_mywrap(msg))
@@ -1325,7 +1324,7 @@ class MedicareDF(object):
             - percent sample: {self.percent}
             - years: {list(self.years)}
             - data_types: {data_types}
-            - time in function: {(time() - t0) / 60:.2f} minutes
+            - time in function: {(time() - self.t0) / 60:.2f} minutes
             - time in class: {(time() - self.tc) / 60:.2f} minutes
             """
             print(_mywrap(msg))
