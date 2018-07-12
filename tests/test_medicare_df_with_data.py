@@ -22,7 +22,12 @@ class TestGetCohortExtractEachYear(object):
     @pytest.fixture
     def full_df(self):
         path = med.fpath(percent='01', year=2012, data_type='bsfab')
-        full_df = pd.read_parquet(path)
+        cols = ['bene_id', 'age', 'sex', 'race', 'buyin01', 'buyin02',
+            'buyin03', 'buyin04', 'buyin05', 'buyin06', 'buyin07', 'buyin08',
+            'buyin09', 'buyin10', 'buyin11', 'buyin12', 'hmoind01', 'hmoind02',
+            'hmoind03', 'hmoind04', 'hmoind05', 'hmoind06', 'hmoind07',
+            'hmoind08', 'hmoind09', 'hmoind10', 'hmoind11', 'hmoind12']
+        full_df = pd.read_parquet(path, columns=cols)
         print('Finished reading 1% bsfab data in 2012')
         return full_df
 
