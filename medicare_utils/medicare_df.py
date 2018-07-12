@@ -371,7 +371,11 @@ class MedicareDF(object):
         if not dask:
             nobs = len(pl)
 
+        iemsg = 'Internal error: Missing column: '
+        iemsg2 = '\nPlease submit a bug report at\n'
+        iemsg2 += 'https://github.com/kylebarron/medicare_utils/issues/new'
         if gender is not None:
+            assert 'sex' in pl.columns, iemsg + 'sex' + iemsg2
             if pl['sex'].dtype.name == 'category':
                 if pl['sex'].dtype.categories.dtype == object:
                     var_type = 'string'
@@ -395,6 +399,7 @@ class MedicareDF(object):
                 nobs = len(pl)
 
         if ages is not None:
+            assert 'age' in pl.columns, iemsg + 'age' + iemsg2
             pl = pl.loc[pl['age'].isin(ages)]
 
             if not dask:
@@ -405,6 +410,7 @@ class MedicareDF(object):
                 pl = pl.drop('age', axis=1)
 
         if races is not None:
+            assert race_col in pl.columns, iemsg + race_col + iemsg2
             pl = pl.loc[pl[race_col].isin(races)]
 
             if not dask:
@@ -417,6 +423,9 @@ class MedicareDF(object):
         if (buyin_val is not None) and (self.year_type == 'calendar'):
             regex = re.compile(r'^buyin\d{2}').search
             buyin_cols = [x for x in pl.columns if regex(x)]
+            msg = f'{iemsg}buyinXX{iemsg2}\n#cols: {len(buyin_cols)}'
+            assert len(buyin_cols) == 12, msg
+
             pl = pl.loc[(pl[buyin_cols].isin(buyin_val)).all(axis=1)]
             pl = pl.drop(set(buyin_cols).difference(keep_vars), axis=1)
 
@@ -427,6 +436,9 @@ class MedicareDF(object):
         if (hmo_val is not None) and (self.year_type == 'calendar'):
             regex = re.compile(r'^hmoind\d{2}').search
             hmo_cols = [x for x in pl.columns if regex(x)]
+            msg = f'{iemsg}hmoindXX{iemsg2}\n#cols: {len(hmo_cols)}'
+            assert len(hmo_cols) == 12, msg
+
             pl = pl.loc[(pl[hmo_cols].isin(hmo_val)).all(axis=1)]
             pl = pl.drop(set(hmo_cols).difference(keep_vars), axis=1)
 
