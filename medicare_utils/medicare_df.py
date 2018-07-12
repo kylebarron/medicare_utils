@@ -893,6 +893,11 @@ class MedicareDF(object):
             if not isinstance(v, list):
                 keep_vars[k] = [v]
 
+        # Assert all values of keep_vars are List[str]
+        for v in keep_vars.values():
+            if not all(isinstance(x, str) for x in v):
+                raise TypeError('Values of keep_vars must be str or List[str]')
+
         codes = {'hcpcs': hcpcs, 'icd9_dx': icd9_dx, 'icd9_sg': icd9_sg}
 
         msg = f"""\
@@ -936,7 +941,8 @@ class MedicareDF(object):
         if not collapse_codes:
             all_codes = [self._get_pattern(x) for x in all_codes]
             msg = 'Code patterns given must be unique'
-            assert len(all_codes) == len(set(all_codes)), msg
+            if not len(all_codes) == len(set(all_codes)):
+                raise ValueError(msg)
 
         if collapse_codes and any([x is not None for x in rename.values()]):
             msg = f"""\

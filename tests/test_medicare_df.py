@@ -58,7 +58,8 @@ class TestInit(object):
 class TestGetCohortTypeCheck(object):
     @pytest.fixture
     def init(self):
-        return {'gender': None,
+        return {
+            'gender': None,
             'ages': None,
             'races': None,
             'rti_race': False,
@@ -98,20 +99,20 @@ class TestGetCohortTypeCheck(object):
         result = mdf._get_cohort_type_check(**init)
         assert result.gender == expected
 
-    @pytest.mark.parametrize('gender,error', [
-        (['string_in_list'], TypeError),
-        ([1], TypeError),
-        (1, TypeError),
-        (2, TypeError),
-        (0.1, TypeError),
-        ('ma', ValueError),
-        ('mal', ValueError),
-        ('fem', ValueError),
-        ('femal', ValueError),
-        ('3', ValueError),
-        ('-1', ValueError),
-        ('unkn', ValueError),
-        ])
+    @pytest.mark.parametrize(
+        'gender,error', [
+            (['string_in_list'], TypeError),
+            ([1], TypeError),
+            (1, TypeError),
+            (2, TypeError),
+            (0.1, TypeError),
+            ('ma', ValueError),
+            ('mal', ValueError),
+            ('fem', ValueError),
+            ('femal', ValueError),
+            ('3', ValueError),
+            ('-1', ValueError),
+            ('unkn', ValueError), ])
     def test_gender_type_error(self, mdf, init, gender, error):
         init['gender'] = gender
         with pytest.raises(error):
@@ -329,7 +330,8 @@ class TestCreateRenameDict(object):
             {'hcpcs': '1', 'icd9_dx': '2', 'icd9_sg': '3'}),
     ])
     # yapf: enable
-    def test_rename_dict_wrong_list_len(self, mdf, hcpcs, icd9_dx, icd9_sg, rename):
+    def test_rename_dict_wrong_list_len(
+            self, mdf, hcpcs, icd9_dx, icd9_sg, rename):
         codes = {'hcpcs': hcpcs, 'icd9_dx': icd9_dx, 'icd9_sg': icd9_sg}
         with pytest.raises(AssertionError):
             mdf._create_rename_dict(codes=codes, rename=rename)
@@ -350,22 +352,24 @@ class TestCreateRenameDict(object):
         with pytest.raises(AssertionError):
             mdf._create_rename_dict(codes=codes, rename=rename)
 
+
 class TestSearchForCodesTypeCheck(object):
     @pytest.fixture
     def init(self):
-        init = {'data_types': 'med',
-        'hcpcs': None,
-        'icd9_dx': None,
-        'icd9_dx_max_cols': None,
-        'icd9_sg': None,
-        'keep_vars': {},
-        'collapse_codes': True,
-        'rename': {
+        init = {
+            'data_types': 'med',
             'hcpcs': None,
             'icd9_dx': None,
-            'icd9_sg': None},
-        'convert_ehic': True,
-        'verbose': False}
+            'icd9_dx_max_cols': None,
+            'icd9_sg': None,
+            'keep_vars': {},
+            'collapse_codes': True,
+            'rename': {
+                'hcpcs': None,
+                'icd9_dx': None,
+                'icd9_sg': None},
+            'convert_ehic': True,
+            'verbose': False}
         return init
 
     @pytest.fixture
@@ -420,6 +424,163 @@ class TestSearchForCodesTypeCheck(object):
             with pytest.raises(error):
                 mdf._search_for_codes_type_check(**init)
 
+    # yapf: disable
+    @pytest.mark.parametrize(
+        'hcpcs,icd9_dx,icd9_sg,expected',
+        [
+        (None, None, None,
+         {'hcpcs': None,
+          'icd9_dx': None,
+          'icd9_sg': None}),
+        ('a', 'a', 'a',
+         {'hcpcs': ['a'],
+          'icd9_dx': ['a'],
+          'icd9_sg': ['a']}),
+        (['a'], ['a'], ['a'],
+         {'hcpcs': ['a'],
+          'icd9_dx': ['a'],
+          'icd9_sg': ['a']}),
+        ('a', 'b', 'c',
+         {'hcpcs': ['a'],
+          'icd9_dx': ['b'],
+          'icd9_sg': ['c']}),
+        (['a'], ['b'], ['c'],
+         {'hcpcs': ['a'],
+          'icd9_dx': ['b'],
+          'icd9_sg': ['c']}),
+        ('', '', '',
+         {'hcpcs': [''],
+          'icd9_dx': [''],
+          'icd9_sg': ['']}),
+        ([''], [''], [''],
+         {'hcpcs': [''],
+          'icd9_dx': [''],
+          'icd9_sg': ['']}),
+        (re.compile('a'), re.compile('a'), re.compile('a'),
+         {'hcpcs': [re.compile('a')],
+          'icd9_dx': [re.compile('a')],
+          'icd9_sg': [re.compile('a')]}),
+        ([re.compile('a')], [re.compile('a')], [re.compile('a')],
+         {'hcpcs': [re.compile('a')],
+          'icd9_dx': [re.compile('a')],
+          'icd9_sg': [re.compile('a')]}),
+         ])
+    # yapf: enable
+    def test_codes(self, mdf, init, hcpcs, icd9_dx, icd9_sg, expected):
+        init['collapse_codes'] = True
+        init['hcpcs'] = hcpcs
+        init['icd9_dx'] = icd9_dx
+        init['icd9_sg'] = icd9_sg
+        result = mdf._search_for_codes_type_check(**init)
+        assert result.codes == expected
+
+    # yapf: disable
+    @pytest.mark.parametrize(
+        'hcpcs,icd9_dx,icd9_sg,error',
+        [
+        ('a', 'a', None, ValueError),
+        (None, 'a', 'a', ValueError),
+        ('a', None, 'a', ValueError),
+        (re.compile('a'), re.compile('a'), None, ValueError),
+        (None, re.compile('a'), re.compile('a'), ValueError),
+        (re.compile('a'), None, re.compile('a'), ValueError),
+        (re.compile('a'), 'a', None, ValueError),
+        (None, re.compile('a'), 'a', ValueError),
+        (re.compile('a'), None, 'a', ValueError),
+        ])
+    # yapf: enable
+    def test_dup_code_patterns(self, mdf, init, hcpcs, icd9_dx, icd9_sg, error):
+        init['collapse_codes'] = False
+        init['hcpcs'] = hcpcs
+        init['icd9_dx'] = icd9_dx
+        init['icd9_sg'] = icd9_sg
+        with pytest.raises(error):
+            mdf._search_for_codes_type_check(**init)
+
+    def test_icd9_dx_max_cols(self, mdf, init):
+        init['icd9_dx'] = None
+        init['icd9_dx_max_cols'] = 5
+        with pytest.raises(ValueError):
+            mdf._search_for_codes_type_check(**init)
+
+    # yapf: disable
+    @pytest.mark.parametrize(
+        'value,error',
+        [(1, TypeError),
+         ('a', TypeError),
+         ([1], TypeError),
+         (True, TypeError),
+         ({'invalid_key': 'string'}, ValueError),
+         ({'med': 1}, TypeError),
+         ({'med': True}, TypeError),
+         ])
+    # yapf: enable
+    def test_keep_vars_error(self, mdf, init, value, error):
+        init['keep_vars'] = value
+        with pytest.raises(error):
+            mdf._search_for_codes_type_check(**init)
+
+    # yapf: disable
+    @pytest.mark.parametrize(
+        'value,expected',
+        [({'med': 'string'}, {'med': ['string']}),
+         ({'med': ['string']}, {'med': ['string']})])
+    # yapf: enable
+    def test_keep_vars(self, mdf, init, value, expected):
+        init['keep_vars'] = value
+        result = mdf._search_for_codes_type_check(**init)
+        assert result.keep_vars == expected
+
+    @pytest.mark.parametrize(
+        'hcpcs,icd9_dx,icd9_sg,rename',
+        [(None, None, None, {
+            'wrongkey': ['new_name']}),
+         ('a', 'b', 'c', {
+             'wrongkey': ['new_name']})])
+    # More `rename` tests in TestCreateRenameDict class
+    def test_rename_dict_wrong_dict_key(
+            self, mdf, init, hcpcs, icd9_dx, icd9_sg, rename):
+        init['hcpcs'] = hcpcs
+        init['icd9_dx'] = icd9_dx
+        init['icd9_sg'] = icd9_sg
+        init['rename'] = rename
+        with pytest.raises(ValueError):
+            mdf._search_for_codes_type_check(**init)
+
+    # yapf: disable
+    @pytest.mark.parametrize(
+        'rename,error',
+        [({'hcpcs': ['somevalue']}, ValueError),
+        ({'icd9_dx': 'string'}, ValueError)])
+    # yapf: enable
+    # Rename argument not allowed when collapse_codes is True
+    def test_rename_collapse_codes_error(self, mdf, init, rename, error):
+        init['collapse_codes'] = True
+        init['rename'] = rename
+        with pytest.raises(error):
+            mdf._search_for_codes_type_check(**init)
+
+    # yapf: disable
+    @pytest.mark.parametrize(
+        'value,var,error',
+        [(1, 'collapse_codes', TypeError),
+         ('a', 'collapse_codes', TypeError),
+         ([True], 'collapse_codes', TypeError),
+         (None, 'collapse_codes', TypeError),
+         (1, 'convert_ehic', TypeError),
+         ('a', 'convert_ehic', TypeError),
+         ([True], 'convert_ehic', TypeError),
+         (None, 'convert_ehic', TypeError),
+         (1, 'verbose', TypeError),
+         ('a', 'verbose', TypeError),
+         ([True], 'verbose', TypeError),
+         (None, 'verbose', TypeError),
+         ])
+    # yapf: enable
+    def test_bool_input_type_error(self, mdf, init, value, var, error):
+        init[var] = value
+        with pytest.raises(error):
+            mdf._search_for_codes_type_check(**init)
 
 
 # verbose
