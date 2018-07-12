@@ -99,6 +99,24 @@ class TestGetCohortExtractEachYear(object):
             ['sex'],
             [['1']]
         ),
+        (
+            ['gender'],
+            ['f'],
+            ['sex'],
+            [['2']]
+        ),
+        (
+            ['gender'],
+            [None],
+            ['sex'],
+            [['0', '1', '2']]
+        ),
+        (
+            ['ages'],
+            [range(75, 85)],
+            ['age'],
+            [range(75, 85)]
+        ),
         ])
     # yapf: enable
     def test_df_is_subset_of_expected(self, init, full_df, attrs, values, exp_vars, exp_isin_vals):
@@ -111,6 +129,8 @@ class TestGetCohortExtractEachYear(object):
 
         query = []
         for exp_var, exp_isin_val in zip(exp_vars, exp_isin_vals):
+            if isinstance(exp_isin_val, range):
+                exp_isin_val = list(exp_isin_val)
             query.append(f'{exp_var}.isin({exp_isin_val})')
 
         query = ' & '.join(query)
