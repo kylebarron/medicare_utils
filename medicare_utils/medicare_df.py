@@ -362,34 +362,30 @@ class MedicareDF(object):
         if ('age' in keep_vars) & (len(self.years) > 1):
             keep_vars.remove('age')
             keep_vars.append('bene_dob')
-            print(
-                _mywrap(
-                    """\
-            Warning: Can't export age variable, exporting bene_dob instead
-            """))
+            print("Warning: Can't export age, exporting bene_dob instead")
 
-        tokeep_regex = []
-        tokeep_regex.append(r'^(ehic)$')
-        tokeep_regex.append(r'^(bene_id)$')
+        toload_regex = []
+        toload_regex.append(r'^(ehic)$')
+        toload_regex.append(r'^(bene_id)$')
         if gender is not None:
-            tokeep_regex.append(r'^(sex)$')
+            toload_regex.append(r'^(sex)$')
         if ages is not None:
-            tokeep_regex.append(r'^(age)$')
+            toload_regex.append(r'^(age)$')
         if races is not None:
-            tokeep_regex.append(r'^({})$'.format(race_col))
+            toload_regex.append(r'^({})$'.format(race_col))
         if buyin_val is not None:
-            tokeep_regex.append(r'^(buyin\d{2})$')
+            toload_regex.append(r'^(buyin\d{2})$')
         if hmo_val is not None:
-            tokeep_regex.append(r'^(hmoind\d{2})$')
+            toload_regex.append(r'^(hmoind\d{2})$')
         if self.year_type == 'age':
-            tokeep_regex.append(r'^(bene_dob)$')
+            toload_regex.append(r'^(bene_dob)$')
         if keep_vars is not None:
             for var in keep_vars:
-                tokeep_regex.append(r'^({})$'.format(var))
+                toload_regex.append(r'^({})$'.format(var))
 
-        tokeep_regex = '|'.join(tokeep_regex)
+        toload_regex = '|'.join(toload_regex)
 
-        tokeep_vars: Dict[int, List[str]] = {}
+        toload_vars: Dict[int, List[str]] = {}
         for year in self.years:
             if self.parquet_engine == 'pyarrow':
                 pf = pq.ParquetFile(self._fpath(self.percent, year, 'bsfab'))
@@ -398,12 +394,12 @@ class MedicareDF(object):
                 pf = fp.ParquetFile(self._fpath(self.percent, year, 'bsfab'))
                 cols = pf.columns
 
-            tokeep_vars[year] = [x for x in cols if re.search(tokeep_regex, x)]
+            toload_vars[year] = [x for x in cols if re.search(toload_regex, x)]
 
             # Check cols against keep_vars
             # Is there an item in keep_vars that wasn't matched?
             for var in keep_vars:
-                if [x for x in tokeep_vars[year] if re.search(var, x)] == []:
+                if [x for x in toload_vars[year] if re.search(var, x)] == []:
                     msg = f"""\
                     WARNING: variable `{var}` in the keep_vars argument
                     was not found in bsfab for year {year}
