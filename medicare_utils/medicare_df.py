@@ -269,6 +269,68 @@ class MedicareDF(object):
             dask=dask,
             verbose=verbose)
 
+    def _get_cohort_get_vars_toload(self, keep_vars: List[str],
+                                    race_col: str) -> Dict[int, List[str]]:
+        """Get variables to import for each year
+
+        Args:
+            keep_vars: User-defined variables to keep in final dataset extract
+            race_col: Name of race column used
+
+        Returns:
+            Names of variables to be loaded in each year
+        """
+
+        # Get list of variables to import for each year
+        if ('age' in keep_vars) & (len(self.years) > 1):
+            keep_vars.remove('age')
+            keep_vars.append('bene_dob')
+            print("Warning: Can't export age, exporting bene_dob instead")
+
+        toload_regex = []
+        toload_regex.append(r'^(ehic)$')
+        toload_regex.append(r'^(bene_id)$')
+        if gender is not None:
+            toload_regex.append(r'^(sex)$')
+        if ages is not None:
+            toload_regex.append(r'^(age)$')
+        if races is not None:
+            toload_regex.append(r'^({})$'.format(race_col))
+        if buyin_val is not None:
+            toload_regex.append(r'^(buyin\d{2})$')
+        if hmo_val is not None:
+            toload_regex.append(r'^(hmoind\d{2})$')
+        if self.year_type == 'age':
+            toload_regex.append(r'^(bene_dob)$')
+        if keep_vars is not None:
+            for var in keep_vars:
+                toload_regex.append(r'^({})$'.format(var))
+
+        toload_regex = '|'.join(toload_regex)
+
+        toload_vars: Dict[int, List[str]] = {}
+        for year in self.years:
+            if self.parquet_engine == 'pyarrow':
+                pf = pq.ParquetFile(self._fpath(self.percent, year, 'bsfab'))
+                cols = pf.schema.names
+            elif self.parquet_engine == 'fastparquet':
+                pf = fp.ParquetFile(self._fpath(self.percent, year, 'bsfab'))
+                cols = pf.columns
+
+            toload_vars[year] = [x for x in cols if re.search(toload_regex, x)]
+
+            # Check cols against keep_vars
+            # Is there an item in keep_vars that wasn't matched?
+            for var in keep_vars:
+                if [x for x in toload_vars[year] if re.search(var, x)] == []:
+                    msg = f"""\
+                    WARNING: variable `{var}` in the keep_vars argument
+                    was not found in bsfab for year {year}
+                    """
+                    print(_mywrap(msg))
+
+        return toload_vars
+
     def _get_cohort_extract_each_year(
             self, year: int, toload_vars: List[str], t0, nobs_dropped,
             gender: Optional[str], ages: Optional[List[int]],
@@ -466,53 +528,7 @@ class MedicareDF(object):
             """
             print(_mywrap(msg))
 
-        # Get list of variables to import for each year
-        if ('age' in keep_vars) & (len(self.years) > 1):
-            keep_vars.remove('age')
-            keep_vars.append('bene_dob')
-            print("Warning: Can't export age, exporting bene_dob instead")
-
-        toload_regex = []
-        toload_regex.append(r'^(ehic)$')
-        toload_regex.append(r'^(bene_id)$')
-        if gender is not None:
-            toload_regex.append(r'^(sex)$')
-        if ages is not None:
-            toload_regex.append(r'^(age)$')
-        if races is not None:
-            toload_regex.append(r'^({})$'.format(race_col))
-        if buyin_val is not None:
-            toload_regex.append(r'^(buyin\d{2})$')
-        if hmo_val is not None:
-            toload_regex.append(r'^(hmoind\d{2})$')
-        if self.year_type == 'age':
-            toload_regex.append(r'^(bene_dob)$')
-        if keep_vars is not None:
-            for var in keep_vars:
-                toload_regex.append(r'^({})$'.format(var))
-
-        toload_regex = '|'.join(toload_regex)
-
-        toload_vars: Dict[int, List[str]] = {}
-        for year in self.years:
-            if self.parquet_engine == 'pyarrow':
-                pf = pq.ParquetFile(self._fpath(self.percent, year, 'bsfab'))
-                cols = pf.schema.names
-            elif self.parquet_engine == 'fastparquet':
-                pf = fp.ParquetFile(self._fpath(self.percent, year, 'bsfab'))
-                cols = pf.columns
-
-            toload_vars[year] = [x for x in cols if re.search(toload_regex, x)]
-
-            # Check cols against keep_vars
-            # Is there an item in keep_vars that wasn't matched?
-            for var in keep_vars:
-                if [x for x in toload_vars[year] if re.search(var, x)] == []:
-                    msg = f"""\
-                    WARNING: variable `{var}` in the keep_vars argument
-                    was not found in bsfab for year {year}
-                    """
-                    print(_mywrap(msg))
+        toload_vars = self._get_cohort_get_vars_toload(keep_vars, race_col)
 
         # Now perform extraction
         extracted_dfs = []
