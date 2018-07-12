@@ -2,9 +2,11 @@ import pytest
 import pandas as pd
 import medicare_utils as med
 
+
 class TestGetCohortExtractEachYear(object):
     """Tests for a single year of cohort extraction
     """
+
     @pytest.fixture
     def init(self):
         return {
@@ -22,11 +24,12 @@ class TestGetCohortExtractEachYear(object):
     @pytest.fixture
     def full_df(self):
         path = med.fpath(percent='01', year=2012, data_type='bsfab')
-        cols = ['bene_id', 'age', 'sex', 'race', 'buyin01', 'buyin02',
-            'buyin03', 'buyin04', 'buyin05', 'buyin06', 'buyin07', 'buyin08',
-            'buyin09', 'buyin10', 'buyin11', 'buyin12', 'hmoind01', 'hmoind02',
-            'hmoind03', 'hmoind04', 'hmoind05', 'hmoind06', 'hmoind07',
-            'hmoind08', 'hmoind09', 'hmoind10', 'hmoind11', 'hmoind12']
+        cols = [
+            'bene_id', 'age', 'sex', 'race', 'buyin01', 'buyin02', 'buyin03',
+            'buyin04', 'buyin05', 'buyin06', 'buyin07', 'buyin08', 'buyin09',
+            'buyin10', 'buyin11', 'buyin12', 'hmoind01', 'hmoind02', 'hmoind03',
+            'hmoind04', 'hmoind05', 'hmoind06', 'hmoind07', 'hmoind08',
+            'hmoind09', 'hmoind10', 'hmoind11', 'hmoind12']
         full_df = pd.read_parquet(path, columns=cols)
         print('Finished reading 1% bsfab data in 2012')
         return full_df
@@ -43,8 +46,19 @@ class TestGetCohortExtractEachYear(object):
     # verbose = False
 
     def setup_df(
-            self, gender, ages, races, rti_race, buyin_val, hmo_val, join,
-            keep_vars, dask, verbose, pct='01', year=2012):
+            self,
+            gender,
+            ages,
+            races,
+            rti_race,
+            buyin_val,
+            hmo_val,
+            join,
+            keep_vars,
+            dask,
+            verbose,
+            pct='01',
+            year=2012):
         """Set up to run _get_cohort_extract_each_year()
 
         Replicate get_cohort methods up to call of _get_cohort_extract_each_year
@@ -80,7 +94,8 @@ class TestGetCohortExtractEachYear(object):
         return mdf, {
             'year': year,
             'toload_vars': toload_vars[year],
-            'nobs_dropped': {year: {}},
+            'nobs_dropped': {
+                year: {}},
             'gender': gender,
             'ages': ages,
             'races': races,
@@ -92,7 +107,6 @@ class TestGetCohortExtractEachYear(object):
             'keep_vars': keep_vars,
             'dask': dask,
             'verbose': verbose}
-
 
     # yapf: disable
     @pytest.mark.parametrize(
@@ -124,7 +138,8 @@ class TestGetCohortExtractEachYear(object):
         ),
         ])
     # yapf: enable
-    def test_df_is_subset_of_expected(self, init, full_df, attrs, values, exp_vars, exp_isin_vals):
+    def test_df_is_expected(
+            self, init, full_df, attrs, values, exp_vars, exp_isin_vals):
         for attr, value in zip(attrs, values):
             init[attr] = value
 
