@@ -8,7 +8,6 @@ import pyarrow.parquet as pq
 
 from time import time
 from typing import Dict, List, NamedTuple, Optional, Pattern, Union
-from collections import namedtuple
 from multiprocessing import cpu_count
 
 from .utils import fpath, _mywrap
@@ -347,6 +346,7 @@ class MedicareDF(object):
             t0 = time()
             msg = f"""\
             Starting cohort retrieval
+            (`None` means no restriction)
             - percent sample: {self.percent}
             - years: {list(self.years)}
             - ages: {list(ages) if ages else None}
@@ -369,6 +369,7 @@ class MedicareDF(object):
 
         tokeep_regex = []
         tokeep_regex.append(r'^(ehic)$')
+        tokeep_regex.append(r'^(bene_id)$')
         if gender is not None:
             tokeep_regex.append(r'^(sex)$')
         if ages is not None:
@@ -387,7 +388,7 @@ class MedicareDF(object):
 
         tokeep_regex = '|'.join(tokeep_regex)
 
-        tokeep_vars = {}
+        tokeep_vars: Dict[int, List[str]] = {}
         for year in self.years:
             if self.parquet_engine == 'pyarrow':
                 pf = pq.ParquetFile(self._fpath(self.percent, year, 'bsfab'))
