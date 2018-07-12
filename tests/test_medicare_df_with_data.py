@@ -136,6 +136,109 @@ class TestGetCohortExtractEachYear(object):
             ['age'],
             [range(75, 85)]
         ),
+        (
+            ['ages'],
+            [[75, 76, 77, 78, 79, 80, 81, 82, 83, 84]],
+            ['age'],
+            [range(75, 85)]
+        ),
+        (
+            ['races', 'rti_race'],
+            ['white', False],
+            ['race'],
+            [['1']]
+        ),
+        (
+            ['races', 'rti_race'],
+            ['black', False],
+            ['race'],
+            [['2']]
+        ),
+        (
+            ['races', 'rti_race'],
+            ['asian', False],
+            ['race'],
+            [['4']]
+        ),
+        (
+            ['races', 'rti_race'],
+            [['white', 'black', 'asian'], False],
+            ['race'],
+            [['1', '2', '4']]
+        ),
+        (
+            ['races', 'rti_race'],
+            ['white', True],
+            ['race'],
+            [['1']]
+        ),
+        (
+            ['races', 'rti_race'],
+            ['black', True],
+            ['race'],
+            [['2']]
+        ),
+        (
+            ['races', 'rti_race'],
+            ['asian', True],
+            ['race'],
+            [['4']]
+        ),
+        (
+            ['races', 'rti_race'],
+            [['white', 'black', 'asian'], True],
+            ['race'],
+            [['1', '2', '4']]
+        ),
+        (
+            ['buyin_val'],
+            ['1'],
+            ['buyin'],
+            [['1']]
+        ),
+        (
+            ['buyin_val'],
+            [['1', '2', '3']],
+            ['buyin'],
+            [['1', '2', '3']]
+        ),
+        (
+            ['buyin_val'],
+            [['2', '3', 'B', 'C']],
+            ['buyin'],
+            [['2', '3', 'B', 'C']]
+        ),
+        (
+            ['buyin_val'],
+            [['3', 'C']],
+            ['buyin'],
+            [['3', 'C']]
+        ),
+        (
+            ['hmo_val'],
+            ['1'],
+            ['hmoind'],
+            [['1']]
+        ),
+        (
+            ['hmo_val'],
+            [['1', '2', '3']],
+            ['hmoind'],
+            [['1', '2', '3']]
+        ),
+        (
+            ['hmo_val'],
+            [['2', '3', 'B', 'C']],
+            ['hmoind'],
+            [['2', '3', 'B', 'C']]
+        ),
+        (
+            ['hmo_val'],
+            [['3', 'C']],
+            ['hmoind'],
+            [['3', 'C']]
+        ),
+
         ])
     # yapf: enable
     def test_df_is_expected(
@@ -151,7 +254,12 @@ class TestGetCohortExtractEachYear(object):
         for exp_var, exp_isin_val in zip(exp_vars, exp_isin_vals):
             if isinstance(exp_isin_val, range):
                 exp_isin_val = list(exp_isin_val)
-            query.append(f'{exp_var}.isin({exp_isin_val})')
+            if exp_var in ['buyin', 'hmoind']:
+                for i in range(1, 13):
+                    j = str(i).zfill(2)
+                    query.append(f'{exp_var}{j}.isin({exp_isin_val})')
+            else:
+                query.append(f'{exp_var}.isin({exp_isin_val})')
 
         query = ' & '.join(query)
         expected = full_df.query(query)['bene_id']
