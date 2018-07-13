@@ -4,7 +4,6 @@ import medicare_utils as med
 
 
 class TestInit(object):
-    # yapf: disable
     @pytest.mark.parametrize(
         'pct,pct_act',
         [('0001', '0001'),
@@ -16,8 +15,7 @@ class TestInit(object):
          (1, '01'),
          (5, '05'),
          (20, '20'),
-         (100, '100')])
-    # yapf: enable
+         (100, '100')]) # yapf: disable
     def test_percents(self, pct, pct_act):
         mdf = med.MedicareDF(pct, 2012)
         assert mdf.percent == pct_act
@@ -27,13 +25,11 @@ class TestInit(object):
         with pytest.raises(ValueError):
             med.MedicareDF(pct, 2012)
 
-    # yapf: disable
     @pytest.mark.parametrize(
         'years,years_act',
         [(2005, [2005]),
          (range(2010, 2013), range(2010, 2013)),
-         ([2010, 2011, 2012], [2010, 2011, 2012])])
-    # yapf: enable
+         ([2010, 2011, 2012], [2010, 2011, 2012])]) # yapf: disable
     def test_years(self, years, years_act):
         mdf = med.MedicareDF('01', years)
         assert mdf.years == years_act
@@ -74,7 +70,6 @@ class TestGetCohortTypeCheck(object):
     def mdf(self):
         return med.MedicareDF('01', 2012)
 
-    # yapf: disable
     @pytest.mark.parametrize(
         'gender,expected',
         [(None, None),
@@ -92,8 +87,7 @@ class TestGetCohortTypeCheck(object):
          ('F', '2'),
          ('0', '0'),
          ('1', '1'),
-         ('2', '2')])
-    # yapf: enable
+         ('2', '2')]) # yapf: disable
     def test_gender(self, mdf, init, gender, expected):
         init['gender'] = gender
         result = mdf._get_cohort_type_check(**init)
@@ -130,7 +124,6 @@ class TestGetCohortTypeCheck(object):
         with pytest.raises(TypeError):
             mdf._get_cohort_type_check(**init)
 
-    # yapf: disable
     @pytest.mark.parametrize(
         'races,expected',
         [(None, None),
@@ -167,15 +160,13 @@ class TestGetCohortTypeCheck(object):
          ('3', ['3']),
          ('4', ['4']),
          ('5', ['5']),
-         ('6', ['6'])])
-    # yapf: enable
+         ('6', ['6'])]) # yapf: disable
     def test_races_rti_true(self, mdf, init, races, expected):
         init['rti_race'] = True
         init['races'] = races
         result = mdf._get_cohort_type_check(**init)
         assert result.races == expected
 
-    # yapf: disable
     @pytest.mark.parametrize(
         'races,expected',
         [(None, None),
@@ -204,8 +195,8 @@ class TestGetCohortTypeCheck(object):
          ('3', ['3']),
          ('4', ['4']),
          ('5', ['5']),
-         ('6', ['6'])])
-    # yapf: enable
+         ('6', ['6'])
+         ]) # yapf: disable
     def test_races_rti_false(self, mdf, init, races, expected):
         init['rti_race'] = False
         init['races'] = races
@@ -232,13 +223,11 @@ class TestGetCohortTypeCheck(object):
         result = mdf._get_cohort_type_check(**init)
         assert result.keep_vars == expected
 
-    # yapf: disable
     @pytest.mark.parametrize('join,expected',
         [('left', 'left'),
          ('right', 'right'),
          ('inner', 'inner'),
-         ('outer', 'outer')])
-    # yapf: enable
+         ('outer', 'outer')]) # yapf: disable
     def test_allowed_join(self, mdf, init, join, expected):
         init['join'] = join
         result = mdf._get_cohort_type_check(**init)
@@ -284,7 +273,6 @@ class TestCreateRenameDict(object):
     def mdf(self):
         return med.MedicareDF('01', 2012)
 
-    # yapf: disable
     @pytest.mark.parametrize('hcpcs,icd9_dx,icd9_sg,rename,expected', [
         (None, None, None, {}, {}),
         ('a', 'b', 'c',
@@ -305,15 +293,13 @@ class TestCreateRenameDict(object):
         (['a', 'b'], ['c', 'd'], ['e', 'f'],
             {'hcpcs': {'a': '1'}, 'icd9_dx': {'c': '2'}, 'icd9_sg': {'e': '3'}},
             {'a': '1', 'c': '2', 'e': '3'}),
-    ])
-    # yapf: enable
+    ]) # yapf: disable
     def test_rename_dict_noerror(
             self, mdf, hcpcs, icd9_dx, icd9_sg, rename, expected):
         codes = {'hcpcs': hcpcs, 'icd9_dx': icd9_dx, 'icd9_sg': icd9_sg}
         result = mdf._create_rename_dict(codes=codes, rename=rename)
         assert result == expected
 
-    # yapf: disable
     @pytest.mark.parametrize('hcpcs,icd9_dx,icd9_sg,rename', [
         (None, None, None,
             {'hcpcs': ['1', '2'],
@@ -328,15 +314,13 @@ class TestCreateRenameDict(object):
             {'hcpcs': [], 'icd9_dx': [], 'icd9_sg': []}),
         (['a', 'b'], ['c', 'd'], ['e', 'f'],
             {'hcpcs': '1', 'icd9_dx': '2', 'icd9_sg': '3'}),
-    ])
-    # yapf: enable
+    ]) # yapf: disable
     def test_rename_dict_wrong_list_len(
             self, mdf, hcpcs, icd9_dx, icd9_sg, rename):
         codes = {'hcpcs': hcpcs, 'icd9_dx': icd9_dx, 'icd9_sg': icd9_sg}
         with pytest.raises(AssertionError):
             mdf._create_rename_dict(codes=codes, rename=rename)
 
-    # yapf: disable
     @pytest.mark.parametrize('hcpcs,icd9_dx,icd9_sg,rename', [
         (None, None, None,
             {'hcpcs': '1', 'icd9_dx': '2', 'icd9_sg': '3'}),
@@ -344,8 +328,7 @@ class TestCreateRenameDict(object):
             {'hcpcs': {'a': '1', 'x': '5'},
              'icd9_dx': {'b': '2', 'y': '6'},
              'icd9_sg': {'c': '3', 'z': '7'}}),
-    ])
-    # yapf: enable
+    ]) # yapf: disable
     def test_rename_dict_wrong_dict_length(
             self, mdf, hcpcs, icd9_dx, icd9_sg, rename):
         codes = {'hcpcs': hcpcs, 'icd9_dx': icd9_dx, 'icd9_sg': icd9_sg}
@@ -376,34 +359,29 @@ class TestSearchForCodesTypeCheck(object):
     def mdf(self):
         return med.MedicareDF('01', 2012)
 
-    # yapf: disable
     @pytest.mark.parametrize(
         'data_types,expected',
         [('carc', ['carc']),
          (['carc'], ['carc']),
          (['carc', 'carl', 'ipc', 'ipr', 'med', 'opc', 'opr'],
             ['carc', 'carl', 'ipc', 'ipr', 'med', 'opc', 'opr']),
-        ])
-    # yapf: enable
+        ]) # yapf: disable
     def test_data_types(self, mdf, init, data_types, expected):
         init['data_types'] = data_types
         result = mdf._search_for_codes_type_check(**init)
         assert result.data_types == expected
 
-    # yapf: disable
     @pytest.mark.parametrize(
         'data_types,error',
         [(None, TypeError),
          ('a', ValueError),
          ('sdb', ValueError),
-         (1, TypeError)])
-    # yapf: enable
+         (1, TypeError)]) # yapf: disable
     def test_wrong_data_types(self, mdf, init, data_types, error):
         init['data_types'] = data_types
         with pytest.raises(error):
             mdf._search_for_codes_type_check(**init)
 
-    # yapf: disable
     @pytest.mark.parametrize(
         'codes,error',
         [(1, TypeError),
@@ -414,15 +392,13 @@ class TestSearchForCodesTypeCheck(object):
          (['a', ['b']], TypeError),
          ([[re.compile('a')]], TypeError),
          ([re.compile('a'), [re.compile('b')]], TypeError),
-         ])
-    # yapf: enable
+         ]) # yapf: disable
     def test_codes_error(self, mdf, init, codes, error):
         for x in ['hcpcs', 'icd9_dx', 'icd9_sg']:
             init[x] = codes
             with pytest.raises(error):
                 mdf._search_for_codes_type_check(**init)
 
-    # yapf: disable
     @pytest.mark.parametrize(
         'hcpcs,icd9_dx,icd9_sg,expected',
         [
@@ -466,8 +442,7 @@ class TestSearchForCodesTypeCheck(object):
          {'hcpcs': [re.compile('a')],
           'icd9_dx': [re.compile('a')],
           'icd9_sg': [re.compile('a')]}),
-         ])
-    # yapf: enable
+         ]) # yapf: disable
     def test_codes(self, mdf, init, hcpcs, icd9_dx, icd9_sg, expected):
         init['collapse_codes'] = True
         init['hcpcs'] = hcpcs
@@ -476,7 +451,6 @@ class TestSearchForCodesTypeCheck(object):
         result = mdf._search_for_codes_type_check(**init)
         assert result.codes == expected
 
-    # yapf: disable
     @pytest.mark.parametrize(
         'hcpcs,icd9_dx,icd9_sg,error',
         [
@@ -489,8 +463,7 @@ class TestSearchForCodesTypeCheck(object):
         (re.compile('a'), 'a', None, ValueError),
         (None, re.compile('a'), 'a', ValueError),
         (re.compile('a'), None, 'a', ValueError),
-        ])
-    # yapf: enable
+        ]) # yapf: disable
     def test_dup_code_patterns(self, mdf, init, hcpcs, icd9_dx, icd9_sg, error):
         init['collapse_codes'] = False
         init['hcpcs'] = hcpcs
@@ -505,7 +478,6 @@ class TestSearchForCodesTypeCheck(object):
         with pytest.raises(ValueError):
             mdf._search_for_codes_type_check(**init)
 
-    # yapf: disable
     @pytest.mark.parametrize(
         'value,error',
         [(1, TypeError),
@@ -515,19 +487,16 @@ class TestSearchForCodesTypeCheck(object):
          ({'invalid_key': 'string'}, ValueError),
          ({'med': 1}, TypeError),
          ({'med': True}, TypeError),
-         ])
-    # yapf: enable
+         ]) # yapf: disable
     def test_keep_vars_error(self, mdf, init, value, error):
         init['keep_vars'] = value
         with pytest.raises(error):
             mdf._search_for_codes_type_check(**init)
 
-    # yapf: disable
     @pytest.mark.parametrize(
         'value,expected',
         [({'med': 'string'}, {'med': ['string']}),
-         ({'med': ['string']}, {'med': ['string']})])
-    # yapf: enable
+         ({'med': ['string']}, {'med': ['string']})]) # yapf: disable
     def test_keep_vars(self, mdf, init, value, expected):
         init['keep_vars'] = value
         result = mdf._search_for_codes_type_check(**init)
@@ -549,12 +518,10 @@ class TestSearchForCodesTypeCheck(object):
         with pytest.raises(ValueError):
             mdf._search_for_codes_type_check(**init)
 
-    # yapf: disable
     @pytest.mark.parametrize(
         'rename,error',
         [({'hcpcs': ['somevalue']}, ValueError),
-        ({'icd9_dx': 'string'}, ValueError)])
-    # yapf: enable
+        ({'icd9_dx': 'string'}, ValueError)]) # yapf: disable
     # Rename argument not allowed when collapse_codes is True
     def test_rename_collapse_codes_error(self, mdf, init, rename, error):
         init['collapse_codes'] = True
@@ -562,7 +529,6 @@ class TestSearchForCodesTypeCheck(object):
         with pytest.raises(error):
             mdf._search_for_codes_type_check(**init)
 
-    # yapf: disable
     @pytest.mark.parametrize(
         'value,var,error',
         [(1, 'collapse_codes', TypeError),
@@ -577,8 +543,7 @@ class TestSearchForCodesTypeCheck(object):
          ('a', 'verbose', TypeError),
          ([True], 'verbose', TypeError),
          (None, 'verbose', TypeError),
-         ])
-    # yapf: enable
+         ]) # yapf: disable
     def test_bool_input_type_error(self, mdf, init, value, var, error):
         init[var] = value
         with pytest.raises(error):

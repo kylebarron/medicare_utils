@@ -109,7 +109,6 @@ class TestGetCohortExtractEachYear(object):
             'dask': dask,
             'verbose': verbose}
 
-    # yapf: disable
     @pytest.mark.parametrize(
         'attrs,values,exp_vars,exp_isin_vals',
         [
@@ -251,8 +250,7 @@ class TestGetCohortExtractEachYear(object):
             ['sex', 'age', 'rti_race_cd', 'buyin'],
             [['2'], range(67, 85), ['1', '5'], ['3', 'C']]
         ),
-        ])
-    # yapf: enable
+        ]) # yapf: disable
     def test_df_is_expected(
             self, init, full_df, attrs, values, exp_vars, exp_isin_vals):
         for attr, value in zip(attrs, values):
