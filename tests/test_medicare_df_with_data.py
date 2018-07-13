@@ -239,7 +239,18 @@ class TestGetCohortExtractEachYear(object):
             ['hmoind'],
             [['3', 'C']]
         ),
-
+        (
+            ['gender', 'ages', 'races', 'rti_race', 'buyin_val'],
+            ['m', range(67, 74), ['black', 'asian'], False, ['3', 'C']],
+            ['sex', 'age', 'race', 'buyin'],
+            [['1'], range(67, 74), ['2', '4'], ['3', 'C']]
+        ),
+        (
+            ['gender', 'ages', 'races', 'rti_race', 'buyin_val'],
+            ['f', range(67, 85), ['white', 'hispanic'], True, ['3', 'C']],
+            ['sex', 'age', 'rti_race_cd', 'buyin'],
+            [['2'], range(67, 85), ['1', '5'], ['3', 'C']]
+        ),
         ])
     # yapf: enable
     def test_df_is_expected(
