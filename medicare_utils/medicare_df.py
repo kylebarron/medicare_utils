@@ -148,7 +148,7 @@ class MedicareDF(object):
             buyin_val: Union[str, List[str], None],
             hmo_val: Union[str, List[str], None],
             join: str,
-            keep_vars: List[Union[str, Pattern]],
+            keep_vars: Union[str, Pattern, List[Union[str, Pattern]], None],
             dask: bool,
             verbose: bool):
         """Check types and valid values for :func:`get_cohort`
@@ -347,6 +347,7 @@ class MedicareDF(object):
 
             # Check cols against keep_vars
             # Is there an item in keep_vars that wasn't matched?
+            # NOTE need to check this against regex values of keep_vars
             for var in keep_vars:
                 if [x for x in toload_vars[year] if re.search(var, x)] == []:
                     msg = f"""\
@@ -576,7 +577,7 @@ class MedicareDF(object):
             buyin_val: Union[str, List[str], None] = None,
             hmo_val: Union[str, List[str], None] = None,
             join: str = 'outer',
-            keep_vars: Optional[List[Union[str, Pattern]]] = [],
+            keep_vars: Union[str, Pattern, List[Union[str, Pattern]], None]=[],
             dask: bool = False,
             verbose: bool = False):
         """Get cohort given demographic and enrollment characteristics
@@ -961,7 +962,7 @@ class MedicareDF(object):
             icd9_dx: Union[str, Pattern, List[Union[str, Pattern]], None],
             icd9_dx_max_cols: Optional[int],
             icd9_sg: Union[str, Pattern, List[Union[str, Pattern]], None],
-            keep_vars: Dict[str, Union[str, List[str]]],
+            keep_vars: Dict[str, Union[str, Pattern, List[Union[str, Pattern]], None]],
             collapse_codes: bool,
             rename: Dict[str, Union[str, List[str], Dict[str, str], None]],
             convert_ehic: bool,
@@ -1005,15 +1006,18 @@ class MedicareDF(object):
             """
             raise ValueError(_mywrap(msg))
 
-        # Make sure values of keep_vars are lists
+        # Coerce values of keep_vars to List[Union[str, Pattern]]
         for k, v in keep_vars.items():
-            if not isinstance(v, list):
+            if v is None:
+                keep_vars[k] = []
+            if isinstance(v, (str, re._pattern_type)):
                 keep_vars[k] = [v]
-
-        # Assert all values of keep_vars are List[str]
-        for v in keep_vars.values():
-            if not all(isinstance(x, str) for x in v):
-                raise TypeError('Values of keep_vars must be str or List[str]')
+            elif isinstance(v, list):
+                msg = f"""\
+                keep_vars must be str, compiled regex, or List[str, compiled regex]
+                """
+                if not all(isinstance(x, (str, re._pattern_type)) for x in v):
+                    raise TypeError(_mywrap(msg))
 
         codes = {'hcpcs': hcpcs, 'icd9_dx': icd9_dx, 'icd9_sg': icd9_sg}
 
@@ -1077,7 +1081,7 @@ class MedicareDF(object):
             data_types: List[str]
             codes: Dict[str, List[Union[str, Pattern]]]
             icd9_dx_max_cols: Optional[int]
-            keep_vars: Dict[str, List[str]]
+            keep_vars: Dict[str, List[Union[str, Pattern]]]
             collapse_codes: bool
             rename: Dict[str, Union[str, List[str], Dict[str, str], None]]
             convert_ehic: bool
@@ -1100,7 +1104,7 @@ class MedicareDF(object):
             icd9_dx: Union[str, Pattern, List[Union[str, Pattern]], None] = None,
             icd9_dx_max_cols: Optional[int] = None,
             icd9_sg: Union[str, Pattern, List[Union[str, Pattern]], None] = None,
-            keep_vars: Dict[str, Union[str, List[str]]] = {},
+            keep_vars: Dict[str, Union[str, Pattern, List[Union[str, Pattern]], None]] = {},
             collapse_codes: bool = True,
             rename: Dict[str, Union[str, List[str], Dict[str, str], None]] = {
                 'hcpcs': None,
@@ -1365,7 +1369,7 @@ class MedicareDF(object):
             data_type: str,
             codes: Dict[str, List[Union[str, Pattern]]],
             icd9_dx_max_cols: Optional[int],
-            keep_vars: List[str],
+            keep_vars: List[Union[str, Pattern]],
             rename: Dict[str, str],
             collapse_codes: bool): # yapf: disable
         """Search in a single claim-level dataset for HCPCS/ICD9 codes
@@ -1411,8 +1415,9 @@ class MedicareDF(object):
             icd9_dx_regex = r'^icd_dgns_cd(\d+)$'
         regex_string.append(icd9_dx_regex)
 
-        for var in keep_vars:
-            regex_string.append(r'^{}$'.format(var))
+        for keep_var in keep_vars:
+            if isinstance(keep_var, str):
+                regex_string.append(r'^({})$'.format(keep_var))
 
         regex_string = '|'.join(regex_string)
         regex = re.compile(regex_string).search
@@ -1423,10 +1428,15 @@ class MedicareDF(object):
         elif self.parquet_engine == 'fastparquet':
             all_cols = fp.ParquetFile(
                 self._fpath(self.percent, year, data_type)).columns
-        all_cols = [x for x in all_cols if regex(x)]
+        toload_vars = set(x for x in all_cols if regex(x))
+        for keep_var in keep_vars:
+            if isinstance(keep_var, re._pattern_type):
+                toload_vars.update(set(x for x in all_cols if keep_var.search(x)))
+        all_cols = toload_vars
 
         # Check cols against keep_vars
         # Is there an item in keep_vars that wasn't matched?
+        # NOTE need to check this against regex values of keep_vars
         for var in keep_vars:
             if [x for x in all_cols if re.search(var, x)] == []:
                 msg = f"""\
@@ -1520,7 +1530,10 @@ class MedicareDF(object):
                             cl.loc[idx, self._get_pattern(code)] = True
                             all_created_cols.append(self._get_pattern(code))
 
-                    cl = cl.drop(set(cols[key]) - set(keep_vars), axis=1)
+                    # cols[key] only includes the variables for the specific
+                    # codes I'm looking at, so should be fine within the loop.
+                    cols_todrop = [x for x in cols[key] if not self._str_in_keep_vars(x, keep_vars)]
+                    cl = cl.drop(cols_todrop, axis=1)
 
             if not collapse_codes:
                 cl['match'] = (cl[all_created_cols] == True).any(axis=1)
