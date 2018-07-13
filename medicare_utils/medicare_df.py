@@ -78,7 +78,7 @@ class MedicareDF(object):
         """
 
         # Check types
-        if isinstance(percent, (float, int)):
+        if type(percent) in (float, int):
             try:
                 self.percent = pct_dict[percent]
             except KeyError:
@@ -96,7 +96,9 @@ class MedicareDF(object):
         else:
             raise TypeError('percent must be str or number')
 
-        if isinstance(years, int):
+        if isinstance(years, bool):
+            raise TypeError('years must be a number or list of numbers')
+        if type(years) == int:
             years = [years]
         elif isinstance(years, (list, range)):
             years = years
@@ -182,9 +184,9 @@ class MedicareDF(object):
         if (ages is None) | isinstance(ages, range):
             pass
         elif isinstance(ages, list):
-            if not all(isinstance(x, int) for x in ages):
+            if not all(type(x) == int for x in ages):
                 raise TypeError('ages must be int or list of ints')
-        elif isinstance(ages, int):
+        elif type(ages) == int:
             ages = [ages]
         else:
             raise TypeError('ages must be int or list of int')
