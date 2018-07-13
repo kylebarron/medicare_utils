@@ -982,6 +982,7 @@ class MedicareDF(object):
         all_codes = []
         for name, code in codes.items():
             if code is None:
+                codes[name] = []
                 continue
             if isinstance(code, str) | isinstance(code, re._pattern_type):
                 code = [code]
@@ -1150,7 +1151,7 @@ class MedicareDF(object):
             """
             msg = _mywrap(msg)
             for k, v in codes.items():
-                if v is not None:
+                if v != []:
                     dts = list(set(data_types) & ok_data_types[k])
                     if len(set(dts)) > 0:
                         msg += _mywrap(f"""\
