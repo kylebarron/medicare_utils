@@ -1114,50 +1114,35 @@ class MedicareDF(object):
         convert_ehic = objs.convert_ehic
         verbose = objs.verbose
 
-        ok_hcpcs_data_types = ['carl', 'ipr', 'opr']
-        ok_dx_data_types = ['carc', 'carl', 'ipc', 'med', 'opc']
-        ok_sg_data_types = ['ipc', 'med', 'opc']
+        ok_data_types = {
+            'hcpcs': {'carl', 'ipr', 'opr'},
+            'icd9_dx': {'carc', 'carl', 'ipc', 'med', 'opc'},
+            'icd9_sg': {'ipc', 'med', 'opc'}}
+        codes_fmt = {
+            'hcpcs': 'HCPCS',
+            'icd9_dx': 'ICD-9 diagnosis',
+            'icd9_sg': 'ICD-9 procedure'}
 
         # Print which codes are searched in which dataset
-        if verbose and ((hcpcs or icd9_dx or icd9_sg) is not None):
+        if verbose and any(v is not None for v in codes.values()):
             msg = f"""\
             Will check the following codes
             - percent sample: {pct_dict[self.percent]}%
             - years: {list(self.years)}
             """
             msg = _mywrap(msg)
-
-            if hcpcs is not None:
-                dts = list(data_types.intersection(ok_hcpcs_data_types))
-                if dts != []:
-                    msg += _mywrap(
-                        f"""\
-                    - HCPCS codes: {hcpcs}
-                      in data types: {dts}
-                    """)
-
-            if icd9_dx is not None:
-                dts = list(data_types.intersection(ok_dx_data_types))
-                if dts != []:
-                    msg += _mywrap(
-                        f"""\
-                    - ICD-9 diagnosis codes: {icd9_dx}
-                      in data types: {dts}
-                    """)
-
-            if icd9_sg is not None:
-                dts = list(data_types.intersection(ok_sg_data_types))
-                if dts != []:
-                    msg += _mywrap(
-                        f"""\
-                    - ICD-9 procedure codes: {icd9_sg}
-                      in data types: {dts}
-                    """)
+            for k, v in codes.items():
+                if v is not None:
+                    dts = list(set(data_types) & ok_data_types[k])
+                    if len(set(dts)) > 0:
+                        msg += _mywrap(f"""\
+                        - {codes_fmt[k]} codes: {v}
+                          in data types: {dts}
+                        """) # yapf: disable
 
             print(msg)
 
         if not all([x is None for x in rename.values()]):
-            codes = {'hcpcs': hcpcs, 'icd9_dx': icd9_dx, 'icd9_sg': icd9_sg}
             rename = self._create_rename_dict(codes=codes, rename=rename)
 
         data = {}
@@ -1165,51 +1150,40 @@ class MedicareDF(object):
             data[data_type] = {}
             for year in self.years:
                 if verbose:
-                    msg = _mywrap(
-                        f"""\
+                    msg = _mywrap(f"""\
                     Starting search for codes
                     - year: {year}
                     - data type: {data_type}
-                    """)
-                    if data_type in ok_hcpcs_data_types:
-                        if hcpcs is not None:
-                            msg += _mywrap(
-                                f"""\
-                            - HCPCS codes: {hcpcs}
-                            """)
-                    if data_type in ok_dx_data_types:
-                        if icd9_dx is not None:
-                            msg += _mywrap(
-                                f"""\
-                            - ICD-9 diagnosis codes: {icd9_dx}
-                            """)
-                    if data_type in ok_sg_data_types:
-                        if icd9_sg is not None:
-                            msg += _mywrap(
-                                f"""\
-                            - ICD-9 procedure codes: {icd9_sg}
-                            """)
+                    """) # yapf: disable
+                    for k, v in codes.items():
+                        if data_type in ok_data_types[k]:
+                            if v is not None:
+                                msg += _mywrap(f"""\
+                                - {codes_fmt[k]} codes: {v}
+                                """) # yapf: disable
+
                     if keep_vars[data_type] != []:
-                        msg += _mywrap(
-                            f"""\
+                        msg += _mywrap(f"""\
                         - Keeping variables: {keep_vars[data_type]}
-                        """)
-                    msg += _mywrap(
-                        f"""\
+                        """) # yapf: disable
+                    msg += _mywrap(f"""\
                     - time in function: {(time() - self.t0) / 60:.2f} minutes
                     - time in class: {(time() - self.tc) / 60:.2f} minutes
-                    """)
+                    """) # yapf: disable
                     print(msg)
 
                 data[data_type][year] = self._search_for_codes_single_year(
                     year=year,
                     data_type=data_type,
-                    hcpcs=(hcpcs if data_type in ok_hcpcs_data_types else None),
+                    hcpcs=(
+                        hcpcs if data_type in ok_data_types['hcpcs'] else None),
                     icd9_dx=(
-                        icd9_dx if data_type in ok_dx_data_types else None),
+                        icd9_dx
+                        if data_type in ok_data_types['icd9_dx'] else None),
                     icd9_dx_max_cols=icd9_dx_max_cols,
                     icd9_sg=(
-                        icd9_sg if data_type in ok_sg_data_types else None),
+                        icd9_sg
+                        if data_type in ok_data_types['icd9_sg'] else None),
                     keep_vars=keep_vars[data_type],
                     collapse_codes=collapse_codes,
                     rename=rename)
