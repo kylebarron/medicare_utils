@@ -818,7 +818,8 @@ class MedicareDF(object):
             raise TypeError('Provided non string or regex to _get_pattern()')
 
     def _create_rename_dict_each(
-            self, codes: Union[None, List[str], List[Pattern]],
+            self,
+            codes: List[Union[str, Pattern]],
             rename: Union[str, None, List[str], Dict[str, str]]
             ) -> Dict[str, str]: # yapf: disable
         """Create rename dictionary for single code at a time.
@@ -874,7 +875,7 @@ class MedicareDF(object):
 
     def _create_rename_dict(
             self,
-            codes: Dict[str, Union[None, List[str], List[Pattern]]] = {},
+            codes: Dict[str, List[Union[str, Pattern]]] = {},
             rename: Dict[str, Union[str, None, List[str], Dict[str, str]]] = {}
             ) -> Dict[str, str]: # yapf: disable
         """Make dictionary where the keys are codes/pattern strings and values
@@ -921,10 +922,10 @@ class MedicareDF(object):
     def _search_for_codes_type_check(
             self,
             data_types: Union[str, List[str]],
-            hcpcs: Union[str, Pattern, List[str], List[Pattern], None],
-            icd9_dx: Union[str, Pattern, List[str], List[Pattern], None],
+            hcpcs: Union[str, Pattern, List[Union[str, Pattern]], None],
+            icd9_dx: Union[str, Pattern, List[Union[str, Pattern]], None],
             icd9_dx_max_cols: Optional[int],
-            icd9_sg: Union[str, Pattern, List[str], List[Pattern], None],
+            icd9_sg: Union[str, Pattern, List[Union[str, Pattern]], None],
             keep_vars: Dict[str, Union[str, List[str]]],
             collapse_codes: bool,
             rename: Dict[str, Union[str, List[str], Dict[str, str], None]],
@@ -982,8 +983,8 @@ class MedicareDF(object):
         codes = {'hcpcs': hcpcs, 'icd9_dx': icd9_dx, 'icd9_sg': icd9_sg}
 
         msg = f"""\
-        Codes to search through must be str, compiled regex, List[str], or
-        List[compiled regex].
+        Codes to search through must be str, compiled regex, or
+        List[str, compiled regex]
         """
         all_codes = []
         for name, code in codes.items():
@@ -994,9 +995,8 @@ class MedicareDF(object):
                 code = [code]
             elif type(code) == list:
                 # Check all elements of list are either str or Pattern
-                if not all(isinstance(x, str) for x in code):
-                    if not all(isinstance(x, re._pattern_type) for x in code):
-                        raise TypeError(_mywrap(msg))
+                if not all(isinstance(x, (str, re._pattern_type)) for x in code):
+                    raise TypeError(_mywrap(msg))
             else:
                 raise TypeError(_mywrap(msg))
 
@@ -1040,7 +1040,7 @@ class MedicareDF(object):
 
         class Return(NamedTuple):
             data_types: List[str]
-            codes: Dict[str, Union[List[str], List[Pattern]]]
+            codes: Dict[str, List[Union[str, Pattern]]]
             icd9_dx_max_cols: Optional[int]
             keep_vars: Dict[str, List[str]]
             collapse_codes: bool
@@ -1061,10 +1061,10 @@ class MedicareDF(object):
     def search_for_codes(
             self,
             data_types: Union[str, List[str]],
-            hcpcs: Union[str, Pattern, List[str], List[Pattern], None] = None,
-            icd9_dx: Union[str, Pattern, List[str], List[Pattern], None] = None,
+            hcpcs: Union[str, Pattern, List[Union[str, Pattern]], None] = None,
+            icd9_dx: Union[str, Pattern, List[Union[str, Pattern]], None] = None,
             icd9_dx_max_cols: Optional[int] = None,
-            icd9_sg: Union[str, Pattern, List[str], List[Pattern], None] = None,
+            icd9_sg: Union[str, Pattern, List[Union[str, Pattern]], None] = None,
             keep_vars: Dict[str, Union[str, List[str]]] = {},
             collapse_codes: bool = True,
             rename: Dict[str, Union[str, List[str], Dict[str, str], None]] = {
@@ -1328,7 +1328,7 @@ class MedicareDF(object):
             self,
             year: int,
             data_type: str,
-            codes: Dict[str, Union[List[str], List[Pattern]]],
+            codes: Dict[str, List[Union[str, Pattern]]],
             icd9_dx_max_cols: Optional[int],
             keep_vars: List[str],
             rename: Dict[str, str],

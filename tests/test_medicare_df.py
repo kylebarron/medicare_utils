@@ -414,8 +414,6 @@ class TestSearchForCodesTypeCheck(object):
          (['a', ['b']], TypeError),
          ([[re.compile('a')]], TypeError),
          ([re.compile('a'), [re.compile('b')]], TypeError),
-         (['a', re.compile('b')], TypeError),
-         ([re.compile('b'), 'a'], TypeError),
          ])
     # yapf: enable
     def test_codes_error(self, mdf, init, codes, error):
@@ -456,6 +454,10 @@ class TestSearchForCodesTypeCheck(object):
          {'hcpcs': [''],
           'icd9_dx': [''],
           'icd9_sg': ['']}),
+        ('a', re.compile('b'), 'c',
+         {'hcpcs': ['a'],
+          'icd9_dx': [re.compile('b')],
+          'icd9_sg': ['c']}),
         (re.compile('a'), re.compile('a'), re.compile('a'),
          {'hcpcs': [re.compile('a')],
           'icd9_dx': [re.compile('a')],
