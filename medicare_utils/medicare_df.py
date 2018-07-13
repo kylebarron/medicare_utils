@@ -5,6 +5,7 @@ import pandas as pd
 import fastparquet as fp
 import dask.dataframe as dd
 import pyarrow.parquet as pq
+# TODO split fastparquet and pyarrow into conditional imports
 
 from time import time
 from typing import Dict, List, NamedTuple, Optional, Pattern, Union
@@ -955,6 +956,9 @@ class MedicareDF(object):
         # Assert that keep_vars is a dict and that the keys are in ok_data_types
         if not isinstance(keep_vars, dict):
             raise TypeError('keep_vars must be dict')
+        # Initialize key for each data_type given if they don't already exist
+        for data_type in data_types:
+            keep_vars[data_type] = keep_vars.get(data_type, [])
         if not set(keep_vars.keys()).issubset(ok_data_types):
             invalid_vals = list(set(keep_vars.keys()).difference(ok_data_types))
             msg = f"""\
@@ -1163,6 +1167,8 @@ class MedicareDF(object):
 
         if not all([x is None for x in rename.values()]):
             rename = self._create_rename_dict(codes=codes, rename=rename)
+        else:
+            rename = {}
 
         data = {}
         for data_type in data_types:
@@ -1194,15 +1200,8 @@ class MedicareDF(object):
                 data[data_type][year] = self._search_for_codes_single_year(
                     year=year,
                     data_type=data_type,
-                    hcpcs=(
-                        hcpcs if data_type in ok_data_types['hcpcs'] else None),
-                    icd9_dx=(
-                        icd9_dx
-                        if data_type in ok_data_types['icd9_dx'] else None),
+                    codes=codes,
                     icd9_dx_max_cols=icd9_dx_max_cols,
-                    icd9_sg=(
-                        icd9_sg
-                        if data_type in ok_data_types['icd9_sg'] else None),
                     keep_vars=keep_vars[data_type],
                     collapse_codes=collapse_codes,
                     rename=rename)
@@ -1327,13 +1326,11 @@ class MedicareDF(object):
             self,
             year: int,
             data_type: str,
-            hcpcs: Union[str, List[str], Dict[str, str], None] = None,
-            icd9_dx: Union[str, List[str], Dict[str, str], None] = None,
-            icd9_dx_max_cols: Optional[int] = None,
-            icd9_sg: Union[str, List[str], Dict[str, str], None] = None,
-            keep_vars: List[str] = [],
-            rename: Dict[str, str] = {},
-            collapse_codes: bool = False):
+            codes: Dict[str, Union[List[str], List[Pattern]]],
+            icd9_dx_max_cols: Optional[int],
+            keep_vars: List[str],
+            rename: Dict[str, str],
+            collapse_codes: bool): # yapf: disable
         """Search in a single claim-level dataset for HCPCS/ICD9 codes
 
         Note: Each code given must be distinct, or collapse_codes must be True
@@ -1341,11 +1338,9 @@ class MedicareDF(object):
         Args:
             year: year of data to search
             data_type: One of carc, carl, ipc, ipr, med, opc, opr
-            hcpcs: HCPCS codes to look for
-            icd9_dx: ICD-9 diagnosis codes to look for
+            codes: dict of codes to look for
             icd9_dx_max_cols: Max number of ICD9 diagnosis code columns to
                 search through
-            icd9_sg: ICD-9 procedure codes to look for
             keep_vars: list of column names to return
             rename: dictionary where keys are codes to match, and values are
                 new column names
@@ -1356,50 +1351,28 @@ class MedicareDF(object):
             DataFrame with bene_id and bool columns for each code to search for
         """
 
-        is_search_for_codes = (hcpcs or icd9_dx or icd9_sg) is not None
-
-        if year < 2006:
-            pl_id_col = 'ehic'
-        else:
-            pl_id_col = 'bene_id'
-
-        # Assumes bene_id or ehic is index name or name of a column
-        if self.pl is not None:
-            if pl_id_col == self.pl.index.name:
-                pl_ids_to_filter = self.pl.index
-            else:
-                pl_ids_to_filter = self.pl[pl_id_col].values
-        else:
-            pl_ids_to_filter = None
+        is_search_for_codes = any(v is not None for v in codes.values())
 
         # Determine which variables to extract
         regex_string = []
-        if data_type == 'med':
-            cl_id_regex = r'^medparid$'
-            regex_string.append(cl_id_regex)
-        else:
-            cl_id_regex = r'^clm_id$|^claimindex$'
-            regex_string.append(cl_id_regex)
+        cl_id_regex = r'^medparid$|^clm_id$|^claimindex$'
+        regex_string.append(cl_id_regex)
 
         regex_string.append(r'^bene_id$')
         regex_string.append(r'^ehic$')
-
-        if hcpcs is not None:
-            hcpcs_regex = r'^hcpcs_cd$'
-            regex_string.append(hcpcs_regex)
-
-        if icd9_dx is not None:
-            if data_type == 'carl':
-                icd9_dx_regex = r'icd_dgns_cd(\d*)$'
-            elif data_type == 'med':
-                icd9_dx_regex = r'^dgnscd(\d+)$$'
-            else:
-                icd9_dx_regex = r'^icd_dgns_cd(\d+)$'
-            regex_string.append(icd9_dx_regex)
-
-        if icd9_sg is not None:
-            icd9_sg_regex = r'^icd_prcdr_cd\d+$'
-            regex_string.append(icd9_sg_regex)
+        # Don't need to only add regex for specific file
+        # The files without HCPCS codes won't have a var matching the regex
+        hcpcs_regex = r'^hcpcs_cd$'
+        regex_string.append(hcpcs_regex)
+        icd9_sg_regex = r'^icd_prcdr_cd\d+$'
+        regex_string.append(icd9_sg_regex)
+        if data_type == 'carl':
+            icd9_dx_regex = r'icd_dgns_cd(\d*)$'
+        elif data_type == 'med':
+            icd9_dx_regex = r'^dgnscd(\d+)$$'
+        else:
+            icd9_dx_regex = r'^icd_dgns_cd(\d+)$'
+        regex_string.append(icd9_dx_regex)
 
         for var in keep_vars:
             regex_string.append(r'^{}$'.format(var))
@@ -1413,58 +1386,60 @@ class MedicareDF(object):
         elif self.parquet_engine == 'fastparquet':
             all_cols = fp.ParquetFile(
                 self._fpath(self.percent, year, data_type)).columns
-        cols = [x for x in all_cols if regex(x)]
+        all_cols = [x for x in all_cols if regex(x)]
 
         # Check cols against keep_vars
         # Is there an item in keep_vars that wasn't matched?
         for var in keep_vars:
-            if [x for x in cols if re.search(var, x)] == []:
+            if [x for x in all_cols if re.search(var, x)] == []:
                 msg = f"""\
                 WARNING: variable `{var}` in the keep_vars argument
                 was not found in {data_type}
                 """
                 print(_mywrap(msg))
 
-        cl_id_col = [x for x in cols if re.search(cl_id_regex, x)]
-        if hcpcs is not None:
-            hcpcs_cols = [x for x in cols if re.search(hcpcs_regex, x)]
+        cols_dict: Dict[str, List[str]] = {
+            'cl_id': [x for x in all_cols if re.search(cl_id_regex, x)],
+            'pl_id': ['ehic'] if year < 2006 else ['bene_id'],
+            'hcpcs': [x for x in all_cols if re.search(hcpcs_regex, x)],
+            'icd9_sg': [x for x in all_cols if re.search(icd9_sg_regex, x)],
+            'icd9_dx': [x for x in all_cols if re.search(icd9_dx_regex, x)]}
+
+        if icd9_dx_max_cols is not None:
+            cols_dict['icd9_dx'] = [
+                x for x in all_cols for m in [re.search(icd9_dx_regex, x)] if m
+                if int(m[1]) <= icd9_dx_max_cols]
+
+        cols_toload = [item for subl in cols_dict.values() for item in subl]
+        # Now that list flattening is over, make 'cl_id' and 'pl_id' strings
+        # instead of list of string
+        for i in ['cl_id', 'pl_id']:
+            assert len(cols_dict[i]) == 1
+            cols_dict[i] = cols_dict[i][0]
+
+        # Assumes bene_id or ehic is index name or name of a column
+        if self.pl is not None:
+            if cols_dict['pl_id'] == self.pl.index.name:
+                pl_ids_to_filter = self.pl.index
+            else:
+                pl_ids_to_filter = self.pl[cols_dict['pl_id']].values
         else:
-            hcpcs_cols = None
-
-        if icd9_dx is not None:
-            icd9_dx_cols = [x for x in cols if re.search(icd9_dx_regex, x)]
-
-            if icd9_dx_max_cols is not None:
-                new_cols = [
-                    x for x in icd9_dx_cols
-                    if int(re.search(icd9_dx_regex, x)[1]) <= icd9_dx_max_cols]
-
-                deleted_cols = list(set(icd9_dx_cols).difference(new_cols))
-                cols = [x for x in cols if x not in deleted_cols]
-                icd9_dx_cols = new_cols
-        else:
-            icd9_dx_cols = None
-
-        if icd9_sg is not None:
-            icd9_sg_cols = [x for x in cols if re.search(icd9_sg_regex, x)]
-        else:
-            icd9_sg_cols = None
-
-        # This holds the df's from each iteration over the claim-level dataset
-        all_cl = []
+            pl_ids_to_filter = None
 
         if self.parquet_engine == 'pyarrow':
             pf = pq.ParquetFile(self._fpath(self.percent, year, data_type))
             itr = (
                 pf.read_row_group(
                     i,
-                    columns=cols,
-                    nthreads=min(len(cols), self.parquet_nthreads)).to_pandas()
-                .set_index(pl_id_col) for i in range(pf.num_row_groups))
+                    columns=cols_toload,
+                    nthreads=min(len(cols_toload), self.parquet_nthreads)).to_pandas()
+                .set_index(cols_dict['pl_id']) for i in range(pf.num_row_groups))
         elif self.parquet_engine == 'fastparquet':
             pf = fp.ParquetFile(self._fpath(self.percent, year, data_type))
-            itr = pf.iter_row_groups(columns=cols, index=pl_id_col)
+            itr = pf.iter_row_groups(columns=cols_toload, index=cols_dict['pl_id'])
 
+        # This holds the df's from each iteration over the claim-level dataset
+        all_cl: List[pd.DataFrame] = []
         for cl in itr:
             if pl_ids_to_filter is not None:
                 index_name = cl.index.name
@@ -1479,112 +1454,61 @@ class MedicareDF(object):
             # saving all indices in a var idx, then using that with cl.loc[].
             # If index is bene_id, it'll set matched to true for _anyone_ who
             # had a match _sometime_.
-            cl = cl.reset_index().set_index(cl_id_col)
+            cl = cl.reset_index().set_index(cols_dict['cl_id'])
 
+            # TODO clean this up by using self._get_pattern()
             if collapse_codes:
                 cl['match'] = False
 
-                if hcpcs:
-                    for code in hcpcs:
-                        if isinstance(code, re._pattern_type):
-                            cl.loc[cl[hcpcs_cols].apply(
-                                lambda col: col.str.contains(code)).any(
-                                    axis=1), 'match'] = True
-                        else:
-                            cl.loc[(cl[hcpcs_cols] == code
-                                   ).any(axis=1), 'match'] = True
+                for key, val in codes.items():
+                    if cols_dict[key] != []:
+                        for code in val:
+                            if isinstance(code, re._pattern_type):
+                                cl.loc[cl[cols_dict[key]].apply(
+                                    lambda col: col.str.contains(code)).any(
+                                        axis=1), 'match'] = True
+                            else:
+                                cl.loc[(cl[cols_dict[key]] == code
+                                       ).any(axis=1), 'match'] = True
 
-                    cl = cl.drop(hcpcs_cols, axis=1)
-
-                if icd9_dx:
-                    for code in icd9_dx:
-                        if isinstance(code, re._pattern_type):
-                            cl.loc[cl[icd9_dx_cols].apply(
-                                lambda col: col.str.contains(code)).any(
-                                    axis=1), 'match'] = True
-                        else:
-                            cl.loc[(cl[icd9_dx_cols] == code
-                                   ).any(axis=1), 'match'] = True
-
-                    cl = cl.drop(icd9_dx_cols, axis=1)
-
-                if icd9_sg:
-                    for code in icd9_sg:
-                        if isinstance(code, re._pattern_type):
-                            cl.loc[cl[icd9_sg_cols].apply(
-                                lambda col: col.str.contains(code)).any(
-                                    axis=1), 'match'] = True
-                        else:
-                            cl.loc[(cl[icd9_sg_cols] == code
-                                   ).any(axis=1), 'match'] = True
-
-                    cl = cl.drop(icd9_sg_cols, axis=1)
+                        cl = cl.drop(set(cols_dict[key]) - set(keep_vars), axis=1)
 
                 # Keep all rows; not just matches
-                cl = cl.reset_index().set_index(pl_id_col)
+                # TODO probably want to add a switch here to allow for people
+                # to extract just matches if desired.
+                cl = cl.reset_index().set_index(cols_dict['pl_id'])
                 all_cl.append(cl)
 
             else:
                 all_created_cols = []
-                if hcpcs:
-                    for code in hcpcs:
-                        if isinstance(code, re._pattern_type):
-                            cl[code.pattern] = False
-                            idx = cl.index[cl[hcpcs_cols].apply(
-                                lambda col: col.str.contains(code)).any(axis=1)]
-                            cl.loc[idx, code.pattern] = True
-                            all_created_cols.append(code.pattern)
 
-                        else:
-                            cl[code] = False
-                            idx = cl.index[(cl[hcpcs_cols] == code).any(axis=1)]
-                            cl.loc[idx, code] = True
-                            all_created_cols.append(code)
+                for key, val in codes.items():
+                    if cols_dict[key] != []:
+                        for code in val:
+                            if isinstance(code, re._pattern_type):
+                                cl[code.pattern] = False
+                                idx = cl.index[cl[cols_dict[key]].apply(
+                                    lambda col: col.str.contains(code)).any(axis=1)]
+                                cl.loc[idx, code.pattern] = True
+                                all_created_cols.append(code.pattern)
 
-                    cl = cl.drop(hcpcs_cols, axis=1)
+                            else:
+                                cl[code] = False
+                                idx = cl.index[(cl[cols_dict[key]] == code).any(axis=1)]
+                                cl.loc[idx, code] = True
+                                all_created_cols.append(code)
 
-                if icd9_dx:
-                    for code in icd9_dx:
-                        if isinstance(code, re._pattern_type):
-                            cl[code.pattern] = False
-                            idx = cl.index[cl[icd9_dx_cols].apply(
-                                lambda col: col.str.contains(code)).any(axis=1)]
-                            cl.loc[idx, code.pattern] = True
-                            all_created_cols.append(code.pattern)
-
-                        else:
-                            cl[code] = False
-                            idx = cl.index[(
-                                cl[icd9_dx_cols] == code).any(axis=1)]
-                            cl.loc[idx, code] = True
-                            all_created_cols.append(code)
-
-                    cl = cl.drop(icd9_dx_cols, axis=1)
-
-                if icd9_sg:
-                    for code in icd9_sg:
-                        if isinstance(code, re._pattern_type):
-                            cl[code.pattern] = False
-                            idx = cl.index[cl[icd9_sg_cols].apply(
-                                lambda col: col.str.contains(code)).any(axis=1)]
-                            cl.loc[idx, code.pattern] = True
-                            all_created_cols.append(code.pattern)
-
-                        else:
-                            cl[code] = False
-                            idx = cl.index[(
-                                cl[icd9_sg_cols] == code).any(axis=1)]
-                            cl.loc[idx, code] = True
-                            all_created_cols.append(code)
-
-                    cl = cl.drop(icd9_sg_cols, axis=1)
+                        cl = cl.drop(set(cols_dict[key]) - set(keep_vars), axis=1)
 
                 cl['match'] = (cl[all_created_cols] == True).any(axis=1)
 
                 # Rename columns according to `rename` dictionary
                 cl = cl.rename(columns=rename)
 
-                cl = cl.reset_index().set_index(pl_id_col)
+                # Keep all rows; not just matches
+                # TODO probably want to add a switch here to allow for people
+                # to extract just matches if desired.
+                cl = cl.reset_index().set_index(cols_dict['pl_id'])
                 all_cl.append(cl)
 
         cl = pd.concat(all_cl, axis=0)
@@ -1600,8 +1524,8 @@ class MedicareDF(object):
         # cl = cl.reset_index().merge(
         #     pd.DataFrame(index=pl_ids_to_filter),
         #     how='outer',
-        #     left_on=pl_id_col,
-        #     right_index=True).set_index(pl_id_col)
+        #     left_on=cols_dict['pl_id'],
+        #     right_index=True).set_index(cols_dict['pl_id'])
 
         return cl
 
