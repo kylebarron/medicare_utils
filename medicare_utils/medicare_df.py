@@ -270,10 +270,14 @@ class MedicareDF(object):
             verbose=verbose)
 
     def _get_cohort_get_vars_toload(
-            self, gender: Optional[str], ages: Optional[List[int]],
-            races: Optional[List[str]], race_col: str,
-            buyin_val: Optional[List[str]], hmo_val: Optional[List[str]],
-            keep_vars: List[str]) -> Dict[int, List[str]]:
+            self,
+            gender: Optional[str],
+            ages: Optional[List[int]],
+            races: Optional[List[str]],
+            race_col: str,
+            buyin_val: Optional[List[str]],
+            hmo_val: Optional[List[str]],
+            keep_vars: List[str]) -> Dict[int, List[str]]: # yapf: disable
         """Get variables to import for each year
 
         Args:
@@ -335,11 +339,21 @@ class MedicareDF(object):
         return toload_vars
 
     def _get_cohort_extract_each_year(
-            self, year: int, toload_vars: List[str], nobs_dropped,
-            gender: Optional[str], ages: Optional[List[int]],
-            races: Optional[List[str]], rti_race: bool, race_col: str,
-            buyin_val: Optional[List[str]], hmo_val: Optional[List[str]],
-            join: str, keep_vars: List[str], dask: bool, verbose: bool):
+            self,
+            year: int,
+            toload_vars: List[str],
+            nobs_dropped,
+            gender: Optional[str],
+            ages: Optional[List[int]],
+            races: Optional[List[str]],
+            rti_race: bool,
+            race_col: str,
+            buyin_val: Optional[List[str]],
+            hmo_val: Optional[List[str]],
+            join: str,
+            keep_vars: List[str],
+            dask: bool,
+            verbose: bool): # yapf: disable
 
         if verbose:
             msg = f"""\
@@ -790,16 +804,17 @@ class MedicareDF(object):
             print(_mywrap(msg))
 
     @staticmethod
-    def _get_pattern(obj):
+    def _get_pattern(obj: Union[str, Pattern]) -> str:
         """
-        If str, returns str. If compiled regex, returns pattern
+        If str, returns str. If compiled regex, returns string representation of
+        that pattern
         """
         if type(obj) == str:
             return obj
         elif isinstance(obj, re._pattern_type):
             return obj.pattern
         else:
-            raise TypeError('Provided non string or regex to get_pattern()')
+            raise TypeError('Provided non string or regex to _get_pattern()')
 
     def _create_rename_dict_each(
             self, codes: Union[None, List[str], List[Pattern]],
@@ -1306,34 +1321,31 @@ class MedicareDF(object):
 
     def _search_for_codes_single_year(
             self,
-            year,
-            data_type,
-            hcpcs=None,
-            icd9_dx=None,
-            icd9_dx_max_cols=None,
-            icd9_sg=None,
-            keep_vars=[],
-            rename={},
-            collapse_codes=False):
+            year: int,
+            data_type: str,
+            hcpcs: Union[str, List[str], Dict[str, str], None] = None,
+            icd9_dx: Union[str, List[str], Dict[str, str], None] = None,
+            icd9_dx_max_cols: Optional[int] = None,
+            icd9_sg: Union[str, List[str], Dict[str, str], None] = None,
+            keep_vars: List[str] = [],
+            rename: Dict[str, str] = {},
+            collapse_codes: bool = False):
         """Search in a single claim-level dataset for HCPCS/ICD9 codes
 
         Note: Each code given must be distinct, or collapse_codes must be True
 
         Args:
-            year (int): year of data to search
-            data_type (str): One of carc, carl, ipc, ipr, med, opc, opr
-            hcpcs (str, compiled regex, list[str], list[compiled regex]):
-                List of HCPCS codes to look for
-            icd9_dx (str, compiled regex, list[str], list[compiled regex]):
-                List of ICD-9 diagnosis codes to look for
-            icd9_dx_max_cols (int): Max number of ICD9 diagnosis code columns to
+            year: year of data to search
+            data_type: One of carc, carl, ipc, ipr, med, opc, opr
+            hcpcs: HCPCS codes to look for
+            icd9_dx: ICD-9 diagnosis codes to look for
+            icd9_dx_max_cols: Max number of ICD9 diagnosis code columns to
                 search through
-            icd9_sg (str, compiled regex, list[str], list[compiled regex]):
-                List of ICD-9 procedure codes to look for
-            keep_vars (list[str]): list of column names to return
-            rename (dict): dictionary where keys are codes to match, and values
-                are new column names
-            collapse_codes (bool): If True, returns a single column "match";
+            icd9_sg: ICD-9 procedure codes to look for
+            keep_vars: list of column names to return
+            rename: dictionary where keys are codes to match, and values are
+                new column names
+            collapse_codes: If True, returns a single column "match";
                 else it returns a column for each code provided
 
         Returns:
