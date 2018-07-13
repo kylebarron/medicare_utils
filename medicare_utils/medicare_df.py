@@ -519,7 +519,7 @@ class MedicareDF(object):
 
                 pl[f'match_{year}'] = pl[f'match_{year}'].mask(
                     (pl['dob_month'] == month) &
-                    (~pl[cols].isin(buyin_val)).all(axis=1),
+                    (~pl[cols].isin(values)).all(axis=1),
                     False)
 
             if not dask:
