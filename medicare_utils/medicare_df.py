@@ -78,7 +78,7 @@ class MedicareDF(object):
         """
 
         # Check types
-        if (type(percent) == float) or (type(percent) == int):
+        if isinstance(percent, (float, int)):
             try:
                 self.percent = pct_dict[percent]
             except KeyError:
@@ -87,7 +87,7 @@ class MedicareDF(object):
                 Valid arguments are: {list(pct_dict.keys())}
                 """
                 raise ValueError(_mywrap(msg))
-        elif type(percent) == str:
+        elif isinstance(percent, str):
             if percent not in allowed_pcts:
                 msg = f'percent must be one of: {allowed_pcts}'
                 raise ValueError(msg)
@@ -96,9 +96,9 @@ class MedicareDF(object):
         else:
             raise TypeError('percent must be str or number')
 
-        if type(years) == int:
+        if isinstance(years, int):
             years = [years]
-        elif (type(years) == list) | (type(years) == range):
+        elif isinstance(years, (list, range)):
             years = years
         else:
             raise TypeError('years must be a number or list of numbers')
@@ -154,7 +154,7 @@ class MedicareDF(object):
         # Check gender
         if gender is None:
             pass
-        elif type(gender) == str:
+        elif isinstance(gender, str):
             try:
                 gender = str(int(gender))
                 if int(gender) not in range(0, 3):
@@ -174,18 +174,18 @@ class MedicareDF(object):
             raise TypeError('gender must be str or None')
 
         # Check ages
-        if (ages is None) | (type(ages) == range):
+        if (ages is None) | isinstance(ages, range):
             pass
-        elif type(ages) == list:
+        elif isinstance(ages, list):
             if not all(isinstance(x, int) for x in ages):
                 raise TypeError('ages must be int or list of ints')
-        elif type(ages) == int:
+        elif isinstance(ages, int):
             ages = [ages]
         else:
             raise TypeError('ages must be int or list of int')
 
         # check races
-        if type(rti_race) != bool:
+        if not isinstance(rti_race, bool):
             raise TypeError('rti_race must be bool')
         race_col = 'rti_race_cd' if rti_race else 'race'
 
@@ -197,7 +197,7 @@ class MedicareDF(object):
 
         if races is None:
             pass
-        elif type(races) == list:
+        elif isinstance(races, list):
             try:
                 races = [str(int(x)) for x in races]
                 if any(int(x) not in range(0, 7) for x in races):
@@ -213,7 +213,7 @@ class MedicareDF(object):
                     races_new.extend(r)
 
                 races = races_new
-        elif type(races) == str:
+        elif isinstance(races, str):
             try:
                 races = [str(int(races))]
                 if int(races[0]) not in range(0, 7):
@@ -229,8 +229,8 @@ class MedicareDF(object):
         else:
             raise TypeError('races must be str or list of str')
 
-        buyin_val = [buyin_val] if type(buyin_val) == str else buyin_val
-        hmo_val = [hmo_val] if type(hmo_val) == str else hmo_val
+        buyin_val = [buyin_val] if isinstance(buyin_val, str) else buyin_val
+        hmo_val = [hmo_val] if isinstance(hmo_val, str) else hmo_val
 
         allowed_join = ['left', 'right', 'inner', 'outer']
         if join not in allowed_join:
@@ -239,9 +239,9 @@ class MedicareDF(object):
 
         keep_vars = [keep_vars] if type(keep_vars) == str else keep_vars
 
-        if type(dask) != bool:
+        if not isinstance(dask, bool):
             raise TypeError('dask must be type bool')
-        if type(verbose) != bool:
+        if not isinstance(verbose, bool):
             raise TypeError('verbose must be type bool')
 
         class Return(NamedTuple):
@@ -810,7 +810,7 @@ class MedicareDF(object):
         If str, returns str. If compiled regex, returns string representation of
         that pattern
         """
-        if type(obj) == str:
+        if isinstance(obj, str):
             return obj
         elif isinstance(obj, re._pattern_type):
             return obj.pattern
@@ -940,11 +940,11 @@ class MedicareDF(object):
 
         if data_types is None:
             raise TypeError('data_types cannot be None')
-        if type(data_types) == str:
+        if isinstance(data_types, str):
             data_types = [data_types]
         if (data_types == []) | (data_types == ['']):
             raise TypeError('data_types cannot be empty')
-        if type(data_types) == list:
+        if isinstance(data_types, list):
             # Check that all data types provided to search through exist
             if not set(data_types).issubset(ok_data_types):
                 invalid_vals = list(set(data_types).difference(ok_data_types))
@@ -991,9 +991,9 @@ class MedicareDF(object):
             if code is None:
                 codes[name] = []
                 continue
-            if isinstance(code, str) | isinstance(code, re._pattern_type):
+            if isinstance(code, (str, re._pattern_type)):
                 code = [code]
-            elif type(code) == list:
+            elif isinstance(code, list):
                 # Check all elements of list are either str or Pattern
                 if not all(isinstance(x, (str, re._pattern_type)) for x in code):
                     raise TypeError(_mywrap(msg))
