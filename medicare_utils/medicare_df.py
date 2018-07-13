@@ -1460,13 +1460,12 @@ class MedicareDF(object):
             # had a match _sometime_.
             cl = cl.reset_index().set_index(cols['cl_id'])
 
-            # TODO clean this up by using self._get_pattern()
-            if collapse_codes:
-                cl['match'] = False
-
-                for key, val in codes.items():
-                    if cols[key] != []:
-                        for code in val:
+            cl['match'] = False
+            all_created_cols = []
+            for key, val in codes.items():
+                if cols[key] != []:
+                    for code in val:
+                        if collapse_codes:
                             if isinstance(code, re._pattern_type):
                                 cl.loc[cl[cols[key]].apply(
                                     lambda col: col.str.contains(code)).any(
@@ -1474,48 +1473,31 @@ class MedicareDF(object):
                             else:
                                 cl.loc[(cl[cols[key]] == code
                                        ).any(axis=1), 'match'] = True
-
-                        cl = cl.drop(set(cols[key]) - set(keep_vars), axis=1)
-
-                # Keep all rows; not just matches
-                # TODO probably want to add a switch here to allow for people
-                # to extract just matches if desired.
-                cl = cl.reset_index().set_index(cols['pl_id'])
-                all_cl.append(cl)
-
-            else:
-                all_created_cols = []
-
-                for key, val in codes.items():
-                    if cols[key] != []:
-                        for code in val:
+                        else:
+                            cl[self._get_pattern(code)] = False
                             if isinstance(code, re._pattern_type):
-                                cl[code.pattern] = False
                                 idx = cl.index[cl[cols[key]].apply(
                                     lambda col: col.str.contains(code)).any(
                                         axis=1)]
-                                cl.loc[idx, code.pattern] = True
-                                all_created_cols.append(code.pattern)
-
                             else:
-                                cl[code] = False
                                 idx = cl.index[(
                                     cl[cols[key]] == code).any(axis=1)]
-                                cl.loc[idx, code] = True
-                                all_created_cols.append(code)
+                            cl.loc[idx, self._get_pattern(code)] = True
+                            all_created_cols.append(self._get_pattern(code))
 
-                        cl = cl.drop(set(cols[key]) - set(keep_vars), axis=1)
+                    cl = cl.drop(set(cols[key]) - set(keep_vars), axis=1)
 
+            if not collapse_codes:
                 cl['match'] = (cl[all_created_cols] == True).any(axis=1)
 
                 # Rename columns according to `rename` dictionary
                 cl = cl.rename(columns=rename)
 
-                # Keep all rows; not just matches
-                # TODO probably want to add a switch here to allow for people
-                # to extract just matches if desired.
-                cl = cl.reset_index().set_index(cols['pl_id'])
-                all_cl.append(cl)
+            # Keep all rows; not just matches
+            # TODO probably want to add a switch here to allow for people
+            # to extract just matches if desired.
+            cl = cl.reset_index().set_index(cols['pl_id'])
+            all_cl.append(cl)
 
         cl = pd.concat(all_cl, axis=0)
         cl['year'] = np.uint16(year)
