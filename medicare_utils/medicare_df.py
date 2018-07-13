@@ -918,14 +918,17 @@ class MedicareDF(object):
         return {k: v for d in rename_new for k, v in d.items()}
 
     def _search_for_codes_type_check(
-            self, data_types: Union[str, List[str]],
+            self,
+            data_types: Union[str, List[str]],
             hcpcs: Union[str, Pattern, List[str], List[Pattern], None],
             icd9_dx: Union[str, Pattern, List[str], List[Pattern], None],
             icd9_dx_max_cols: Optional[int],
             icd9_sg: Union[str, Pattern, List[str], List[Pattern], None],
-            keep_vars: Dict[str, Union[str, List[str]]], collapse_codes: bool,
+            keep_vars: Dict[str, Union[str, List[str]]],
+            collapse_codes: bool,
             rename: Dict[str, Union[str, List[str], Dict[str, str], None]],
-            convert_ehic: bool, verbose: bool):
+            convert_ehic: bool,
+            verbose: bool): # yapf: disable
         """Check types and valid values for :func:`search_for_codes`
 
         Also resolves input into correct value
