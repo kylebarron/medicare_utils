@@ -1400,7 +1400,7 @@ class MedicareDF(object):
                 """
                 print(_mywrap(msg))
 
-        cols_dict: Dict[str, List[str]] = {
+        cols: Dict[str, List[str]] = {
             'cl_id': [x for x in all_cols if re.search(cl_id_regex, x)],
             'pl_id': ['ehic'] if year < 2006 else ['bene_id'],
             'hcpcs': [x for x in all_cols if re.search(hcpcs_regex, x)],
@@ -1408,23 +1408,23 @@ class MedicareDF(object):
             'icd9_dx': [x for x in all_cols if re.search(icd9_dx_regex, x)]}
 
         if icd9_dx_max_cols is not None:
-            cols_dict['icd9_dx'] = [
+            cols['icd9_dx'] = [
                 x for x in all_cols for m in [re.search(icd9_dx_regex, x)] if m
                 if int(m[1]) <= icd9_dx_max_cols]
 
-        cols_toload = [item for subl in cols_dict.values() for item in subl]
+        cols_toload = [item for subl in cols.values() for item in subl]
         # Now that list flattening is over, make 'cl_id' and 'pl_id' strings
         # instead of list of string
         for i in ['cl_id', 'pl_id']:
-            assert len(cols_dict[i]) == 1
-            cols_dict[i] = cols_dict[i][0]
+            assert len(cols[i]) == 1
+            cols[i] = cols[i][0]
 
         # Assumes bene_id or ehic is index name or name of a column
         if self.pl is not None:
-            if cols_dict['pl_id'] == self.pl.index.name:
+            if cols['pl_id'] == self.pl.index.name:
                 pl_ids_to_filter = self.pl.index
             else:
-                pl_ids_to_filter = self.pl[cols_dict['pl_id']].values
+                pl_ids_to_filter = self.pl[cols['pl_id']].values
         else:
             pl_ids_to_filter = None
 
@@ -1434,11 +1434,13 @@ class MedicareDF(object):
                 pf.read_row_group(
                     i,
                     columns=cols_toload,
-                    nthreads=min(len(cols_toload), self.parquet_nthreads)).to_pandas()
-                .set_index(cols_dict['pl_id']) for i in range(pf.num_row_groups))
+                    nthreads=min(len(cols_toload),
+                                 self.parquet_nthreads)).to_pandas().set_index(
+                                     cols['pl_id'])
+                for i in range(pf.num_row_groups))
         elif self.parquet_engine == 'fastparquet':
             pf = fp.ParquetFile(self._fpath(self.percent, year, data_type))
-            itr = pf.iter_row_groups(columns=cols_toload, index=cols_dict['pl_id'])
+            itr = pf.iter_row_groups(columns=cols_toload, index=cols['pl_id'])
 
         # This holds the df's from each iteration over the claim-level dataset
         all_cl: List[pd.DataFrame] = []
@@ -1456,51 +1458,53 @@ class MedicareDF(object):
             # saving all indices in a var idx, then using that with cl.loc[].
             # If index is bene_id, it'll set matched to true for _anyone_ who
             # had a match _sometime_.
-            cl = cl.reset_index().set_index(cols_dict['cl_id'])
+            cl = cl.reset_index().set_index(cols['cl_id'])
 
             # TODO clean this up by using self._get_pattern()
             if collapse_codes:
                 cl['match'] = False
 
                 for key, val in codes.items():
-                    if cols_dict[key] != []:
+                    if cols[key] != []:
                         for code in val:
                             if isinstance(code, re._pattern_type):
-                                cl.loc[cl[cols_dict[key]].apply(
+                                cl.loc[cl[cols[key]].apply(
                                     lambda col: col.str.contains(code)).any(
                                         axis=1), 'match'] = True
                             else:
-                                cl.loc[(cl[cols_dict[key]] == code
+                                cl.loc[(cl[cols[key]] == code
                                        ).any(axis=1), 'match'] = True
 
-                        cl = cl.drop(set(cols_dict[key]) - set(keep_vars), axis=1)
+                        cl = cl.drop(set(cols[key]) - set(keep_vars), axis=1)
 
                 # Keep all rows; not just matches
                 # TODO probably want to add a switch here to allow for people
                 # to extract just matches if desired.
-                cl = cl.reset_index().set_index(cols_dict['pl_id'])
+                cl = cl.reset_index().set_index(cols['pl_id'])
                 all_cl.append(cl)
 
             else:
                 all_created_cols = []
 
                 for key, val in codes.items():
-                    if cols_dict[key] != []:
+                    if cols[key] != []:
                         for code in val:
                             if isinstance(code, re._pattern_type):
                                 cl[code.pattern] = False
-                                idx = cl.index[cl[cols_dict[key]].apply(
-                                    lambda col: col.str.contains(code)).any(axis=1)]
+                                idx = cl.index[cl[cols[key]].apply(
+                                    lambda col: col.str.contains(code)).any(
+                                        axis=1)]
                                 cl.loc[idx, code.pattern] = True
                                 all_created_cols.append(code.pattern)
 
                             else:
                                 cl[code] = False
-                                idx = cl.index[(cl[cols_dict[key]] == code).any(axis=1)]
+                                idx = cl.index[(
+                                    cl[cols[key]] == code).any(axis=1)]
                                 cl.loc[idx, code] = True
                                 all_created_cols.append(code)
 
-                        cl = cl.drop(set(cols_dict[key]) - set(keep_vars), axis=1)
+                        cl = cl.drop(set(cols[key]) - set(keep_vars), axis=1)
 
                 cl['match'] = (cl[all_created_cols] == True).any(axis=1)
 
@@ -1510,7 +1514,7 @@ class MedicareDF(object):
                 # Keep all rows; not just matches
                 # TODO probably want to add a switch here to allow for people
                 # to extract just matches if desired.
-                cl = cl.reset_index().set_index(cols_dict['pl_id'])
+                cl = cl.reset_index().set_index(cols['pl_id'])
                 all_cl.append(cl)
 
         cl = pd.concat(all_cl, axis=0)
@@ -1526,8 +1530,8 @@ class MedicareDF(object):
         # cl = cl.reset_index().merge(
         #     pd.DataFrame(index=pl_ids_to_filter),
         #     how='outer',
-        #     left_on=cols_dict['pl_id'],
-        #     right_index=True).set_index(cols_dict['pl_id'])
+        #     left_on=cols['pl_id'],
+        #     right_index=True).set_index(cols['pl_id'])
 
         return cl
 
