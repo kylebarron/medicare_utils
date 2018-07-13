@@ -941,6 +941,8 @@ class MedicareDF(object):
             raise TypeError('data_types cannot be None')
         if type(data_types) == str:
             data_types = [data_types]
+        if (data_types == []) | (data_types == ['']):
+            raise TypeError('data_types cannot be empty')
         if type(data_types) == list:
             # Check that all data types provided to search through exist
             if not set(data_types).issubset(ok_data_types):
@@ -1030,7 +1032,7 @@ class MedicareDF(object):
             """
             raise ValueError(_mywrap(msg))
 
-        if (codes['icd9_dx'] is None) and (icd9_dx_max_cols is not None):
+        if (codes['icd9_dx'] == []) and (icd9_dx_max_cols is not None):
             msg = f"""\
             icd9_dx_max_cols argument not allowed when icd9_dx is None
             """

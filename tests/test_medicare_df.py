@@ -429,9 +429,9 @@ class TestSearchForCodesTypeCheck(object):
         'hcpcs,icd9_dx,icd9_sg,expected',
         [
         (None, None, None,
-         {'hcpcs': None,
-          'icd9_dx': None,
-          'icd9_sg': None}),
+         {'hcpcs': [],
+          'icd9_dx': [],
+          'icd9_sg': []}),
         ('a', 'a', 'a',
          {'hcpcs': ['a'],
           'icd9_dx': ['a'],
