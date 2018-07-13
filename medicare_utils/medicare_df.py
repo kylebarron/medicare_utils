@@ -242,16 +242,18 @@ class MedicareDF(object):
             msg = f'join must be one of: {allowed_join}'
             raise ValueError(msg)
 
+        msg = f"""\
+        keep_vars must be str, compiled regex, or List[str, compiled regex]
+        """
         if keep_vars is None:
             keep_vars = []
         if isinstance(keep_vars, (str, re._pattern_type)):
             keep_vars = [keep_vars]
         elif isinstance(keep_vars, list):
-            msg = f"""\
-            keep_vars must be str, compiled regex, or List[str, compiled regex]
-            """
             if not all(isinstance(x, (str, re._pattern_type)) for x in keep_vars):
                 raise TypeError(_mywrap(msg))
+        else:
+            raise TypeError(_mywrap(msg))
 
         if not isinstance(dask, bool):
             raise TypeError('dask must be type bool')
@@ -1007,17 +1009,19 @@ class MedicareDF(object):
             raise ValueError(_mywrap(msg))
 
         # Coerce values of keep_vars to List[Union[str, Pattern]]
+        msg = f"""\
+        keep_vars must be str, compiled regex, or List[str, compiled regex]
+        """
         for k, v in keep_vars.items():
             if v is None:
                 keep_vars[k] = []
             if isinstance(v, (str, re._pattern_type)):
                 keep_vars[k] = [v]
             elif isinstance(v, list):
-                msg = f"""\
-                keep_vars must be str, compiled regex, or List[str, compiled regex]
-                """
                 if not all(isinstance(x, (str, re._pattern_type)) for x in v):
                     raise TypeError(_mywrap(msg))
+            else:
+                raise TypeError(_mywrap(msg))
 
         codes = {'hcpcs': hcpcs, 'icd9_dx': icd9_dx, 'icd9_sg': icd9_sg}
 
