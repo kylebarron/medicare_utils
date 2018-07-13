@@ -217,7 +217,13 @@ class TestGetCohortTypeCheck(object):
         assert result.hmo_val == expected
 
     @pytest.mark.parametrize(
-        'keep_vars,expected', [('3', ['3']), (['3'], ['3'])])
+        'keep_vars,expected',
+        [
+        ('3', ['3']),
+        (['3'], ['3']),
+        (['3', re.compile('a')], ['3', re.compile('a')]),
+        (re.compile('a'), [re.compile('a')]),
+        ]) # yapf: disable
     def test_keep_vars(self, mdf, init, keep_vars, expected):
         init['keep_vars'] = keep_vars
         result = mdf._get_cohort_type_check(**init)

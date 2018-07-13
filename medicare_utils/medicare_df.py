@@ -141,11 +141,16 @@ class MedicareDF(object):
 
     @staticmethod
     def _get_cohort_type_check(
-            gender: Optional[str], ages: Union[int, List[int], None],
-            races: Union[str, List[str], None], rti_race: bool,
+            gender: Optional[str],
+            ages: Union[int, List[int], None],
+            races: Union[str, List[str], None],
+            rti_race: bool,
             buyin_val: Union[str, List[str], None],
-            hmo_val: Union[str, List[str], None], join: str,
-            keep_vars: List[str], dask: bool, verbose: bool):
+            hmo_val: Union[str, List[str], None],
+            join: str,
+            keep_vars: List[Union[str, Pattern]],
+            dask: bool,
+            verbose: bool):
         """Check types and valid values for :func:`get_cohort`
 
         Also resolves input into correct value
@@ -237,7 +242,16 @@ class MedicareDF(object):
             msg = f'join must be one of: {allowed_join}'
             raise ValueError(msg)
 
-        keep_vars = [keep_vars] if type(keep_vars) == str else keep_vars
+        if keep_vars is None:
+            keep_vars = []
+        if isinstance(keep_vars, (str, re._pattern_type)):
+            keep_vars = [keep_vars]
+        elif isinstance(keep_vars, list):
+            msg = f"""\
+            keep_vars must be str, compiled regex, or List[str, compiled regex]
+            """
+            if not all(isinstance(x, (str, re._pattern_type)) for x in keep_vars):
+                raise TypeError(_mywrap(msg))
 
         if not isinstance(dask, bool):
             raise TypeError('dask must be type bool')
@@ -253,7 +267,7 @@ class MedicareDF(object):
             buyin_val: Optional[List[str]]
             hmo_val: Optional[List[str]]
             join: str
-            keep_vars: List[str]
+            keep_vars: List[Union[str, Pattern]]
             dask: bool
             verbose: bool
 
@@ -278,7 +292,8 @@ class MedicareDF(object):
             race_col: str,
             buyin_val: Optional[List[str]],
             hmo_val: Optional[List[str]],
-            keep_vars: List[str]) -> Dict[int, List[str]]: # yapf: disable
+            keep_vars: List[Union[str, Pattern]]
+            ) -> Dict[int, List[str]]: # yapf: disable
         """Get variables to import for each year
 
         Args:
@@ -290,7 +305,7 @@ class MedicareDF(object):
         """
 
         # Get list of variables to import for each year
-        if ('age' in keep_vars) & (len(self.years) > 1):
+        if self._str_in_keep_vars('age', keep_vars) & (len(self.years) > 1):
             keep_vars.remove('age')
             keep_vars.append('bene_dob')
             print("Warning: Can't export age, exporting bene_dob instead")
@@ -310,11 +325,11 @@ class MedicareDF(object):
             toload_regex.append(r'^(hmoind\d{2})$')
         if self.year_type == 'age':
             toload_regex.append(r'^(bene_dob)$')
-        if keep_vars is not None:
-            for var in keep_vars:
-                toload_regex.append(r'^({})$'.format(var))
+        for keep_var in keep_vars:
+            if isinstance(keep_var, str):
+                toload_regex.append(r'^({})$'.format(keep_var))
 
-        toload_regex = '|'.join(toload_regex)
+        toload_regex = re.compile('|'.join(toload_regex)).search
 
         toload_vars: Dict[int, List[str]] = {}
         for year in self.years:
@@ -325,7 +340,10 @@ class MedicareDF(object):
                 pf = fp.ParquetFile(self._fpath(self.percent, year, 'bsfab'))
                 cols = pf.columns
 
-            toload_vars[year] = [x for x in cols if re.search(toload_regex, x)]
+            toload_vars[year] = set(x for x in cols if toload_regex(x))
+            for keep_var in keep_vars:
+                if isinstance(keep_var, re._pattern_type):
+                    toload_vars[year].update(set(x for x in cols if keep_var.search(x)))
 
             # Check cols against keep_vars
             # Is there an item in keep_vars that wasn't matched?
@@ -406,7 +424,7 @@ class MedicareDF(object):
             else:
                 pl = pl.loc[pl['sex'] == int(gender)]
 
-            if 'sex' not in keep_vars:
+            if not self._str_in_keep_vars('sex', keep_vars):
                 pl = pl.drop('sex', axis=1)
 
             if not dask:
@@ -421,7 +439,7 @@ class MedicareDF(object):
                 nobs_dropped[year]['age'] = 1 - (len(pl) / nobs)
                 nobs = len(pl)
 
-            if 'age' not in keep_vars:
+            if not self._str_in_keep_vars('age', keep_vars):
                 pl = pl.drop('age', axis=1)
 
         if races is not None:
@@ -432,7 +450,7 @@ class MedicareDF(object):
                 nobs_dropped[year]['race'] = 1 - (len(pl) / nobs)
                 nobs = len(pl)
 
-            if race_col not in keep_vars:
+            if not self._str_in_keep_vars(race_col, keep_vars):
                 pl = pl.drop(race_col, axis=1)
 
         if (buyin_val is not None) and (self.year_type == 'calendar'):
@@ -532,6 +550,23 @@ class MedicareDF(object):
 
         return pl, nobs_dropped
 
+    def _str_in_keep_vars(
+        self,
+        instr: str,
+        keep_vars: List[Union[str, Pattern]]) -> bool:
+        """Return True if string is in keep_vars
+        """
+
+        match = False
+        for keep_var in keep_vars:
+            if isinstance(keep_var, str):
+                if instr == keep_var:
+                    match = True
+            elif isinstance(keep_var, re._pattern_type):
+                if keep_var.search(instr):
+                    match = True
+        return match
+
     def get_cohort(
             self,
             gender: Optional[str] = None,
@@ -541,7 +576,7 @@ class MedicareDF(object):
             buyin_val: Union[str, List[str], None] = None,
             hmo_val: Union[str, List[str], None] = None,
             join: str = 'outer',
-            keep_vars: List[str] = [],
+            keep_vars: Optional[List[Union[str, Pattern]]] = [],
             dask: bool = False,
             verbose: bool = False):
         """Get cohort given demographic and enrollment characteristics
@@ -739,7 +774,7 @@ class MedicareDF(object):
             (hmo_val is not None)) and (self.year_type == 'age'):
 
             to_drop = ['dob_month']
-            if 'bene_dob' not in keep_vars:
+            if not self._str_in_keep_vars('bene_dob', keep_vars):
                 to_drop.append('bene_dob')
 
             pl = pl.drop(to_drop, axis=1)
