@@ -1263,8 +1263,10 @@ class MedicareDF(object):
                     codes=codes,
                     icd9_dx_max_cols=icd9_dx_max_cols,
                     keep_vars=keep_vars[data_type],
+                    rename=rename,
                     collapse_codes=collapse_codes,
-                    rename=rename)
+                    dask=dask,
+                    verbose=verbose)
 
         if verbose:
             msg = f"""\
@@ -1382,6 +1384,82 @@ class MedicareDF(object):
             """
             print(_mywrap(msg))
 
+    def _search_for_codes_df_inner(self,
+            cl: Union[pd.DataFrame, dd.DataFrame],
+            codes: Dict[str, List[Union[str, Pattern]]],
+            cols: Dict[str, Union[str, List[str]]],
+            keep_vars: List[Union[str, Pattern]],
+            rename: Dict[str, str],
+            collapse_codes: bool,
+            pl_ids_to_filter: Optional[pd.Index],
+            ) -> Union[pd.DataFrame, dd.DataFrame]: # yapf: disable
+        """Meat of the code to search for codes in files
+
+        NOTE: Figure out what index column is for incoming data frames
+        """
+        if pl_ids_to_filter is not None:
+            index_name = cl.index.name
+            cl = cl.join(pd.DataFrame(index=pl_ids_to_filter), how='inner')
+            cl.index.name = index_name
+
+        if not any(v is not None for v in codes.values()):
+            return cl
+
+        # The index needs to be unique for the stuff I do below with first
+        # saving all indices in a var idx, then using that with cl.loc[].
+        # If index is bene_id, it'll set matched to true for _anyone_ who
+        # had a match _sometime_.
+        cl = cl.reset_index().set_index(cols['cl_id'])
+
+        if collapse_codes:
+            cl['match'] = False
+        else:
+            all_created_cols = []
+
+        for key, val in codes.items():
+            if cols[key] != []:
+                for code in val:
+                    if collapse_codes:
+                        if isinstance(code, re._pattern_type):
+                            cl.loc[cl[cols[key]].apply(
+                                lambda col: col.str.contains(code)).any(
+                                    axis=1), 'match'] = True
+                            cl[cols[key]].apply(
+                                lambda col: col.str.contains(code)).any(
+                                    axis=1)
+                        else:
+                            cl.loc[(cl[cols[key]] == code
+                                   ).any(axis=1), 'match'] = True
+                    else:
+                        cl[self._get_pattern(code)] = False
+                        if isinstance(code, re._pattern_type):
+                            idx = cl.index[cl[cols[key]].apply(
+                                lambda col: col.str.contains(code)).any(axis=1)]
+                        else:
+                            idx = cl.index[(cl[cols[key]] == code).any(axis=1)]
+                        cl.loc[idx, self._get_pattern(code)] = True
+                        all_created_cols.append(self._get_pattern(code))
+
+                # cols[key] only includes the variables for the specific
+                # codes I'm looking at, so should be fine within the loop.
+                cols_todrop = [
+                    x for x in cols[key]
+                    if not self._str_in_keep_vars(x, keep_vars)]
+                cl = cl.drop(cols_todrop, axis=1)
+
+        if not collapse_codes:
+            cl['match'] = (cl[all_created_cols] == True).any(axis=1)
+
+            # Rename columns according to `rename` dictionary
+            cl = cl.rename(columns=rename)
+
+        # Keep all rows; not just matches
+        # TODO probably want to add a switch here to allow for people
+        # to extract just matches if desired.
+        cl = cl.reset_index().set_index(cols['pl_id'])
+
+        return cl
+
     def _search_for_codes_single_year(
             self,
             year: int,
@@ -1390,7 +1468,9 @@ class MedicareDF(object):
             icd9_dx_max_cols: Optional[int],
             keep_vars: List[Union[str, Pattern]],
             rename: Dict[str, str],
-            collapse_codes: bool): # yapf: disable
+            collapse_codes: bool,
+            dask: bool,
+            verbose:bool) -> pd.DataFrame: # yapf: disable
         """Search in a single claim-level dataset for HCPCS/ICD9 codes
 
         Note: Each code given must be distinct, or collapse_codes must be True
@@ -1406,12 +1486,12 @@ class MedicareDF(object):
                 new column names
             collapse_codes: If True, returns a single column "match";
                 else it returns a column for each code provided
+            dask: Use dask library for out of core computation
+            verbose: Print logging messages to console
 
         Returns:
             DataFrame with bene_id and bool columns for each code to search for
         """
-
-        is_search_for_codes = any(v is not None for v in codes.values())
 
         # Determine which variables to extract
         regex_string = []
@@ -1450,7 +1530,8 @@ class MedicareDF(object):
         toload_vars = set(x for x in all_cols if regex(x))
         for keep_var in keep_vars:
             if isinstance(keep_var, re._pattern_type):
-                toload_vars.update(set(x for x in all_cols if keep_var.search(x)))
+                toload_vars.update(
+                    set(x for x in all_cols if keep_var.search(x)))
         all_cols = toload_vars
 
         # Check cols against keep_vars
@@ -1476,7 +1557,7 @@ class MedicareDF(object):
                 x for x in all_cols for m in [re.search(icd9_dx_regex, x)] if m
                 if int(m[1]) <= icd9_dx_max_cols]
 
-        cols_toload = [item for subl in cols.values() for item in subl]
+        cols_toload = set(item for subl in cols.values() for item in subl)
         # Now that list flattening is over, make 'cl_id' and 'pl_id' strings
         # instead of list of string
         for i in ['cl_id', 'pl_id']:
@@ -1488,12 +1569,19 @@ class MedicareDF(object):
             if cols['pl_id'] == self.pl.index.name:
                 pl_ids_to_filter = self.pl.index
             else:
-                pl_ids_to_filter = self.pl[cols['pl_id']].values
+                pl_ids_to_filter = pd.Index(self.pl[cols['pl_id']].values)
         else:
             pl_ids_to_filter = None
 
-        if self.parquet_engine == 'pyarrow':
-            pf = pq.ParquetFile(self._fpath(self.percent, year, data_type))
+        path = self._fpath(self.percent, year, data_type)
+        if dask:
+            # NOTE: should the index here be cols['cl_id'] ?
+            cl = dd.read_parquet(
+                path,
+                columns=cols_toload - set([cols['pl_id']]),
+                index=cols['pl_id'])
+        elif self.parquet_engine == 'pyarrow':
+            pf = pq.ParquetFile(path)
             itr = (
                 pf.read_row_group(
                     i,
@@ -1503,68 +1591,32 @@ class MedicareDF(object):
                                      cols['pl_id'])
                 for i in range(pf.num_row_groups))
         elif self.parquet_engine == 'fastparquet':
-            pf = fp.ParquetFile(self._fpath(self.percent, year, data_type))
+            pf = fp.ParquetFile(path)
             itr = pf.iter_row_groups(columns=cols_toload, index=cols['pl_id'])
 
-        # This holds the df's from each iteration over the claim-level dataset
-        all_cl: List[pd.DataFrame] = []
-        for cl in itr:
-            if pl_ids_to_filter is not None:
-                index_name = cl.index.name
-                cl = cl.join(pd.DataFrame(index=pl_ids_to_filter), how='inner')
-                cl.index.name = index_name
-
-            if not is_search_for_codes:
+        if dask:
+            cl = self._search_for_codes_df_inner(
+                cl=cl,
+                codes=codes,
+                cols=cols,
+                keep_vars=keep_vars,
+                rename=rename,
+                collapse_codes=collapse_codes,
+                pl_ids_to_filter=pl_ids_to_filter)
+        else:
+            # This holds the df's from each iteration over the claim-level
+            # dataset
+            all_cl: List[pd.DataFrame] = []
+            for cl in itr:
+                cl = self._search_for_codes_df_inner(
+                    cl=cl,
+                    codes=codes,
+                    cols=cols,
+                    keep_vars=keep_vars,
+                    rename=rename,
+                    collapse_codes=collapse_codes,
+                    pl_ids_to_filter=pl_ids_to_filter)
                 all_cl.append(cl)
-                continue
-
-            # The index needs to be unique for the stuff I do below with first
-            # saving all indices in a var idx, then using that with cl.loc[].
-            # If index is bene_id, it'll set matched to true for _anyone_ who
-            # had a match _sometime_.
-            cl = cl.reset_index().set_index(cols['cl_id'])
-
-            cl['match'] = False
-            all_created_cols = []
-            for key, val in codes.items():
-                if cols[key] != []:
-                    for code in val:
-                        if collapse_codes:
-                            if isinstance(code, re._pattern_type):
-                                cl.loc[cl[cols[key]].apply(
-                                    lambda col: col.str.contains(code)).any(
-                                        axis=1), 'match'] = True
-                            else:
-                                cl.loc[(cl[cols[key]] == code
-                                       ).any(axis=1), 'match'] = True
-                        else:
-                            cl[self._get_pattern(code)] = False
-                            if isinstance(code, re._pattern_type):
-                                idx = cl.index[cl[cols[key]].apply(
-                                    lambda col: col.str.contains(code)).any(
-                                        axis=1)]
-                            else:
-                                idx = cl.index[(
-                                    cl[cols[key]] == code).any(axis=1)]
-                            cl.loc[idx, self._get_pattern(code)] = True
-                            all_created_cols.append(self._get_pattern(code))
-
-                    # cols[key] only includes the variables for the specific
-                    # codes I'm looking at, so should be fine within the loop.
-                    cols_todrop = [x for x in cols[key] if not self._str_in_keep_vars(x, keep_vars)]
-                    cl = cl.drop(cols_todrop, axis=1)
-
-            if not collapse_codes:
-                cl['match'] = (cl[all_created_cols] == True).any(axis=1)
-
-                # Rename columns according to `rename` dictionary
-                cl = cl.rename(columns=rename)
-
-            # Keep all rows; not just matches
-            # TODO probably want to add a switch here to allow for people
-            # to extract just matches if desired.
-            cl = cl.reset_index().set_index(cols['pl_id'])
-            all_cl.append(cl)
 
         cl = pd.concat(all_cl, axis=0)
         cl['year'] = np.uint16(year)
