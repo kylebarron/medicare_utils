@@ -1395,7 +1395,29 @@ class MedicareDF(object):
             ) -> Union[pd.DataFrame, dd.DataFrame]: # yapf: disable
         """Meat of the code to search for codes in files
 
-        NOTE: Figure out what index column is for incoming data frames
+        Dask.dataframe doesn't support multiindexes yet (see
+        github.com/dask/dask/issues/811, github.com/dask/dask/issues/1493). So
+        as of now, the loaded cl data is singly-indexed with the patient-level
+        identifier.
+
+        Args:
+            cl: claim-level data. Index is ``cols['pl_id']``, i.e. either
+                ``ehic`` for pre-2006 or ``bene_id`` for post-2006.
+            codes: Keys are 'hcpcs', 'icd9_dx', and 'icd9_sg'. Values are lists
+                with codes to search for.
+            cols:
+                - ``cl_id``: unique-identifying claim-level variable. i.e.
+                    ``medparid``
+                - ``pl_id``: unique-identifying patient-level variable. Either
+                    ``bene_id`` or ``ehic``.
+                - ``hcpcs``, ``icd9_dx``, or ``icd9_sg``: columns to search over
+            keep_vars: List of variables to keep in returned dataset
+            rename: Dict to rename variables; key is old name, value is new name
+            collapse_codes: Whether to return match column for each code
+            pl_ids_to_filter: Index of either ``bene_id``s or ``ehic``s, derived from the result of :func:``get_cohort``.
+
+        Returns:
+            Data with boolean match columns instead of code columns.
         """
         if pl_ids_to_filter is not None:
             index_name = cl.index.name
@@ -1417,35 +1439,37 @@ class MedicareDF(object):
             all_created_cols = []
 
         for key, val in codes.items():
-            if cols[key] != []:
-                for code in val:
-                    if collapse_codes:
-                        if isinstance(code, re._pattern_type):
-                            cl.loc[cl[cols[key]].apply(
-                                lambda col: col.str.contains(code)).any(
-                                    axis=1), 'match'] = True
-                            cl[cols[key]].apply(
-                                lambda col: col.str.contains(code)).any(
-                                    axis=1)
-                        else:
-                            cl.loc[(cl[cols[key]] == code
-                                   ).any(axis=1), 'match'] = True
-                    else:
-                        cl[self._get_pattern(code)] = False
-                        if isinstance(code, re._pattern_type):
-                            idx = cl.index[cl[cols[key]].apply(
-                                lambda col: col.str.contains(code)).any(axis=1)]
-                        else:
-                            idx = cl.index[(cl[cols[key]] == code).any(axis=1)]
-                        cl.loc[idx, self._get_pattern(code)] = True
-                        all_created_cols.append(self._get_pattern(code))
+            # If no codes to search over; move to next iteration of loop
+            if cols[key] == []:
+                continue
 
-                # cols[key] only includes the variables for the specific
-                # codes I'm looking at, so should be fine within the loop.
-                cols_todrop = [
-                    x for x in cols[key]
-                    if not self._str_in_keep_vars(x, keep_vars)]
-                cl = cl.drop(cols_todrop, axis=1)
+            for code in val:
+                if collapse_codes:
+                    if isinstance(code, re._pattern_type):
+                        cl.loc[cl[cols[key]].apply(
+                            lambda col: col.str.contains(code)).any(
+                                axis=1), 'match'] = True
+                        cl[cols[key]].apply(
+                            lambda col: col.str.contains(code)).any(axis=1)
+                    else:
+                        cl.loc[(
+                            cl[cols[key]] == code).any(axis=1), 'match'] = True
+                else:
+                    cl[self._get_pattern(code)] = False
+                    if isinstance(code, re._pattern_type):
+                        idx = cl.index[cl[cols[key]].apply(
+                            lambda col: col.str.contains(code)).any(axis=1)]
+                    else:
+                        idx = cl.index[(cl[cols[key]] == code).any(axis=1)]
+                    cl.loc[idx, self._get_pattern(code)] = True
+                    all_created_cols.append(self._get_pattern(code))
+
+            # cols[key] only includes the variables for the specific codes I'm
+            # looking at, so should be fine within the loop.
+            cols_todrop = [
+                x for x in cols[key]
+                if not self._str_in_keep_vars(x, keep_vars)]
+            cl = cl.drop(cols_todrop, axis=1)
 
         if not collapse_codes:
             cl['match'] = (cl[all_created_cols] == True).any(axis=1)
