@@ -144,7 +144,7 @@ class MedicareDF(object):
             dta_path=self.dta_path,
             pq_path=self.pq_path)
 
-    class ReturnGetCohortTypeCheck(NamedTuple):
+    class _ReturnGetCohortTypeCheck(NamedTuple):
         gender: Optional[str]
         ages: Optional[List[int]]
         races: Optional[List[str]]
@@ -168,7 +168,7 @@ class MedicareDF(object):
             join: str,
             keep_vars: Union[str, Pattern, List[Union[str, Pattern]], None],
             dask: bool,
-            verbose: bool) -> ReturnGetCohortTypeCheck: # yapf: disable
+            verbose: bool) -> _ReturnGetCohortTypeCheck: # yapf: disable
         """Check types and valid values for :func:`get_cohort`
 
         Also resolves input into correct value
@@ -279,7 +279,7 @@ class MedicareDF(object):
         if not isinstance(verbose, bool):
             raise TypeError('verbose must be type bool')
 
-        return self.ReturnGetCohortTypeCheck(
+        return self._ReturnGetCohortTypeCheck(
             gender=gender,
             ages=ages,
             races=races,
@@ -975,7 +975,7 @@ class MedicareDF(object):
 
         return {k: v for d in rename_new for k, v in d.items()}
 
-    class ReturnSearchForCodesTypeCheck(NamedTuple):
+    class _ReturnSearchForCodesTypeCheck(NamedTuple):
         data_types: List[str]
         codes: Dict[str, List[Union[str, Pattern]]]
         icd9_dx_max_cols: Optional[int]
@@ -998,7 +998,7 @@ class MedicareDF(object):
             rename: Dict[str, Union[str, List[str], Dict[str, str], None]],
             convert_ehic: bool,
             dask: bool,
-            verbose: bool) -> ReturnSearchForCodesTypeCheck: # yapf: disable
+            verbose: bool) -> _ReturnSearchForCodesTypeCheck: # yapf: disable
         """Check types and valid values for :func:`search_for_codes`
 
         Also resolves input into correct value
@@ -1114,7 +1114,7 @@ class MedicareDF(object):
             """
             raise ValueError(_mywrap(msg))
 
-        return self.ReturnSearchForCodesTypeCheck(
+        return self._ReturnSearchForCodesTypeCheck(
             data_types=data_types,
             codes=codes,
             icd9_dx_max_cols=icd9_dx_max_cols,
