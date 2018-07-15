@@ -52,6 +52,7 @@ class MedicareDF(object):
             percent: Union[str, int, float],
             years: Union[int, List[int]],
             year_type: str = 'calendar',
+            dask: bool = False,
             verbose: bool = False,
             parquet_engine: str = 'pyarrow',
             parquet_nthreads: Optional[int] = None,
@@ -66,6 +67,7 @@ class MedicareDF(object):
             years: years of data to use
             year_type: ``calendar`` to work with multiple years as
                 calendar years; ``age`` to work with patients' age years
+            dask: Use dask library for out of core computation
             verbose: Print progress status of program to console
             parquet_engine: ``pyarrow`` or ``fastparquet``
             parquet_nthreads: number of threads to use when reading file
@@ -112,6 +114,7 @@ class MedicareDF(object):
         self.years = years
         self.year_type = year_type
         self.verbose = verbose
+        self.dask = dask
         self.tc = time()
 
         if parquet_engine not in ['pyarrow', 'fastparquet']:
@@ -634,6 +637,9 @@ class MedicareDF(object):
             verbose = True
             self.t0 = time()
 
+        if self.dask or dask:
+            dask = True
+
         objs = self._get_cohort_type_check(
             gender=gender,
             ages=ages,
@@ -977,6 +983,7 @@ class MedicareDF(object):
         collapse_codes: bool
         rename: Dict[str, Union[str, List[str], Dict[str, str], None]]
         convert_ehic: bool
+        dask: bool
         verbose: bool
 
     def _search_for_codes_type_check(
@@ -990,6 +997,7 @@ class MedicareDF(object):
             collapse_codes: bool,
             rename: Dict[str, Union[str, List[str], Dict[str, str], None]],
             convert_ehic: bool,
+            dask: bool,
             verbose: bool) -> ReturnSearchForCodesTypeCheck: # yapf: disable
         """Check types and valid values for :func:`search_for_codes`
 
@@ -1073,6 +1081,8 @@ class MedicareDF(object):
             raise TypeError('collapse_codes must be bool')
         if not isinstance(convert_ehic, bool):
             raise TypeError('convert_ehic must be bool')
+        if not isinstance(dask, bool):
+            raise TypeError('dask must be type bool')
         if not isinstance(verbose, bool):
             raise TypeError('verbose must be bool')
         if not isinstance(rename, dict):
@@ -1112,6 +1122,7 @@ class MedicareDF(object):
             collapse_codes=collapse_codes,
             rename=rename,
             convert_ehic=convert_ehic,
+            dask=dask,
             verbose=verbose)
 
     def search_for_codes(
@@ -1128,6 +1139,7 @@ class MedicareDF(object):
                 'icd9_dx': None,
                 'icd9_sg': None},
             convert_ehic: bool = True,
+            dask: bool = False,
             verbose: bool = False): # yapf: disable
         """Search in claim-level datasets for HCPCS and/or ICD9 codes
 
@@ -1163,6 +1175,7 @@ class MedicareDF(object):
             rename: Match columns to rename when ``collapse_codes`` is ``False``.
             convert_ehic: If ``True``, merges on ``bene_id`` for years <
                 2006
+            dask: Use dask library for out of core computation
             verbose: Print progress of program to console
 
         Returns:
@@ -1185,6 +1198,7 @@ class MedicareDF(object):
             collapse_codes=collapse_codes,
             rename=rename,
             convert_ehic=convert_ehic,
+            dask=dask,
             verbose=verbose)
         data_types = objs.data_types
         codes = objs.codes
@@ -1193,7 +1207,11 @@ class MedicareDF(object):
         collapse_codes = objs.collapse_codes
         rename = objs.rename
         convert_ehic = objs.convert_ehic
+        dask = objs.dask
         verbose = objs.verbose
+
+        if self.dask or dask:
+            dask = True
 
         ok_data_types = {
             'hcpcs': {'carl', 'ipr', 'opr'},
