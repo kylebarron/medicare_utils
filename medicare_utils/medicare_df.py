@@ -141,8 +141,21 @@ class MedicareDF(object):
             dta_path=self.dta_path,
             pq_path=self.pq_path)
 
-    @staticmethod
+    class ReturnGetCohortTypeCheck(NamedTuple):
+        gender: Optional[str]
+        ages: Optional[List[int]]
+        races: Optional[List[str]]
+        rti_race: bool
+        race_col: str
+        buyin_val: Optional[List[str]]
+        hmo_val: Optional[List[str]]
+        join: str
+        keep_vars: List[Union[str, Pattern]]
+        dask: bool
+        verbose: bool
+
     def _get_cohort_type_check(
+            self,
             gender: Optional[str],
             ages: Union[int, List[int], None],
             races: Union[str, List[str], None],
@@ -152,7 +165,7 @@ class MedicareDF(object):
             join: str,
             keep_vars: Union[str, Pattern, List[Union[str, Pattern]], None],
             dask: bool,
-            verbose: bool):
+            verbose: bool) -> ReturnGetCohortTypeCheck: # yapf: disable
         """Check types and valid values for :func:`get_cohort`
 
         Also resolves input into correct value
@@ -263,20 +276,7 @@ class MedicareDF(object):
         if not isinstance(verbose, bool):
             raise TypeError('verbose must be type bool')
 
-        class Return(NamedTuple):
-            gender: Optional[str]
-            ages: Optional[List[int]]
-            races: Optional[List[str]]
-            rti_race: bool
-            race_col: str
-            buyin_val: Optional[List[str]]
-            hmo_val: Optional[List[str]]
-            join: str
-            keep_vars: List[Union[str, Pattern]]
-            dask: bool
-            verbose: bool
-
-        return Return(
+        return self.ReturnGetCohortTypeCheck(
             gender=gender,
             ages=ages,
             races=races,
@@ -365,6 +365,7 @@ class MedicareDF(object):
         return toload_vars
 
     def _get_cohort_extract_each_year(
+            # yapf: disable
             self,
             year: int,
             toload_vars: List[str],
@@ -379,7 +380,8 @@ class MedicareDF(object):
             join: str,
             keep_vars: List[str],
             dask: bool,
-            verbose: bool): # yapf: disable
+            verbose: bool) -> (pd.DataFrame, Dict[int, Dict[str, float]]):
+            # yapf: enable
 
         if verbose:
             msg = f"""\
@@ -967,6 +969,16 @@ class MedicareDF(object):
 
         return {k: v for d in rename_new for k, v in d.items()}
 
+    class ReturnSearchForCodesTypeCheck(NamedTuple):
+        data_types: List[str]
+        codes: Dict[str, List[Union[str, Pattern]]]
+        icd9_dx_max_cols: Optional[int]
+        keep_vars: Dict[str, List[Union[str, Pattern]]]
+        collapse_codes: bool
+        rename: Dict[str, Union[str, List[str], Dict[str, str], None]]
+        convert_ehic: bool
+        verbose: bool
+
     def _search_for_codes_type_check(
             self,
             data_types: Union[str, List[str]],
@@ -978,7 +990,7 @@ class MedicareDF(object):
             collapse_codes: bool,
             rename: Dict[str, Union[str, List[str], Dict[str, str], None]],
             convert_ehic: bool,
-            verbose: bool): # yapf: disable
+            verbose: bool) -> ReturnSearchForCodesTypeCheck: # yapf: disable
         """Check types and valid values for :func:`search_for_codes`
 
         Also resolves input into correct value
@@ -1092,17 +1104,7 @@ class MedicareDF(object):
             """
             raise ValueError(_mywrap(msg))
 
-        class Return(NamedTuple):
-            data_types: List[str]
-            codes: Dict[str, List[Union[str, Pattern]]]
-            icd9_dx_max_cols: Optional[int]
-            keep_vars: Dict[str, List[Union[str, Pattern]]]
-            collapse_codes: bool
-            rename: Dict[str, Union[str, List[str], Dict[str, str], None]]
-            convert_ehic: bool
-            verbose: bool
-
-        return Return(
+        return self.ReturnSearchForCodesTypeCheck(
             data_types=data_types,
             codes=codes,
             icd9_dx_max_cols=icd9_dx_max_cols,
@@ -1126,7 +1128,7 @@ class MedicareDF(object):
                 'icd9_dx': None,
                 'icd9_sg': None},
             convert_ehic: bool = True,
-            verbose: bool = False):
+            verbose: bool = False): # yapf: disable
         """Search in claim-level datasets for HCPCS and/or ICD9 codes
 
         Note: Each code given must be distinct, or ``collapse_codes`` must be ``True``
