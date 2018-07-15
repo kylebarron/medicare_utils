@@ -252,7 +252,8 @@ class MedicareDF(object):
         if isinstance(keep_vars, (str, re._pattern_type)):
             keep_vars = [keep_vars]
         elif isinstance(keep_vars, list):
-            if not all(isinstance(x, (str, re._pattern_type)) for x in keep_vars):
+            if not all(isinstance(x, (str, re._pattern_type))
+                       for x in keep_vars):
                 raise TypeError(_mywrap(msg))
         else:
             raise TypeError(_mywrap(msg))
@@ -347,7 +348,8 @@ class MedicareDF(object):
             toload_vars[year] = set(x for x in cols if toload_regex(x))
             for keep_var in keep_vars:
                 if isinstance(keep_var, re._pattern_type):
-                    toload_vars[year].update(set(x for x in cols if keep_var.search(x)))
+                    toload_vars[year].update(
+                        set(x for x in cols if keep_var.search(x)))
 
             # Check cols against keep_vars
             # Is there an item in keep_vars that wasn't matched?
@@ -493,8 +495,15 @@ class MedicareDF(object):
         return pl, nobs_dropped
 
     def _get_cohort_age_year_filter(
-            self, pl: pd.DataFrame, var: str, values, nobs_dropped: dict,
-            dask: bool, verbose: bool):
+            # yapf: disable
+            self,
+            pl: pd.DataFrame,
+            var: str,
+            values,
+            nobs_dropped: dict,
+            dask: bool,
+            verbose: bool) -> (pd.DataFrame, Dict[int, Dict[str, float]]):
+            # yapf: enable
         """Perform filtering for age-year-specific variables
 
         Args:
@@ -556,9 +565,7 @@ class MedicareDF(object):
         return pl, nobs_dropped
 
     def _str_in_keep_vars(
-        self,
-        instr: str,
-        keep_vars: List[Union[str, Pattern]]) -> bool:
+            self, instr: str, keep_vars: List[Union[str, Pattern]]) -> bool:
         """Return True if string is in keep_vars
         """
 
@@ -581,9 +588,10 @@ class MedicareDF(object):
             buyin_val: Union[str, List[str], None] = None,
             hmo_val: Union[str, List[str], None] = None,
             join: str = 'outer',
-            keep_vars: Union[str, Pattern, List[Union[str, Pattern]], None]=[],
+            keep_vars: Union[str, Pattern, List[Union[str, Pattern]],
+                             None] = [],
             dask: bool = False,
-            verbose: bool = False):
+            verbose: bool = False): # yapf: disable
         """Get cohort given demographic and enrollment characteristics
 
         Creates ``.pl`` attribute with patient-level data in the form of a
@@ -1040,7 +1048,8 @@ class MedicareDF(object):
                 code = [code]
             elif isinstance(code, list):
                 # Check all elements of list are either str or Pattern
-                if not all(isinstance(x, (str, re._pattern_type)) for x in code):
+                if not all(isinstance(x, (str, re._pattern_type))
+                           for x in code):
                     raise TypeError(_mywrap(msg))
             else:
                 raise TypeError(_mywrap(msg))
