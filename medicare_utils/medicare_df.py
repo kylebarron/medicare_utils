@@ -31,16 +31,17 @@ pct_dict = {
 class MedicareDF(object):
     """Instantiate a MedicareDF object
 
-    Attributes:
-        percent (str, int, or float): percent sample of data to use
-        years (list[int]): years of data to use
-        year_type (str): ``calendar`` to work with multiple years as calendar
-            years; ``age`` to work with patients' age years
-        verbose (bool): Print progress status of program to console
-        parquet_engine (str): ``pyarrow`` or ``fastparquet``
-        parquet_nthreads (int): number of threads to use when reading file
-        dta_path (str): path to Stata Medicare files
-        pq_path (str): path to Parquet Medicare files
+    Args:
+        percent: percent sample of data to use
+        years: years of data to use
+        year_type: ``calendar`` to work with multiple years as calendar years;
+            ``age`` to work with patients' age years
+        dask: Use dask library for out of core computation
+        verbose: Print progress status of program to console
+        parquet_engine: ``pyarrow`` or ``fastparquet``
+        parquet_nthreads: number of threads to use when reading file
+        dta_path: path to Stata Medicare files
+        pq_path: path to Parquet Medicare files
     Returns:
         ``MedicareDF`` object. Can then create a cohort with :func:`get_cohort`
         or search for patients with a given diagnosis with
@@ -60,24 +61,7 @@ class MedicareDF(object):
             pq_path:
             str = '/disk/agebulk3/medicare.work/doyle-dua51929/barronk-dua51929/raw/pq'
             ) -> None: # yapf: disable
-        """Instantiate a MedicareDF object
-
-        Attributes:
-            percent: percent sample of data to use
-            years: years of data to use
-            year_type: ``calendar`` to work with multiple years as
-                calendar years; ``age`` to work with patients' age years
-            dask: Use dask library for out of core computation
-            verbose: Print progress status of program to console
-            parquet_engine: ``pyarrow`` or ``fastparquet``
-            parquet_nthreads: number of threads to use when reading file
-            dta_path: path to Stata Medicare files
-            pq_path: path to Parquet Medicare files
-        Returns:
-            ``MedicareDF`` object. Can then create a cohort with
-            :func:`get_cohort` or search for patients with a given diagnosis
-            with :func:`search_for_codes`
-        """
+        """Instantiate a MedicareDF object"""
 
         # Check types
         if type(percent) in (float, int):
