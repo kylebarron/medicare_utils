@@ -1159,7 +1159,7 @@ class MedicareDF(object):
             rename: Match columns to rename when ``collapse_codes`` is ``False``.
             convert_ehic: If ``True``, merges on ``bene_id`` for years <
                 2006
-            dask: Use dask library for out of core computation
+            dask: Use dask library for out of core computation. Not yet implemented; as of now everything happens in core.
             verbose: Print progress of program to console
 
         Returns:
@@ -1196,6 +1196,9 @@ class MedicareDF(object):
 
         if self.dask or dask:
             dask = True
+
+        # Dask isn't ready yet
+        dask = False
 
         ok_data_types = {
             'hcpcs': {'carl', 'ipr', 'opr'},
