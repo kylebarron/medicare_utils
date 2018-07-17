@@ -1271,6 +1271,34 @@ class MedicareDF(object):
                     dask=dask,
                     verbose=verbose)
 
+        self.cl = self._search_for_codes_data_join(
+            data=data, convert_ehic=convert_ehic, verbose=verbose)
+
+        if verbose:
+            msg = f"""\
+            Finished searching for codes
+            - percent sample: {self.percent}
+            - years: {list(self.years)}
+            - data_types: {data_types}
+            - time in function: {(time() - self.t0) / 60:.2f} minutes
+            - time in class: {(time() - self.tc) / 60:.2f} minutes
+            """
+            print(_mywrap(msg))
+
+        return
+
+    def _search_for_codes_data_join(self,
+            data: Dict[str, Dict[int, pd.DataFrame]],
+            convert_ehic: bool = True,
+            verbose: bool = False) -> pd.DataFrame: # yapf: disable
+        """Join year-data_type codes datasets.
+
+        Args:
+            data: dict of dataframes from _search_for_codes_single_year
+            convert_ehic: If true, convert ehic to bene_id
+            verbose: Print logging messages
+        """
+
         if verbose:
             msg = f"""\
             Concatenating matched codes across years
@@ -1289,19 +1317,19 @@ class MedicareDF(object):
             for data_type in data_types:
                 data[data_type]['all'] = pd.concat([
                     data[data_type][year] for year in years_bene_id])
+                # Delete individual year data
                 for year in years_ehic:
                     data[data_type][year] = None
                 data[data_type] = data[data_type]['all']
 
-            self.cl = data
-            return
+            return data
 
-        if (min(self.years) < 2006) and (max(self.years) >= 2006):
+        # Always convert ehic to bene_id if data from before *and* after 2006
+        if years_ehic and years_bene_id:
             convert_ehic = True
 
         # Concatenate ehic data (2005 and earlier)
-        if (convert_ehic) and (min(self.years) < 2006):
-
+        if convert_ehic and years_ehic:
             # If self.pl exists, then cl data frames use only those ids
             # So I can merge using that
             if self.pl is not None:
@@ -1374,18 +1402,7 @@ class MedicareDF(object):
 
             data[data_type] = data[data_type]['all']
 
-        self.cl = data
-
-        if verbose:
-            msg = f"""\
-            Finished searching for codes
-            - percent sample: {self.percent}
-            - years: {list(self.years)}
-            - data_types: {data_types}
-            - time in function: {(time() - self.t0) / 60:.2f} minutes
-            - time in class: {(time() - self.tc) / 60:.2f} minutes
-            """
-            print(_mywrap(msg))
+        return data
 
     def _search_for_codes_df_inner(self,
             cl: Union[pd.DataFrame, dd.DataFrame],
