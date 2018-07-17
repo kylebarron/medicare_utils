@@ -1,6 +1,10 @@
 #! /usr/bin/env python3
 import re
 import numpy as np
+import warnings
+# Note, take this out when this is resolved
+# https://github.com/pandas-dev/pandas/issues/21952
+warnings.simplefilter(action='ignore', category=FutureWarning)
 import pandas as pd
 import fastparquet as fp
 import dask.dataframe as dd
