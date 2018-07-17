@@ -1633,7 +1633,7 @@ class MedicareDF(object):
                     pl_ids_to_filter=pl_ids_to_filter)
                 all_cl.append(cl)
 
-            cl = pd.concat(all_cl, axis=0)
+            cl = pd.concat(all_cl, axis=0, sort=False)
 
         cl['year'] = np.uint16(year)
 
