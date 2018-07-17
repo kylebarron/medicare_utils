@@ -1303,7 +1303,7 @@ class MedicareDF(object):
             msg = f"""\
             Concatenating matched codes across years
             - years: {list(self.years)}
-            - data types: {data_types}
+            - data types: {list(data.keys())}
             - time in function: {(time() - self.t0) / 60:.2f} minutes
             - time in class: {(time() - self.tc) / 60:.2f} minutes
             """
@@ -1312,16 +1312,16 @@ class MedicareDF(object):
         years_ehic = [x for x in self.years if x < 2006]
         years_bene_id = [x for x in self.years if x >= 2006]
 
-        # Don't go through ehic process if data is only post 2006
-        if years_ehic == []:
-            for data_type in data_types:
-                data[data_type]['all'] = pd.concat([
-                    data[data_type][year] for year in years_bene_id])
-                # Delete individual year data
-                for year in years_ehic:
-                    data[data_type][year] = None
-                data[data_type] = data[data_type]['all']
+        if years_bene_id:
+            for data_type in data.keys():
+                data[data_type]['bene_id'] = pd.concat(
+                    [data[data_type].pop(year) for year in years_bene_id],
+                    sort=False)
 
+        # Don't go through ehic process if data is only post 2006
+        if not years_ehic:
+            for data_type in data.keys():
+                data[data_type] = data[data_type].pop('bene_id')
             return data
 
         # Always convert ehic to bene_id if data from before *and* after 2006
@@ -1329,78 +1329,49 @@ class MedicareDF(object):
             convert_ehic = True
 
         # Concatenate ehic data (2005 and earlier)
-        if convert_ehic and years_ehic:
-            # If self.pl exists, then cl data frames use only those ids
-            # So I can merge using that
-            if self.pl is not None:
-                for data_type in data_types:
-                    df = pd.concat([
-                        data[data_type][year] for year in years_ehic])
-                    df = df.merge(
-                        self.pl, how='left', left_index=True, right_on='ehic')
-
-                    data[data_type]['ehic'] = df
-
-            else:
-                for year in years_ehic:
-                    # Read in all bsfab data
+        if not convert_ehic:
+            for data_type in data.keys():
+                data[data_type]['ehic'] = pd.concat(
+                    [data[data_type].pop(year) for year in years_ehic],
+                    sort=False)
+        else:
+            for year in years_ehic:
+                # Get ehic-bene_id crosswalk
+                # If self.pl exists, then cl data frames use only those ids
+                # So I can merge using that
+                if self.pl is not None:
+                    if f'match_{year}' in self.pl.columns:
+                        right = self.pl.loc[self.pl[f'match_{year}'], 'ehic']
+                    else:
+                        right = self.pl['ehic']
+                    right = right.to_frame()
+                else:
                     if self.parquet_engine == 'pyarrow':
                         pf = pq.ParquetFile(
                             self._fpath(self.percent, year, 'bsfab'))
-                        pl = pf.read(
-                            columns=['ehic', 'bene_id'],
-                            nthreads=2).to_pandas().set_index('ehic')
+                        right = pf.read(
+                            columns=['ehic'],
+                            nthreads=2).to_pandas().set_index('bene_id')
                     elif self.parquet_engine == 'fastparquet':
                         pf = fp.ParquetFile(
                             self._fpath(self.percent, year, 'bsfab'))
-                        pl = pf.to_pandas(columns=['bene_id'], index='ehic')
+                        right = pf.to_pandas(columns=['ehic'], index='bene_id')
 
-                    # Join bene_ids onto data using ehic
-                    for data_type in data_types:
-                        data[data_type][year] = data[data_type][year].join(
-                            pl, how='left').reset_index().set_index('bene_id')
+                # Join bene_ids onto data using ehic
+                for data_type in data.keys():
+                    data[data_type][year] = data[data_type][year].merge(
+                        right, how='left', left_index=True, right_on='ehic')
 
-                for data_type in data_types:
-                    data[data_type]['ehic'] = pd.concat([
-                        data[data_type][year] for year in years_ehic])
+            # Concatenate ehic data
+            for data_type in data.keys():
+                data[data_type]['ehic'] = pd.concat(
+                    [data[data_type].pop(year) for year in years_ehic],
+                    sort=False)
 
-        elif (not convert_ehic) and (min(self.years) < 2006):
-            for data_type in data_types:
-                data[data_type]['ehic'] = pd.concat([
-                    data[data_type][year] for year in years_ehic])
-
-        for data_type in data_types:
-            # Delete single-year ehic data
-            for year in years_ehic:
-                data[data_type][year] = None
-
-            # Concatenate bene_id data (2006 and later)
-            data[data_type]['bene_id'] = pd.concat([
-                data[data_type][year] for year in years_bene_id])
-
-            # Delete single-year bene_id data
-            for year in years_bene_id:
-                data[data_type][year] = None
-
-            # Concatenate ehic data with bene_id data
-            if data[data_type]['ehic'].index.name == data[data_type][
-                    'bene_id'].index.name:
-                data[data_type]['all'] = pd.concat([
-                    data[data_type]['ehic'], data[data_type]['bene_id']])
-
-                data[data_type]['ehic'] = None
-                data[data_type]['bene_id'] = None
-
-            else:
-                data[data_type]['all'] = pd.concat([
-                    data[data_type]['ehic'].reset_index(),
-                    data[data_type]['bene_id'].reset_index()],
-                                                   ignore_index=True)
-
-                data[data_type]['ehic'] = None
-                data[data_type]['bene_id'] = None
-
-            data[data_type] = data[data_type]['all']
+        for data_type in data.keys():
+            data[data_type] = pd.concat(
+                [data[data_type].pop('ehic'), data[data_type].pop('bene_id')],
+                sort=False)
 
         return data
 
