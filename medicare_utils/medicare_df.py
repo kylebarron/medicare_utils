@@ -368,7 +368,7 @@ class MedicareDF(object):
             keep_vars: List[str],
             dask: bool,
             verbose: bool) -> (pd.DataFrame, Dict[int, Dict[str, float]]):
-            # yapf: enable
+        # yapf: enable
 
         if verbose:
             msg = f"""\
@@ -492,7 +492,7 @@ class MedicareDF(object):
             nobs_dropped: dict,
             dask: bool,
             verbose: bool) -> (pd.DataFrame, Dict[int, Dict[str, float]]):
-            # yapf: enable
+        # yapf: enable
         """Perform filtering for age-year-specific variables
 
         Args:
@@ -1242,7 +1242,7 @@ class MedicareDF(object):
                     """) # yapf: disable
                     for k, v in codes.items():
                         if data_type in ok_data_types[k]:
-                            if v is not None:
+                            if v != []:
                                 msg += _mywrap(f"""\
                                 - {codes_fmt[k]} codes: {v}
                                 """) # yapf: disable
@@ -1439,7 +1439,7 @@ class MedicareDF(object):
             all_created_cols = []
 
         for key, val in codes.items():
-            # If no codes to search over; move to next iteration of loop
+            # If no columns to search over; move to next iteration of loop
             if cols[key] == []:
                 continue
 
@@ -1642,7 +1642,8 @@ class MedicareDF(object):
                     pl_ids_to_filter=pl_ids_to_filter)
                 all_cl.append(cl)
 
-        cl = pd.concat(all_cl, axis=0)
+            cl = pd.concat(all_cl, axis=0)
+
         cl['year'] = np.uint16(year)
 
         # Merge back onto pl_ids_to_filter so that claim-level df
