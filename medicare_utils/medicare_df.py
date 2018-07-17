@@ -1107,7 +1107,7 @@ class MedicareDF(object):
             raise ValueError(_mywrap(msg))
         if (codes['icd9_sg'] == []) and (icd9_sg_max_cols is not None):
             msg = f"""\
-            icd9_dx_max_cols argument not allowed when icd9_dx is None
+            icd9_sg_max_cols argument not allowed when icd9_sg is None
             """
             raise ValueError(_mywrap(msg))
 
