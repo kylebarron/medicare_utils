@@ -1731,3 +1731,85 @@ class MedicareDF(object):
                         pl.loc[idx, code] = True
 
         return pl
+
+    def to_stata(self, attr: str, **kwargs):
+        """Wrapper to export to stata.
+
+        Will automatically add
+
+        Args:
+            attr : str
+                either 'pl' or 'cl.med', 'cl.opc', 'cl.opr', etc.
+            fname : path (string), buffer or path object
+                string, path object (pathlib.Path or py._path.local.LocalPath) or
+                object implementing a binary write() functions. If using a buffer
+                then the buffer will not be automatically closed after the file
+                data has been written.
+            convert_dates : dict
+                Dictionary mapping columns containing datetime types to stata
+                internal format to use when writing the dates. Options are 'tc',
+                'td', 'tm', 'tw', 'th', 'tq', 'ty'. Column can be either an integer
+                or a name. Datetime columns that do not have a conversion type
+                specified will be converted to 'tc'. Raises NotImplementedError if
+                a datetime column has timezone information.
+            encoding : str
+                Default is latin-1. Unicode is not supported.
+            time_stamp : datetime
+                A datetime to use as file creation date.  Default is the current
+                time.
+            data_label : str
+                A label for the data set.  Must be 80 characters or smaller.
+            variable_labels : dict
+                Dictionary containing columns as keys and variable labels as
+                values. Each label must be 80 characters or smaller.
+            version : {114, 117}
+                Version to use in the output dta file.  Version 114 can be used
+                read by Stata 10 and later.  Version 117 can be read by Stata 13
+                or later. Version 114 limits string variables to 244 characters or
+                fewer while 117 allows strings with lengths up to 2,000,000
+                characters.
+            convert_strl : list, optional
+                List of column names to convert to string columns to Stata StrL
+                format. Only available if version is 117.  Storing strings in the
+                StrL format can produce smaller dta files if strings have more than
+                8 characters and values are repeated.
+
+        Examples:
+            >>> mdf.to_stata(attr='pl', fname='patient_level_file.dta')
+            >>> mdf.to_stata(attr='cl.med', fname='medpar_extract.dta')
+            Or with dates
+            >>> mdf.to_stata(attr='cl.med', fname='medpar_extract.dta',
+                             convert_dates={'admsndt': 'td'})
+        """
+
+        data_label_dict = {
+            'pl': 'Patient-level',
+            'cl.med': 'Claim-level MedPAR',
+            'cl.carc': 'Claim-level Carrier Claims',
+            'cl.carl': 'Claim-level Carrier Line',
+            'cl.ipc': 'Claim-level Inpatient Claims',
+            'cl.ipr': 'Claim-level Inpatient Revenue Center',
+            'cl.opc': 'Claim-level Outpatient Claims',
+            'cl.opr': 'Claim-level Outpatient Revenue Center'}
+
+        data_type = re.search(r'\.(.+)', attr)[1]
+        if attr == 'pl':
+            data = self.pl
+        else:
+            data = self.cl[data_type]
+
+        columns = [*list(data.columns), data.index.name]
+        var_labels = {
+            col: codebook(data_type)[col]['name']
+            for col in columns
+            if col in codebook(data_type).keys()}
+        kwargs['variable_labels'] = {
+            **var_labels,
+            **kwargs.get('variable_labels', {})}
+
+        kwargs['write_index'] = True
+        kwargs['data_label'] = kwargs.get(
+            'data_label', f'{data_label_dict[attr]} data extract.')
+
+        data.to_stata(**kwargs)
+        return
