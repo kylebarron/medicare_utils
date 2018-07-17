@@ -838,7 +838,7 @@ class MedicareDF(object):
         if verbose:
             msg = f"""\
             Finished cohort retrieval
-            - percent sample: {self.percent}
+            - percent sample: {pct_dict[self.percent]}%
             - years: {list(self.years)}
             - ages: {list(ages) if ages else None}
             - races: {races if races else None}
@@ -969,6 +969,7 @@ class MedicareDF(object):
         data_types: List[str]
         codes: Dict[str, List[Union[str, Pattern]]]
         icd9_dx_max_cols: Optional[int]
+        icd9_sg_max_cols: Optional[int]
         keep_vars: Dict[str, List[Union[str, Pattern]]]
         collapse_codes: bool
         rename: Dict[str, Union[str, List[str], Dict[str, str], None]]
@@ -983,6 +984,7 @@ class MedicareDF(object):
             icd9_dx: Union[str, Pattern, List[Union[str, Pattern]], None],
             icd9_dx_max_cols: Optional[int],
             icd9_sg: Union[str, Pattern, List[Union[str, Pattern]], None],
+            icd9_sg_max_cols: Optional[int],
             keep_vars: Dict[str, Union[str, Pattern, List[Union[str, Pattern]], None]],
             collapse_codes: bool,
             rename: Dict[str, Union[str, List[str], Dict[str, str], None]],
@@ -1103,11 +1105,17 @@ class MedicareDF(object):
             icd9_dx_max_cols argument not allowed when icd9_dx is None
             """
             raise ValueError(_mywrap(msg))
+        if (codes['icd9_sg'] == []) and (icd9_sg_max_cols is not None):
+            msg = f"""\
+            icd9_dx_max_cols argument not allowed when icd9_dx is None
+            """
+            raise ValueError(_mywrap(msg))
 
         return self._ReturnSearchForCodesTypeCheck(
             data_types=data_types,
             codes=codes,
             icd9_dx_max_cols=icd9_dx_max_cols,
+            icd9_sg_max_cols=icd9_sg_max_cols,
             keep_vars=keep_vars,
             collapse_codes=collapse_codes,
             rename=rename,
@@ -1122,6 +1130,7 @@ class MedicareDF(object):
             icd9_dx: Union[str, Pattern, List[Union[str, Pattern]], None] = None,
             icd9_dx_max_cols: Optional[int] = None,
             icd9_sg: Union[str, Pattern, List[Union[str, Pattern]], None] = None,
+            icd9_sg_max_cols: Optional[int] = None,
             keep_vars: Dict[str, Union[str, Pattern, List[Union[str, Pattern]], None]] = {},
             collapse_codes: bool = True,
             rename: Dict[str, Union[str, List[str], Dict[str, str], None]] = {
@@ -1159,6 +1168,8 @@ class MedicareDF(object):
             icd9_dx_max_cols: Max number of ICD9 diagnosis code columns to
                 search through. If ``None``, will search through all columns.
             icd9_sg: ICD-9 procedure codes to search for
+            icd9_sg_max_cols: Max number of ICD9 procedure code columns to
+                search through. If ``None``, will search through all columns.
             keep_vars: column names to return
             collapse_codes: If ``True``, returns a single column named
                 ``match`` that is ``True`` for the claims with a matched code and ``False`` otherwise. If ``collapse_codes`` is ``False``, returns a column for each code provided
@@ -1184,6 +1195,7 @@ class MedicareDF(object):
             icd9_dx=icd9_dx,
             icd9_dx_max_cols=icd9_dx_max_cols,
             icd9_sg=icd9_sg,
+            icd9_sg_max_cols=icd9_sg_max_cols,
             keep_vars=keep_vars,
             collapse_codes=collapse_codes,
             rename=rename,
@@ -1193,6 +1205,7 @@ class MedicareDF(object):
         data_types = objs.data_types
         codes = objs.codes
         icd9_dx_max_cols = objs.icd9_dx_max_cols
+        icd9_sg_max_cols = objs.icd9_sg_max_cols
         keep_vars = objs.keep_vars
         collapse_codes = objs.collapse_codes
         rename = objs.rename
@@ -1245,7 +1258,8 @@ class MedicareDF(object):
             for year in self.years:
                 if verbose:
                     msg = _mywrap(f"""\
-                    Starting search for codes
+                    Searching for codes
+                    - percent sample: {pct_dict[self.percent]}%
                     - year: {year}
                     - data type: {data_type}
                     """) # yapf: disable
@@ -1271,6 +1285,7 @@ class MedicareDF(object):
                     data_type=data_type,
                     codes=codes,
                     icd9_dx_max_cols=icd9_dx_max_cols,
+                    icd9_sg_max_cols=icd9_sg_max_cols,
                     keep_vars=keep_vars[data_type],
                     rename=rename,
                     collapse_codes=collapse_codes,
@@ -1485,6 +1500,7 @@ class MedicareDF(object):
             data_type: str,
             codes: Dict[str, List[Union[str, Pattern]]],
             icd9_dx_max_cols: Optional[int],
+            icd9_sg_max_cols: Optional[int],
             keep_vars: List[Union[str, Pattern]],
             rename: Dict[str, str],
             collapse_codes: bool,
@@ -1566,6 +1582,10 @@ class MedicareDF(object):
             cols['icd9_dx'] = [
                 x for x in all_cols for m in [re.search(icd9_dx_regex, x)] if m
                 if int(m[1]) <= icd9_dx_max_cols]
+        if icd9_sg_max_cols is not None:
+            cols['icd9_sg'] = [
+                x for x in all_cols for m in [re.search(icd9_sg_regex, x)] if m
+                if int(m[1]) <= icd9_sg_max_cols]
 
         cols_toload = set(item for subl in cols.values() for item in subl)
         # Now that list flattening is over, make 'cl_id' and 'pl_id' strings
