@@ -1463,9 +1463,7 @@ class MedicareDF(object):
 
             # cols[key] only includes the variables for the specific codes I'm
             # looking at, so should be fine within the loop.
-            cols_todrop = [
-                x for x in cols[key]
-                if not self._str_in_keep_vars(x, keep_vars)]
+            cols_todrop = [x for x in cols[key] if x not in cols['keep_vars']]
             cl = cl.drop(cols_todrop, axis=1)
 
         if not collapse_codes:
@@ -1515,63 +1513,54 @@ class MedicareDF(object):
         """
 
         # Determine which variables to extract
-        regex_string = []
-        cl_id_regex = r'^medparid$|^clm_id$|^claimindex$'
-        regex_string.append(cl_id_regex)
-
-        regex_string.append(r'^bene_id$')
-        regex_string.append(r'^ehic$')
-        # Don't need to only add regex for specific file
-        # The files without HCPCS codes won't have a var matching the regex
-        hcpcs_regex = r'^hcpcs_cd$'
-        regex_string.append(hcpcs_regex)
-        icd9_sg_regex = r'^icd_prcdr_cd\d+$'
-        regex_string.append(icd9_sg_regex)
-        if data_type == 'carl':
-            icd9_dx_regex = r'icd_dgns_cd(\d*)$'
-        elif data_type == 'med':
-            icd9_dx_regex = r'^dgnscd(\d+)$$'
-        else:
-            icd9_dx_regex = r'^icd_dgns_cd(\d+)$'
-        regex_string.append(icd9_dx_regex)
-
-        for keep_var in keep_vars:
-            if isinstance(keep_var, str):
-                regex_string.append(r'^({})$'.format(keep_var))
-
-        regex_string = '|'.join(regex_string)
-        regex = re.compile(regex_string).search
-
         if self.parquet_engine == 'pyarrow':
             all_cols = pq.ParquetFile(
                 self._fpath(self.percent, year, data_type)).schema.names
         elif self.parquet_engine == 'fastparquet':
             all_cols = fp.ParquetFile(
                 self._fpath(self.percent, year, data_type)).columns
-        toload_vars = set(x for x in all_cols if regex(x))
-        for keep_var in keep_vars:
-            if isinstance(keep_var, re._pattern_type):
-                toload_vars.update(
-                    set(x for x in all_cols if keep_var.search(x)))
-        all_cols = toload_vars
+
+        icd9_sg_regex = r'^icd_prcdr_cd(\d+)$'
+        if data_type == 'carl':
+            icd9_dx_regex = r'icd_dgns_cd(\d*)$'
+        elif data_type == 'med':
+            icd9_dx_regex = r'^dgnscd(\d+)$$'
+        else:
+            icd9_dx_regex = r'^icd_dgns_cd(\d+)$'
+        cols: Dict[str, List[str]] = {
+            'cl_id': [
+                x for x in all_cols
+                if re.search(r'^medparid$|^clm_id$|^claimindex$', x)],
+            'pl_id': ['ehic'] if year < 2006 else ['bene_id'],
+            'keep_vars': [
+                x for x in all_cols if self._str_in_keep_vars(x, keep_vars)]}
+        if codes['hcpcs']:
+            cols['hcpcs'] = [x for x in all_cols if re.search(r'^hcpcs_cd$', x)]
+        else:
+            cols['hcpcs'] = []
+
+        if codes['icd9_sg']:
+            cols['icd9_sg'] = [
+                x for x in all_cols if re.search(icd9_sg_regex, x)]
+        else:
+            cols['icd9_sg'] = []
+
+        if codes['icd9_dx']:
+            cols['icd9_dx'] = [
+                x for x in all_cols if re.search(icd9_dx_regex, x)]
+        else:
+            cols['icd9_dx'] = []
 
         # Check cols against keep_vars
         # Is there an item in keep_vars that wasn't matched?
         # NOTE need to check this against regex values of keep_vars
-        for var in keep_vars:
+        for var in cols['keep_vars']:
             if [x for x in all_cols if re.search(var, x)] == []:
                 msg = f"""\
                 WARNING: variable `{var}` in the keep_vars argument
                 was not found in {data_type}
                 """
                 print(_mywrap(msg))
-
-        cols: Dict[str, List[str]] = {
-            'cl_id': [x for x in all_cols if re.search(cl_id_regex, x)],
-            'pl_id': ['ehic'] if year < 2006 else ['bene_id'],
-            'hcpcs': [x for x in all_cols if re.search(hcpcs_regex, x)],
-            'icd9_sg': [x for x in all_cols if re.search(icd9_sg_regex, x)],
-            'icd9_dx': [x for x in all_cols if re.search(icd9_dx_regex, x)]}
 
         if icd9_dx_max_cols is not None:
             cols['icd9_dx'] = [
