@@ -33,23 +33,67 @@ pct_dict = {
 
 
 class MedicareDF(object):
-    """Instantiate a MedicareDF object
+    """Create a MedicareDF object.
 
     Args:
-        percent: percent sample of data to use
-        years: years of data to use
-        year_type: ``calendar`` to work with multiple years as calendar years;
-            ``age`` to work with patients' age years
-        dask: Use dask library for out of core computation
-        verbose: Print progress status of program to console
-        parquet_engine: ``pyarrow`` or ``fastparquet``
-        parquet_nthreads: number of threads to use when reading file
-        dta_path: path to Stata Medicare files
-        pq_path: path to Parquet Medicare files
+        percent:
+            Percent sample of data to use. Either ``0.01``, ``1``, ``5``,
+            ``20``, or ``100``.
+        years:
+            Years of data to use.
+        year_type:
+            ``calendar`` to work with multiple years as calendar years; ``age``
+            to work with patients' age years. The latter does computations
+            using the age a patient is when admitted.
+        dask:
+            Use dask library for out of core computation. In general this is
+            unnecessary because this package tries to be smart about only
+            storing the minimum amount of data in memory at a time. This is a
+            global option that applies for all methods called from this object.
+            However, as of now, dask support doesn't exist for
+            :meth:`search_for_codes`.
+        verbose:
+            Print progress status of program to console. This is a global option
+            that applies for all methods called from this object.
+        parquet_engine:
+            The engine to use to read Parquet files: ``pyarrow`` or
+            ``fastparquet``. Usually you'll have better reliability when using
+            the engine you created the Parquet files with.
+        parquet_nthreads:
+            Number of threads to use when reading file.
+        dta_path:
+            Path to root directory of Stata Medicare files.
+        pq_path:
+            Path to Parquet Medicare files. As of now, these must be created by
+            hand using :func:`medicare_utils.parquet.convert_med`, but I hope to
+            have these available for general use in the future.
     Returns:
-        ``MedicareDF`` object. Can then create a cohort with :func:`get_cohort`
-        or search for patients with a given diagnosis with
-        :func:`search_for_codes`
+        ``MedicareDF`` object. Can then create a cohort based on demographic
+        characteristics using :meth:`get_cohort` or search for claims with given
+        diagnosis or procedure codes with :meth:`search_for_codes`.
+
+    Examples:
+
+        Create a ``MedicareDF`` object by passing the desired arguments to it as
+        a function, and assigning the result to a new variable.
+
+        .. code-block:: python
+
+            >>> import medicare_utils as med
+            >>> mdf = med.MedicareDF(percent=5, years=[2010, 2011, 2012], year_type='calendar', verbose=True)
+
+        or
+
+        .. code-block:: python
+
+            >>> import medicare_utils as med
+            >>> mdf = med.MedicareDF(percent=100, years=range(2010, 2013), year_type='calendar', verbose=True)
+
+        **Note**: in Python, ``range`` doesn't include the upper bound, so ``range(2010, 2013)`` is equivalent to ``[2010, 2011, 2012]``.
+
+        The ``mdf`` object now lets you find a demographic cohort with
+        :meth:`mdf.get_cohort` or search for claims with given diagnosis or
+        procedure codes with :meth:`search_for_codes`.
     """
 
     def __init__(
@@ -587,40 +631,144 @@ class MedicareDF(object):
                              None] = [],
             dask: bool = False,
             verbose: bool = False): # yapf: disable
-        """Get cohort given demographic and enrollment characteristics
+        """Get cohort with given demographic and enrollment characteristics.
 
         Creates ``.pl`` attribute with patient-level data in the form of a
-        pandas DataFrame. Index of returned DataFrame is always ``bene_id``,
-        even if years provided are before 2006. In pre-2006 years, ``ehic`` will
-        always be returned as a column.
+        pandas DataFrame. Unless
 
         Args:
-            gender: ``M``, ``F``, ``Male``, ``Female``, or ``None`` (keep both)
+            gender:
+                Gender of patients to keep. Options: ``'M'``,
+                ``'F'``, ``'Male'``, ``'Female'``, or ``None`` (keep both).
             ages:
-                Range of ages to include. When ``year_type`` is ``calendar``,
+                Ages of patients to keep. When ``year_type`` is ``'calendar'``,
                 keeps anyone whose age was in ``ages`` at the end of the
-                calendar year. When ``year_type`` is ``age``, keeps anyone whose
-                age was in ``ages`` at any point during the year.
-            races: Races to include
-            rti_race: Whether to use the Research Triangle
-                Institute race code instead of the default race code.
-            buyin_val: The values ``buyinXX`` can take
-            hmo_val: The values ``hmoindXX`` can take
-            join: method for joining across years. Options: ``outer``,
-                ``inner``, ``left``, ``right``. ``outer`` keeps all patients who
-                matched desired characteristics in **any** year. ``inner`` keeps
-                all patients who matched desired characteristics in **all**
-                years. ``left`` keeps all people who matched desired
-                characteristics in the **first** year. ``right`` keeps all
-                people who matched desired characteristics in the **last** year.
-            keep_vars: Variable names to keep in final output
-            dask: Use dask library for out of core computation
-            verbose: Print progress of program to console
+                calendar year. When ``year_type`` is ``'age'``, keeps anyone
+                whose age was in ``ages`` at any point during the year.
+            races:
+                Races to keep. Strings such as ``'white'``, ``'black'``,
+                ``'asian'``, and ``'hispanic'`` are allowed. Alternatively, can
+                be the integers those strings correspond to in the data
+                codebook. The codebook is `here
+                <https://kylebarron.github.io/medicare-documentation/resdac/variables/mbsf/#beneficiary-race-code>`_
+                for the regular race code or `here
+                <https://kylebarron.github.io/medicare-documentation/resdac/variables/mbsf/#research-triangle-institute-rti-race-code>`_
+                for the RTI race code.
+            rti_race:
+                If ``True``, uses the Research Triangle Institute race code
+                instead of the default race code.
+            buyin_val:
+                The values ``buyinXX`` can take. When ``year_type`` is
+                ``'calendar'``, keeps everyone whose buyin value is in
+                ``buyin_val`` for the entire calendar year. When ``year_type``
+                is ``'age'``, keeps everyone whose buyin value is in
+                ``buyin_val`` for the 13 months beginning in the month of the
+                patient's birthday. See the codebook `here
+                <https://kylebarron.github.io/medicare-documentation/resdac/variables/mbsf/#medicare-entitlementbuy-in-indicator-january>`_.
+            hmo_val:
+                The values ``hmoindXX`` can take. When ``year_type`` is
+                ``'calendar'``, keeps everyone whose HMO indicator is in
+                ``hmo_val`` for the entire calendar year. When ``year_type`` is
+                ``'age'``, keeps everyone whose HMO indicator is in ``hmo_val``
+                for the 13 months beginning in the month of the patient's
+                birthday. See the codebook `here
+                <https://kylebarron.github.io/medicare-documentation/resdac/variables/mbsf/#hmo-indicator-january>`_.
+            join:
+                Method for joining across years. Meaningless when ``years`` is a
+                single year.
+
+                - ``'outer'`` keeps all patients who matched desired characteristics in **any** year.
+                - ``'inner'`` keeps all patients who matched desired characteristics in **all** years.
+                - ``'left'`` keeps all patients who matched desired characteristics in the **first** year.
+                - ``'right'`` keeps all patients who matched desired characteristics in the **last** year.
+            keep_vars:
+                Variable names to keep in final output. This can either be a
+                string or a list of strings or compiled regular expressions. The
+                easiest way to create a compiled regular expression is with
+                ``re.compile(string)``. By default, the only columns returned
+                from ``get_cohort`` are the patient identifier (either
+                ``bene_id`` or ``ehic``) and a variable named ``match_{year}``
+                that is ``True`` if the patient was found in a given year and
+                ``False`` otherwise. The list of variables in the dataset can be
+                found `here
+                <https://kylebarron.github.io/medicare-documentation/resdac/mbsf/#base-abcd-segment_2>`_.
+            dask:
+                Use dask library for out of core computation. In general this is
+                unnecessary because this package tries to be smart about only
+                storing the minimum amount of data in memory at a time.
+            verbose:
+                Print progress of program to console.
 
         Returns:
             Creates attributes ``.pl`` with patient-level data in pandas
             DataFrame and ``.nobs_dropped`` with dict of percent of observations
-            dropped due to each filter.
+            dropped due to each filter. Index of DataFrame is always
+            ``bene_id``, even if years provided are before 2006. In pre-2006
+            years, ``ehic`` will always be returned as a column.
+
+        Examples:
+
+            First, set up the class by running :class:`MedicareDF`.
+
+            .. code-block:: python
+
+                >>> import medicare_utils as med
+                >>> mdf = med.MedicareDF(percent=100, years=range(2008, 2012))
+
+            Then use the ``mdf`` object to supply your parameters. To find all
+            female patients who are Asian or White, and who are aged 70-85
+            (inclusive) and continuously enrolled in Medicare Part A and B in
+            any of the years 2008-2011 (inclusive), we can do:
+
+            .. code-block:: python
+
+                >>> mdf.get_cohort(
+                        gender='female',
+                        ages=range(70, 86),
+                        races=['asian', 'white'],
+                        buyin_val=['3', 'C'],
+                        join='outer')
+
+            In case we wanted to add any extra columns from the Beneficiary
+            summary files to this extract, we could pass variable names as a
+            list with the ``keep_vars`` argument. By default, the only columns
+            returned from ``get_cohort`` are the patient identifier and an
+            indicator for if the patient was found in a given year.
+
+            .. code-block:: python
+
+                >>> mdf.get_cohort(
+                        gender='female',
+                        ages=range(70, 86),
+                        races=['asian', 'white'],
+                        buyin_val=['3', 'C'],
+                        join='outer',
+                        keep_vars=['age', 'bene_dob', 'state_cd', 'zip_cd'])
+
+            To keep all the ``buyin*`` variables in the extract, we can
+            additionally pass a compiled regular expression as an argument:
+
+            .. code-block:: python
+
+                >>> import re
+                >>> mdf.get_cohort(
+                        gender='female',
+                        ages=range(70, 86),
+                        races=['asian', 'white'],
+                        buyin_val=['3', 'C'],
+                        join='outer',
+                        keep_vars=[
+                            'age', 'bene_dob', 'state_cd', 'zip_cd',
+                            re.compile(r'^buyin\d\d')])
+
+
+            Then the data is held within the ``pl`` attribute, and can be
+            accessed like any other object.
+
+            .. code-block:: python
+
+                >>> len(mdf.pl)
+
         """
 
         if self.verbose | verbose:
@@ -1156,7 +1304,7 @@ class MedicareDF(object):
             verbose: bool = False): # yapf: disable
         """Search in claim-level datasets for HCPCS and/or ICD9 codes
 
-        Note: Each code given must be distinct, or ``collapse_codes`` must be ``True``
+        Note: Each code given must be distinct, or ``collapse_codes`` must be ``True``.
 
         Args:
             data_types:
@@ -1177,30 +1325,138 @@ class MedicareDF(object):
                 .. _`MedPAR File`: https://kylebarron.github.io/medicare-documentation/resdac/medpar-rif/#medpar-rif_1
                 .. _`Outpatient File, Claims segment`: https://kylebarron.github.io/medicare-documentation/resdac/op-rif/#outpatient-rif_1
                 .. _`Outpatient File, Revenue Center segment`: https://kylebarron.github.io/medicare-documentation/resdac/op-rif/#revenue-center-file
-            hcpcs: HCPCS codes to search for
-            icd9_dx: ICD-9 diagnosis codes to search for
-            icd9_dx_max_cols: Max number of ICD9 diagnosis code columns to
             pl:
                 Patient-level DataFrame used to filter cohort before searching
                 code columns. Unnecessary if :func:`get_cohort` is called before
                 this. Must have at least ``ehic`` or ``bene_id`` as a column.
+            hcpcs:
+                HCPCS codes to search for
+            icd9_dx:
+                ICD-9 diagnosis codes to search for
+            icd9_dx_max_cols:
+                Max number of ICD9 diagnosis code columns to
                 search through. If ``None``, will search through all columns.
-            icd9_sg: ICD-9 procedure codes to search for
-            icd9_sg_max_cols: Max number of ICD9 procedure code columns to
+            icd9_sg:
+                ICD-9 procedure codes to search for
+            icd9_sg_max_cols:
+                Max number of ICD9 procedure code columns to
                 search through. If ``None``, will search through all columns.
-            keep_vars: column names to return
-            collapse_codes: If ``True``, returns a single column named
-                ``match`` that is ``True`` for the claims with a matched code and ``False`` otherwise. If ``collapse_codes`` is ``False``, returns a column for each code provided
-            rename: Match columns to rename when ``collapse_codes`` is ``False``.
-            convert_ehic: If ``True``, merges on ``bene_id`` for years <
-                2006
-            dask: Use dask library for out of core computation. Not yet implemented; as of now everything happens in core.
-            verbose: Print progress of program to console
+            keep_vars:
+                Variable names to keep in final output. This must be a
+                dictionary where the keys are one of the ``data_types`` being
+                searched in and the values of the dictionary are strings or
+                lists of strings or compiled regular expressions. The easiest
+                way to create a compiled regular expression is with
+                ``re.compile(string)``.
+
+                By default, the only columns returned from ``search_for_codes``
+                are 1) a column named ``match`` that is ``True`` if any of the
+                codes were matched for a given claim and ``False`` otherwise,
+                and 2) columns for each code or regular expression given if
+                ``collapse_codes`` is ``False``. The lists of variables in each
+                dataset can be found at the links under the ``data_types``
+                argument.
+            collapse_codes:
+                If ``True``, the returned DataFrame will have a single column
+                named ``match`` that is ``True`` for the claims where any
+                supplied code was matched and ``False`` otherwise. If
+                ``collapse_codes`` is ``False``, the returned DataFrame will
+                contain a column for each string or regular expression provided.
+                Use the ``rename`` argument to give user friendly names to
+                columns with possibly complex regular expressions.
+            rename:
+                Match columns to rename when ``collapse_codes`` is ``False``.
+            convert_ehic:
+                If ``True``, merges on ``bene_id`` for years 2005 and earlier.
+                If ``False``, will leave ``ehic`` as the patient identifier.
+                This is always ``True`` when years before and after 2005 are
+                provided.
+            dask:
+                Use dask library for out of core computation. Not yet
+                implemented; as of now everything happens in core.
+            verbose:
+                Print progress of program to console
 
         Returns:
             Creates ``.cl`` attribute. This is a dict where keys are the
             data_types provided and values are pandas DataFrames with
             ``bene_id`` as index and indicator columns for each code provided.
+
+        Examples:
+
+            First, set up the class by running :class:`MedicareDF` and optionally using :meth:`get_cohort`.
+
+            .. code-block:: python
+
+                >>> import medicare_utils as med
+                >>> mdf = med.MedicareDF(percent=100, years=range(2008, 2012))
+                >>> mdf.get_cohort(gender='female', ages=range(70, 86))
+
+            Then to perform a search for claims:
+                - in the MedPAR or Outpatient claims files
+                - with the primary or secondary ICD-9 diagnosis code starting with either ``410`` or ``480``
+                - returning individual match columns for each of the two provided regular expressions and renaming them to ``ami`` and ``pneumonia``
+
+            we can do:
+
+            .. code-block:: python
+
+                >>> import re
+                >>> mdf.search_for_codes(
+                        data_types=['med', 'opc'],
+                        icd9_dx=[re.compile(r'^410'), re.compile(r'^480')],
+                        icd9_dx_max_cols=2,
+                        collapse_codes=False,
+                        rename={'icd9_dx': ['ami', 'pneumonia']})
+
+            In case we wanted to add any extra columns from the Beneficiary
+            summary files to this extract, we could pass variable names to the
+            ``keep_vars`` argument. Since the function needs to know which
+            dataset to get the columns from, this argument must be a dictionary,
+            not a list. To keep the ``admsndt`` and ``dschrgdt`` variables from the MedPAR file and the ``from_dt`` and ``thru_dt`` variables from the Outpatient claims file, we can do:
+
+            .. code-block:: python
+
+                >>> import re
+                >>> mdf.search_for_codes(
+                        data_types=['med', 'opc'],
+                        icd9_dx=[re.compile(r'^410'), re.compile(r'^480')],
+                        icd9_dx_max_cols=2,
+                        collapse_codes=False,
+                        rename={'icd9_dx': ['ami', 'pneumonia']},
+                        keep_vars={
+                            'med': ['admsndt', 'dschrgdt'],
+                            'opc': ['from_dt', 'thru_dt']})
+
+            To include all the diagnosis code columns from the MedPAR file in
+            the extract, we can additionally pass a compiled regular expression
+            to ``keep_vars`` that selects all variables of the format
+            ``dgnscd##``:
+
+            .. code-block:: python
+
+                >>> import re
+                >>> mdf.search_for_codes(
+                        data_types=['med', 'opc'],
+                        icd9_dx=[re.compile(r'^410'), re.compile(r'^480')],
+                        icd9_dx_max_cols=2,
+                        collapse_codes=False,
+                        rename={'icd9_dx': ['ami', 'pneumonia']},
+                        keep_vars={
+                            'med': ['admsndt', 'dschrgdt',
+                                    re.compile(r'^dgnscd(\d+)$')],
+                            'opc': ['from_dt', 'thru_dt']})
+
+
+            Then the data is held as a dictionary within the ``cl`` attribute,
+            where the keys of the dictionary are the ``data_types`` provided to
+            the function, and the values of the dictionary are the DataFrames.
+
+            .. code-block:: python
+
+                >>> len(mdf.cl['med'])
+                >>> len(mdf.cl['opc'])
+
         """
 
         if self.verbose or verbose:
@@ -1770,8 +2026,6 @@ class MedicareDF(object):
     def to_stata(self, attr: str, **kwargs):
         """Wrapper to export to stata.
 
-        Will automatically add
-
         Args:
             attr : str
                 either 'pl' or 'cl.med', 'cl.opc', 'cl.opr', etc.
@@ -1810,11 +2064,16 @@ class MedicareDF(object):
                 8 characters and values are repeated.
 
         Examples:
-            >>> mdf.to_stata(attr='pl', fname='patient_level_file.dta')
-            >>> mdf.to_stata(attr='cl.med', fname='medpar_extract.dta')
+            .. code-block:: python
+
+                >>> mdf.to_stata(attr='pl', fname='patient_level_file.dta')
+                >>> mdf.to_stata(attr='cl.med', fname='medpar_extract.dta')
+
             Or with dates
-            >>> mdf.to_stata(attr='cl.med', fname='medpar_extract.dta',
-                             convert_dates={'admsndt': 'td'})
+
+            .. code-block:: python
+
+                >>> mdf.to_stata(attr='cl.med', fname='medpar_extract.dta', convert_dates={'admsndt': 'td'})
         """
 
         data_label_dict = {
