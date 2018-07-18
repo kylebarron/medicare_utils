@@ -685,7 +685,7 @@ class MedicareDF(object):
                 Variable names to keep in final output. This can either be a
                 string or a list of strings or compiled regular expressions. The
                 easiest way to create a compiled regular expression is with
-                ``re.compile(string)``. By default, the only columns returned
+                ``re.compile('string')``. By default, the only columns returned
                 from ``get_cohort`` are the patient identifier (either
                 ``bene_id`` or ``ehic``) and a variable named ``match_{year}``
                 that is ``True`` if the patient was found in a given year and
