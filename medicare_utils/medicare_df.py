@@ -967,6 +967,7 @@ class MedicareDF(object):
 
     class _ReturnSearchForCodesTypeCheck(NamedTuple):
         data_types: List[str]
+        pl_ids_to_filter: Optional[pd.DataFrame]
         codes: Dict[str, List[Union[str, Pattern]]]
         icd9_dx_max_cols: Optional[int]
         icd9_sg_max_cols: Optional[int]
@@ -980,6 +981,7 @@ class MedicareDF(object):
     def _search_for_codes_type_check(
             self,
             data_types: Union[str, List[str]],
+            pl: Optional[pd.DataFrame],
             hcpcs: Union[str, Pattern, List[Union[str, Pattern]], None],
             icd9_dx: Union[str, Pattern, List[Union[str, Pattern]], None],
             icd9_dx_max_cols: Optional[int],
@@ -1015,6 +1017,17 @@ class MedicareDF(object):
                 raise ValueError(_mywrap(msg))
         else:
             raise TypeError('data_types must be str or List[str]')
+
+        if pl is not None:
+            if not isinstance(pl, pd.DataFrame):
+                raise TypeError('pl must be DataFrame')
+
+            columns = [*pl.columns, pl.index.name]
+            if not any(x in columns for x in ['ehic', 'bene_id']):
+                raise ValueError('pl must have `ehic` or `bene_id` as a column')
+
+            pl_ids_to_filter = pl.reset_index()[list({
+                'ehic', 'bene_id'}.intersection(columns))].copy()
 
         # Assert that keep_vars is a dict and that the keys are in ok_data_types
         if not isinstance(keep_vars, dict):
@@ -1113,6 +1126,7 @@ class MedicareDF(object):
 
         return self._ReturnSearchForCodesTypeCheck(
             data_types=data_types,
+            pl_ids_to_filter=pl_ids_to_filter,
             codes=codes,
             icd9_dx_max_cols=icd9_dx_max_cols,
             icd9_sg_max_cols=icd9_sg_max_cols,
@@ -1126,6 +1140,7 @@ class MedicareDF(object):
     def search_for_codes(
             self,
             data_types: Union[str, List[str]],
+            pl: Optional[pd.DataFrame] = None,
             hcpcs: Union[str, Pattern, List[Union[str, Pattern]], None] = None,
             icd9_dx: Union[str, Pattern, List[Union[str, Pattern]], None] = None,
             icd9_dx_max_cols: Optional[int] = None,
@@ -1166,6 +1181,10 @@ class MedicareDF(object):
             hcpcs: HCPCS codes to search for
             icd9_dx: ICD-9 diagnosis codes to search for
             icd9_dx_max_cols: Max number of ICD9 diagnosis code columns to
+            pl:
+                Patient-level DataFrame used to filter cohort before searching
+                code columns. Unnecessary if :func:`get_cohort` is called before
+                this. Must have at least ``ehic`` or ``bene_id`` as a column.
                 search through. If ``None``, will search through all columns.
             icd9_sg: ICD-9 procedure codes to search for
             icd9_sg_max_cols: Max number of ICD9 procedure code columns to
@@ -1191,6 +1210,7 @@ class MedicareDF(object):
 
         objs = self._search_for_codes_type_check(
             data_types=data_types,
+            pl=pl,
             hcpcs=hcpcs,
             icd9_dx=icd9_dx,
             icd9_dx_max_cols=icd9_dx_max_cols,
@@ -1203,6 +1223,7 @@ class MedicareDF(object):
             dask=dask,
             verbose=verbose)
         data_types = objs.data_types
+        pl_ids_to_filter = objs.pl_ids_to_filter
         codes = objs.codes
         icd9_dx_max_cols = objs.icd9_dx_max_cols
         icd9_sg_max_cols = objs.icd9_sg_max_cols
@@ -1283,6 +1304,7 @@ class MedicareDF(object):
                 data[data_type][year] = self._search_for_codes_single_year(
                     year=year,
                     data_type=data_type,
+                    pl_ids_to_filter=pl_ids_to_filter,
                     codes=codes,
                     icd9_dx_max_cols=icd9_dx_max_cols,
                     icd9_sg_max_cols=icd9_sg_max_cols,
@@ -1498,6 +1520,7 @@ class MedicareDF(object):
             self,
             year: int,
             data_type: str,
+            pl_ids_to_filter: Optional[pd.DataFrame],
             codes: Dict[str, List[Union[str, Pattern]]],
             icd9_dx_max_cols: Optional[int],
             icd9_sg_max_cols: Optional[int],
@@ -1513,8 +1536,12 @@ class MedicareDF(object):
         Args:
             year: year of data to search
             data_type: One of carc, carl, ipc, ipr, med, opc, opr
+            pl_ids_to_filter: user-provided dataframe with ``bene_id`` and/or
+                ``ehic``. Allows for bypassing of get_cohort().
             codes: dict of codes to look for
             icd9_dx_max_cols: Max number of ICD9 diagnosis code columns to
+                search through
+            icd9_sg_max_cols: Max number of ICD9 procedure code columns to
                 search through
             keep_vars: list of column names to return
             rename: dictionary where keys are codes to match, and values are
@@ -1594,14 +1621,13 @@ class MedicareDF(object):
             assert len(cols[i]) == 1
             cols[i] = cols[i][0]
 
-        # Assumes bene_id or ehic is index name or name of a column
-        if self.pl is not None:
-            if cols['pl_id'] == self.pl.index.name:
-                pl_ids_to_filter = self.pl.index
-            else:
-                pl_ids_to_filter = pd.Index(self.pl[cols['pl_id']].values)
-        else:
-            pl_ids_to_filter = None
+        if pl_ids_to_filter is None:
+            # Assumes bene_id or ehic is index name or name of a column
+            if self.pl is not None:
+                if cols['pl_id'] == self.pl.index.name:
+                    pl_ids_to_filter = self.pl.index
+                else:
+                    pl_ids_to_filter = pd.Index(self.pl[cols['pl_id']].values)
 
         path = self._fpath(self.percent, year, data_type)
         if dask:
