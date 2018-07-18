@@ -1175,6 +1175,8 @@ class MedicareDF(object):
 
             pl_ids_to_filter = pl.reset_index()[list({
                 'ehic', 'bene_id'}.intersection(columns))].copy()
+        else:
+            pl_ids_to_filter = None
 
         # Assert that keep_vars is a dict and that the keys are in ok_data_types
         if not isinstance(keep_vars, dict):
