@@ -795,7 +795,6 @@ class MedicareDF(object):
             match_cols = [f'match_{year}' for year in self.years[:-1]]
             if join == 'inner':
                 pl = pl.loc[pl[match_cols].all(axis=1)]
-                pl = pl.drop(match_cols, axis=1)
             elif join == 'outer':
                 pl = pl.loc[pl[match_cols].any(axis=1)]
             elif join == 'left':
