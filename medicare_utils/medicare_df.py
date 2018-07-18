@@ -1566,7 +1566,7 @@ class MedicareDF(object):
         if data_type == 'carl':
             icd9_dx_regex = r'icd_dgns_cd(\d*)$'
         elif data_type == 'med':
-            icd9_dx_regex = r'^dgnscd(\d+)$$'
+            icd9_dx_regex = r'^dgnscd(\d+)$'
         else:
             icd9_dx_regex = r'^icd_dgns_cd(\d+)$'
         cols: Dict[str, List[str]] = {
