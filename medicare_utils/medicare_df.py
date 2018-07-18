@@ -1623,11 +1623,21 @@ class MedicareDF(object):
 
         if pl_ids_to_filter is None:
             # Assumes bene_id or ehic is index name or name of a column
+            # Unless `join` in `get_cohort` is `inner`, we have a variable
+            # `match_{year}` that's True is the patient was found in that year
+            # and False otherwise. We should use that information so that we
+            # aren't trying to join observations that we know don't exist.
             if self.pl is not None:
-                if cols['pl_id'] == self.pl.index.name:
-                    pl_ids_to_filter = self.pl.index
+                if (f'match_{year}' in self.pl.columns):
+                    if cols['pl_id'] == self.pl.index.name:
+                        pl_ids_to_filter = self.pl.index[self.pl[f'match_{year}']]
+                    else:
+                        pl_ids_to_filter = pd.Index(self.pl.loc[self.pl[f'match_{year}'], cols['pl_id']].values)
                 else:
-                    pl_ids_to_filter = pd.Index(self.pl[cols['pl_id']].values)
+                    if cols['pl_id'] == self.pl.index.name:
+                        pl_ids_to_filter = self.pl.index
+                    else:
+                        pl_ids_to_filter = pd.Index(self.pl[cols['pl_id']].values)
 
         path = self._fpath(self.percent, year, data_type)
         if dask:
