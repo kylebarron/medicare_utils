@@ -1887,14 +1887,18 @@ class MedicareDF(object):
             if self.pl is not None:
                 if (f'match_{year}' in self.pl.columns):
                     if cols['pl_id'] == self.pl.index.name:
-                        pl_ids_to_filter = self.pl.index[self.pl[f'match_{year}']]
+                        pl_ids_to_filter = self.pl.index[self.pl[
+                            f'match_{year}']]
                     else:
-                        pl_ids_to_filter = pd.Index(self.pl.loc[self.pl[f'match_{year}'], cols['pl_id']].values)
+                        pl_ids_to_filter = pd.Index(
+                            self.pl.loc[self.pl[f'match_{year}'], cols['pl_id']]
+                            .values)
                 else:
                     if cols['pl_id'] == self.pl.index.name:
                         pl_ids_to_filter = self.pl.index
                     else:
-                        pl_ids_to_filter = pd.Index(self.pl[cols['pl_id']].values)
+                        pl_ids_to_filter = pd.Index(
+                            self.pl[cols['pl_id']].values)
 
         path = self._fpath(self.percent, year, data_type)
         if dask:
