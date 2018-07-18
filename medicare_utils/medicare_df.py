@@ -12,6 +12,7 @@ import pyarrow.parquet as pq
 # TODO split fastparquet and pyarrow into conditional imports
 
 from time import time
+from joblib import Parallel, delayed
 from typing import Dict, List, NamedTuple, Optional, Pattern, Union
 from multiprocessing import cpu_count
 
@@ -104,7 +105,7 @@ class MedicareDF(object):
             dask: bool = False,
             verbose: bool = False,
             parquet_engine: str = 'pyarrow',
-            parquet_nthreads: Optional[int] = None,
+            max_cores: Optional[int] = None,
             dta_path: str = '/disk/aging/medicare/data',
             pq_path:
             str = '/disk/agebulk3/medicare.work/doyle-dua51929/barronk-dua51929/raw/pq'
@@ -152,11 +153,12 @@ class MedicareDF(object):
         if parquet_engine not in ['pyarrow', 'fastparquet']:
             raise ValueError('parquet_engine must be pyarrow or fastparquet')
 
-        if parquet_nthreads is None:
-            parquet_nthreads = cpu_count()
+        if max_cores is None:
+            max_cores = cpu_count()
 
         self.parquet_engine = parquet_engine
-        self.parquet_nthreads = parquet_nthreads
+        self.parquet_nthreads = max_cores
+        self.max_cores = max_cores
 
         self.pl = None
         self.cl = None
@@ -1303,7 +1305,8 @@ class MedicareDF(object):
                 'icd9_sg': None},
             convert_ehic: bool = True,
             dask: bool = False,
-            verbose: bool = False): # yapf: disable
+            verbose: bool = False,
+            test_joblib=False): # yapf: disable
         """Search in claim-level datasets for HCPCS and/or ICD9 codes
 
         Note: Each code given must be distinct, or ``collapse_codes`` must be ``True``.
@@ -1460,6 +1463,8 @@ class MedicareDF(object):
                 >>> len(mdf.cl['opc'])
 
         """
+
+        self.test_joblib = test_joblib
 
         if self.verbose or verbose:
             verbose = True
@@ -1814,11 +1819,13 @@ class MedicareDF(object):
 
         # Determine which variables to extract
         if self.parquet_engine == 'pyarrow':
-            all_cols = pq.ParquetFile(
-                self._fpath(self.percent, year, data_type)).schema.names
+            pf = pq.ParquetFile(self._fpath(self.percent, year, data_type))
+            all_cols = pf.schema.names
+            ngroups = pf.num_row_groups
         elif self.parquet_engine == 'fastparquet':
-            all_cols = fp.ParquetFile(
-                self._fpath(self.percent, year, data_type)).columns
+            pf = fp.ParquetFile(self._fpath(self.percent, year, data_type))
+            all_cols = pf.columns
+            ngroups = len(pf.row_groups)
 
         icd9_sg_regex = r'^icd_prcdr_cd(\d+)$'
         if data_type == 'carl':
@@ -1933,17 +1940,29 @@ class MedicareDF(object):
         else:
             # This holds the df's from each iteration over the claim-level
             # dataset
-            all_cl: List[pd.DataFrame] = []
-            for cl in itr:
-                cl = self._search_for_codes_df_inner(
-                    cl=cl,
-                    codes=codes,
-                    cols=cols,
-                    keep_vars=keep_vars,
-                    rename=rename,
-                    collapse_codes=collapse_codes,
-                    pl_ids_to_filter=pl_ids_to_filter)
-                all_cl.append(cl)
+            if self.test_joblib:
+                n_jobs = min(cpu_count(), ngroups, self.max_cores)
+                all_cl = Parallel(n_jobs=n_jobs)(
+                    delayed(self._search_for_codes_df_inner)(
+                        cl,
+                        codes=codes,
+                        cols=cols,
+                        keep_vars=keep_vars,
+                        rename=rename,
+                        collapse_codes=collapse_codes,
+                        pl_ids_to_filter=pl_ids_to_filter) for cl in itr)
+            else:
+                all_cl = []
+                for cl in itr:
+                    cl = self._search_for_codes_df_inner(
+                        cl=cl,
+                        codes=codes,
+                        cols=cols,
+                        keep_vars=keep_vars,
+                        rename=rename,
+                        collapse_codes=collapse_codes,
+                        pl_ids_to_filter=pl_ids_to_filter)
+                    all_cl.append(cl)
 
             cl = pd.concat(all_cl, axis=0, sort=False)
 
