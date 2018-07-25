@@ -533,8 +533,8 @@ class MedicareDF(object):
 
         return pl, nobs_dropped
 
+    # yapf: disable
     def _get_cohort_age_year_filter(
-            # yapf: disable
             self,
             pl: Union[pd.DataFrame, dd.DataFrame],
             var: str,
@@ -542,7 +542,7 @@ class MedicareDF(object):
             nobs_dropped: dict,
             dask: bool,
             verbose: bool
-    ) -> (Union[pd.DataFrame, dd.DataFrame], Dict[int, Dict[str, float]]):
+        ) -> (Union[pd.DataFrame, dd.DataFrame], Dict[int, Dict[str, float]]):
         # yapf: enable
         """Perform filtering for age-year-specific variables
 
