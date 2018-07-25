@@ -307,9 +307,6 @@ class MedicareDF(object):
         else:
             raise TypeError(_mywrap(msg))
 
-        if (self.year_type == 'age') & ('bene_dob' not in keep_vars):
-            keep_vars.append('bene_dob')
-
         if not isinstance(dask, bool):
             raise TypeError('dask must be type bool')
         if not isinstance(verbose, bool):
