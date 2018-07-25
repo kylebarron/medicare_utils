@@ -1126,8 +1126,7 @@ class MedicareDF(object):
         data_types: List[str]
         pl_ids_to_filter: Optional[pd.DataFrame]
         codes: Dict[str, List[Union[str, Pattern]]]
-        icd9_dx_max_cols: Optional[int]
-        icd9_sg_max_cols: Optional[int]
+        max_cols: Dict[str, Optional[int]]
         keep_vars: Dict[str, List[Union[str, Pattern]]]
         collapse_codes: bool
         rename: Dict[str, Union[str, List[str], Dict[str, str], None]]
@@ -1283,12 +1282,15 @@ class MedicareDF(object):
             """
             raise ValueError(_mywrap(msg))
 
+        max_cols = {
+            'icd9_dx': icd9_dx_max_cols,
+            'icd9_sg': icd9_sg_max_cols}
+
         return self._ReturnSearchForCodesTypeCheck(
             data_types=data_types,
             pl_ids_to_filter=pl_ids_to_filter,
             codes=codes,
-            icd9_dx_max_cols=icd9_dx_max_cols,
-            icd9_sg_max_cols=icd9_sg_max_cols,
+            max_cols=max_cols,
             keep_vars=keep_vars,
             collapse_codes=collapse_codes,
             rename=rename,
@@ -1495,8 +1497,7 @@ class MedicareDF(object):
         data_types = objs.data_types
         pl_ids_to_filter = objs.pl_ids_to_filter
         codes = objs.codes
-        icd9_dx_max_cols = objs.icd9_dx_max_cols
-        icd9_sg_max_cols = objs.icd9_sg_max_cols
+        max_cols = objs.max_cols
         keep_vars = objs.keep_vars
         collapse_codes = objs.collapse_codes
         rename = objs.rename
@@ -1576,8 +1577,7 @@ class MedicareDF(object):
                     data_type=data_type,
                     pl_ids_to_filter=pl_ids_to_filter,
                     codes=codes,
-                    icd9_dx_max_cols=icd9_dx_max_cols,
-                    icd9_sg_max_cols=icd9_sg_max_cols,
+                    max_cols=max_cols,
                     keep_vars=keep_vars[data_type],
                     rename=rename,
                     collapse_codes=collapse_codes,
@@ -1801,8 +1801,7 @@ class MedicareDF(object):
             data_type: str,
             pl_ids_to_filter: Optional[pd.DataFrame],
             codes: Dict[str, List[Union[str, Pattern]]],
-            icd9_dx_max_cols: Optional[int],
-            icd9_sg_max_cols: Optional[int],
+            max_cols: Dict[str, Optional[int]],
             keep_vars: List[Union[str, Pattern]],
             rename: Dict[str, str],
             collapse_codes: bool,
@@ -1886,14 +1885,11 @@ class MedicareDF(object):
                 """
                 print(_mywrap(msg))
 
-        if icd9_dx_max_cols is not None:
-            cols['icd9_dx'] = [
-                x for x in all_cols for m in [re.search(icd9_dx_regex, x)] if m
-                if int(m[1]) <= icd9_dx_max_cols]
-        if icd9_sg_max_cols is not None:
-            cols['icd9_sg'] = [
-                x for x in all_cols for m in [re.search(icd9_sg_regex, x)] if m
-                if int(m[1]) <= icd9_sg_max_cols]
+        for i in ['icd9_dx', 'icd9_sg']:
+            if max_cols[i] is not None:
+                cols[i] = [
+                    x for x in all_cols for m in [re.search(regexes[i], x)] if m
+                    if int(m[1]) <= max_cols[i]]
 
         cols_toload = set(item for subl in cols.values() for item in subl)
         # Now that list flattening is over, make 'cl_id' and 'pl_id' strings
