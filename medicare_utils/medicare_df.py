@@ -1843,13 +1843,16 @@ class MedicareDF(object):
             all_cols = pf.columns
             ngroups = len(pf.row_groups)
 
-        icd9_sg_regex = r'^icd_prcdr_cd(\d+)$'
+        regexes = {
+            'hcpcs': r'^hcpcs_cd$',
+            'icd9_sg': r'^icd_prcdr_cd(\d+)$'}
         if data_type == 'carl':
-            icd9_dx_regex = r'icd_dgns_cd(\d*)$'
+            regexes['icd9_dx'] = r'icd_dgns_cd(\d*)$'
         elif data_type == 'med':
-            icd9_dx_regex = r'^dgnscd(\d+)$'
+            regexes['icd9_dx'] = r'^dgnscd(\d+)$'
         else:
-            icd9_dx_regex = r'^icd_dgns_cd(\d+)$'
+            regexes['icd9_dx'] = r'^icd_dgns_cd(\d+)$'
+
         cols: Dict[str, List[str]] = {
             'cl_id': [
                 x for x in all_cols
@@ -1857,22 +1860,24 @@ class MedicareDF(object):
             'pl_id': ['ehic'] if year < 2006 else ['bene_id'],
             'keep_vars': [
                 x for x in all_cols if self._str_in_keep_vars(x, keep_vars)]}
-        if codes['hcpcs']:
-            cols['hcpcs'] = [x for x in all_cols if re.search(r'^hcpcs_cd$', x)]
-        else:
-            cols['hcpcs'] = []
+        for i in ['hcpcs', 'icd9_dx', 'icd9_sg']:
+            if codes[i]:
+                cols[i] = [x for x in all_cols if re.search(regexes[i], x)]
+            else:
+                cols[i] = []
 
-        if codes['icd9_sg']:
-            cols['icd9_sg'] = [
-                x for x in all_cols if re.search(icd9_sg_regex, x)]
+        claim_date_cols = {
+            'med': 'admsndt',
+            'carc': 'from_dt',
+            'ipc': 'from_dt',
+            'opc': 'fromdt'}
+        # carc: None; will need to merge carc claim id
+        # ipr: None; will need to merge ipc claim id
+        # opr: 'rev_dt'; missing in 15% of obs I think
+        if self.year_type == 'age':
+            cols['cl_date'] = [claim_date_cols[data_type]]
         else:
-            cols['icd9_sg'] = []
-
-        if codes['icd9_dx']:
-            cols['icd9_dx'] = [
-                x for x in all_cols if re.search(icd9_dx_regex, x)]
-        else:
-            cols['icd9_dx'] = []
+            cols['cl_date'] = [None]
 
         # Check cols against keep_vars
         # Is there an item in keep_vars that wasn't matched?
@@ -1892,9 +1897,10 @@ class MedicareDF(object):
                     if int(m[1]) <= max_cols[i]]
 
         cols_toload = set(item for subl in cols.values() for item in subl)
-        # Now that list flattening is over, make 'cl_id' and 'pl_id' strings
-        # instead of list of string
-        for i in ['cl_id', 'pl_id']:
+        cols_toload = cols_toload.difference({None})
+        # Now that list flattening is over, make 'cl_id', 'pl_id', 'cl_date'
+        # strings instead of list of string
+        for i in ['cl_id', 'pl_id', 'cl_date']:
             assert len(cols[i]) == 1
             cols[i] = cols[i][0]
 
