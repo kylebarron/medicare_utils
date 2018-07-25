@@ -9,7 +9,6 @@ import pandas as pd
 import fastparquet as fp
 import dask.dataframe as dd
 import pyarrow.parquet as pq
-# TODO split fastparquet and pyarrow into conditional imports
 
 from time import time
 from joblib import Parallel, delayed
@@ -401,8 +400,8 @@ class MedicareDF(object):
 
         return toload_vars
 
+    # yapf: disable
     def _get_cohort_extract_each_year(
-            # yapf: disable
             self,
             year: int,
             toload_vars: List[str],
@@ -418,7 +417,7 @@ class MedicareDF(object):
             keep_vars: List[str],
             dask: bool,
             verbose: bool
-    ) -> (Union[pd.DataFrame, dd.DataFrame], Dict[int, Dict[str, float]]):
+        ) -> (Union[pd.DataFrame, dd.DataFrame], Dict[int, Dict[str, float]]):
         # yapf: enable
 
         if verbose:
