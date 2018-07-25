@@ -1686,7 +1686,7 @@ class MedicareDF(object):
             keep_vars: List[Union[str, Pattern]],
             rename: Dict[str, str],
             collapse_codes: bool,
-            pl_ids_to_filter: Optional[pd.Index],
+            pl_ids_to_filter: Optional[pd.DataFrame],
             ) -> Union[pd.DataFrame, dd.DataFrame]: # yapf: disable
         """Meat of the code to search for codes in files
 
@@ -1709,14 +1709,18 @@ class MedicareDF(object):
             keep_vars: List of variables to keep in returned dataset
             rename: Dict to rename variables; key is old name, value is new name
             collapse_codes: Whether to return match column for each code
-            pl_ids_to_filter: Index of either ``bene_id``s or ``ehic``s, derived from the result of :func:``get_cohort``.
+            pl_ids_to_filter:
+                DataFrame where the index is either ``bene_id`` or ``ehic``.
+                This is no longer an index to allow a column ``bene_dob`` to be
+                included when ``self.year_type`` is ``age``. Generally, this
+                data is derived from the result of :func:``get_cohort``.
 
         Returns:
             Data with boolean match columns instead of code columns.
         """
         if pl_ids_to_filter is not None:
             index_name = cl.index.name
-            cl = cl.join(pd.DataFrame(index=pl_ids_to_filter), how='inner')
+            cl = cl.join(pl_ids_to_filter, how='inner')
             cl.index.name = index_name
 
         if not any(v is not None for v in codes.values()):
@@ -1789,7 +1793,7 @@ class MedicareDF(object):
             rename: Dict[str, str],
             collapse_codes: bool,
             dask: bool,
-            verbose:bool) -> pd.DataFrame: # yapf: disable
+            verbose: bool) -> pd.DataFrame: # yapf: disable
         """Search in a single claim-level dataset for HCPCS/ICD9 codes
 
         Note: Each code given must be distinct, or collapse_codes must be True
@@ -1891,20 +1895,22 @@ class MedicareDF(object):
             # and False otherwise. We should use that information so that we
             # aren't trying to join observations that we know don't exist.
             if self.pl is not None:
+                cols_tokeep = []
+                if self.year_type == 'age':
+                    cols_tokeep.append('bene_dob')
+
                 if (f'match_{year}' in self.pl.columns):
                     if cols['pl_id'] == self.pl.index.name:
-                        pl_ids_to_filter = self.pl.index[self.pl[
-                            f'match_{year}']]
+                        pl_ids_to_filter = self.pl.loc[self.pl[f'match_{year}'], cols_tokeep]
                     else:
-                        pl_ids_to_filter = pd.Index(
-                            self.pl.loc[self.pl[f'match_{year}'], cols['pl_id']]
-                            .values)
+                        cols_tokeep.append(cols['pl_id'])
+                        pl_ids_to_filter = self.pl.loc[self.pl[f'match_{year}'], cols_tokeep].set_index(cols['pl_id'])
                 else:
                     if cols['pl_id'] == self.pl.index.name:
-                        pl_ids_to_filter = self.pl.index
+                        pl_ids_to_filter = self.pl[cols_tokeep]
                     else:
-                        pl_ids_to_filter = pd.Index(
-                            self.pl[cols['pl_id']].values)
+                        cols_tokeep.append(cols['pl_id'])
+                        pl_ids_to_filter = self.pl[cols_tokeep].set_index(cols['pl_id'])
 
         path = self._fpath(self.percent, year, data_type)
         if dask:
