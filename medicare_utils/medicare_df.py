@@ -547,12 +547,18 @@ class MedicareDF(object):
         """Perform filtering for age-year-specific variables
 
         Args:
-            pl: patient-level data
-            var: variable to filter on. Either `buyin` or `hmoind`
-            values: values of either `buyin_val` or `hmo_val`
-            nobs_dropped: dict with nobs dropped in each year
-            dask: whether to use dask
-            verbose: log warnings to stdout
+            pl:
+                patient-level data
+            var:
+                variable to filter on. Either `buyin` or `hmoind`
+            values:
+                values of either `buyin_val` or `hmo_val`
+            nobs_dropped:
+                dict with nobs dropped in each year
+            dask:
+                whether to use dask
+            verbose:
+                log warnings to stdout
 
         Returns:
             (pd.DataFrame): patient-level data
@@ -1019,8 +1025,11 @@ class MedicareDF(object):
         """Create rename dictionary for single code at a time.
 
         Args:
-            codes: codes to search for. In this function, this refers to only codes for _either_ `hcpcs`, `icd9_dx`, or `icd9_sg`.
-            rename: how to rename codes.
+            codes:
+                codes to search for. In this function, this refers to only codes
+                for _either_ `hcpcs`, `icd9_dx`, or `icd9_sg`.
+            rename:
+                how to rename codes.
         Returns:
             ``dict`` where keys are codes to match and values are new names for each.
         Raises:
@@ -1696,9 +1705,11 @@ class MedicareDF(object):
         identifier.
 
         Args:
-            cl: claim-level data. Index is ``cols['pl_id']``, i.e. either
+            cl:
+                claim-level data. Index is ``cols['pl_id']``, i.e. either
                 ``ehic`` for pre-2006 or ``bene_id`` for post-2006.
-            codes: Keys are 'hcpcs', 'icd9_dx', and 'icd9_sg'. Values are lists
+            codes:
+                Keys are 'hcpcs', 'icd9_dx', and 'icd9_sg'. Values are lists
                 with codes to search for.
             cols:
                 - ``cl_id``: unique-identifying claim-level variable. i.e.
@@ -1706,9 +1717,12 @@ class MedicareDF(object):
                 - ``pl_id``: unique-identifying patient-level variable. Either
                     ``bene_id`` or ``ehic``.
                 - ``hcpcs``, ``icd9_dx``, or ``icd9_sg``: columns to search over
-            keep_vars: List of variables to keep in returned dataset
-            rename: Dict to rename variables; key is old name, value is new name
-            collapse_codes: Whether to return match column for each code
+            keep_vars:
+                List of variables to keep in returned dataset
+            rename:
+                Dict to rename variables; key is old name, value is new name
+            collapse_codes:
+                Whether to return match column for each code
             pl_ids_to_filter:
                 DataFrame where the index is either ``bene_id`` or ``ehic``.
                 This is no longer an index to allow a column ``bene_dob`` to be
