@@ -1812,22 +1812,29 @@ class MedicareDF(object):
         Note: Each code given must be distinct, or collapse_codes must be True
 
         Args:
-            year: year of data to search
-            data_type: One of carc, carl, ipc, ipr, med, opc, opr
-            pl_ids_to_filter: user-provided dataframe with ``bene_id`` and/or
+            year:
+                year of data to search
+            data_type:
+                One of carc, carl, ipc, ipr, med, opc, opr
+            pl_ids_to_filter:
+                user-provided dataframe with ``bene_id`` and/or
                 ``ehic``. Allows for bypassing of get_cohort().
-            codes: dict of codes to look for
-            icd9_dx_max_cols: Max number of ICD9 diagnosis code columns to
-                search through
-            icd9_sg_max_cols: Max number of ICD9 procedure code columns to
-                search through
-            keep_vars: list of column names to return
-            rename: dictionary where keys are codes to match, and values are
+            codes:
+                dict of codes to look for
+            max_cols:
+                Max number of codes to search through.
+            keep_vars:
+                list of column names to return
+            rename:
+                dictionary where keys are codes to match, and values are
                 new column names
-            collapse_codes: If True, returns a single column "match";
+            collapse_codes:
+                If True, returns a single column "match";
                 else it returns a column for each code provided
-            dask: Use dask library for out of core computation
-            verbose: Print logging messages to console
+            dask:
+                Use dask library for out of core computation
+            verbose:
+                Print logging messages to console
 
         Returns:
             DataFrame with bene_id and bool columns for each code to search for
