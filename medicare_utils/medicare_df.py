@@ -1582,8 +1582,20 @@ class MedicareDF(object):
                     dask=dask,
                     verbose=verbose)
 
-        self.cl = self._search_for_codes_data_join(
+        data = self._search_for_codes_data_join(
             data=data, convert_ehic=convert_ehic, verbose=verbose)
+
+        # Adjust calendar-year to age-year if year_type == 'age'.
+        # If older is False, subtract 1 from year. This merges all the claims
+        # for patients after their birthday in year X with all their claims
+        # before their birthday in year X + 1.
+        if self.year_type == 'age':
+            for data_type, cl in data.items():
+                cl.loc[~cl['older'], 'year'] -= 1
+                cl = cl.drop('older', axis=1)
+                data[data_type] = cl
+
+        self.cl = data
 
         if verbose:
             msg = f"""\
@@ -1750,6 +1762,16 @@ class MedicareDF(object):
             cl['older'] = (
                 cl[cols['cl_date']] >= self._dates_to_year(
                     cl['bene_dob'], year))
+
+            # If the first year; only care about claims on or after birthday,
+            # because they'll be merged with the earlier part of the next year.
+            # The claims before birthday in the first year will be discarded
+            # anyways because there's no prior year to match them with. Vice
+            # versa for last year.
+            if year == min(self.years):
+                cl = cl.loc[cl['older']]
+            elif year == max(self.years):
+                cl = cl.loc[~cl['older']]
 
         if collapse_codes:
             cl['match'] = False
