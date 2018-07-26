@@ -381,11 +381,14 @@ class MedicareDF(object):
                 pf = fp.ParquetFile(self._fpath(self.percent, year, 'bsfab'))
                 cols = pf.columns
 
-            toload_vars[year] = set(x for x in cols if toload_regex(x))
+            toload_vars[year] = [x for x in cols if toload_regex(x)]
             for keep_var in keep_vars:
                 if isinstance(keep_var, re._pattern_type):
-                    toload_vars[year].update(
-                        set(x for x in cols if keep_var.search(x)))
+                    toload_vars[year].extend(
+                        [x for x in cols if keep_var.search(x)])
+
+            # Deduplicate while preserving order
+            toload_vars[year] = list(dict.fromkeys(toload_vars[year]))
 
             # Check cols against keep_vars
             # Is there an item in keep_vars that wasn't matched?
