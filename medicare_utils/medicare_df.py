@@ -1282,9 +1282,7 @@ class MedicareDF(object):
             """
             raise ValueError(_mywrap(msg))
 
-        max_cols = {
-            'icd9_dx': icd9_dx_max_cols,
-            'icd9_sg': icd9_sg_max_cols}
+        max_cols = {'icd9_dx': icd9_dx_max_cols, 'icd9_sg': icd9_sg_max_cols}
 
         return self._ReturnSearchForCodesTypeCheck(
             data_types=data_types,
@@ -1750,7 +1748,8 @@ class MedicareDF(object):
         if self.year_type == 'age':
             # True if admission date is on or after birthday
             cl['older'] = (
-                cl[cols['cl_date']] >= self._dates_to_year(cl['bene_dob'], year))
+                cl[cols['cl_date']] >= self._dates_to_year(
+                    cl['bene_dob'], year))
 
         if collapse_codes:
             cl['match'] = False
@@ -1817,12 +1816,17 @@ class MedicareDF(object):
         """
 
         try:
-            return pd.to_datetime(
-                {'year': year, 'month': series.dt.month, 'day': series.dt.day})
+            return pd.to_datetime({
+                'year': year,
+                'month': series.dt.month,
+                'day': series.dt.day})
         except ValueError:
-            series = series.mask((series.dt.month == 2) & (series.dt.day == 29), pd.to_datetime(f'{year}-03-01'))
-            return pd.to_datetime(
-                {'year': year, 'month': series.dt.month, 'day': series.dt.day})
+            series = series.mask((series.dt.month == 2) & (series.dt.day == 29),
+                                 pd.to_datetime(f'{year}-03-01'))
+            return pd.to_datetime({
+                'year': year,
+                'month': series.dt.month,
+                'day': series.dt.day})
 
     def _search_for_codes_single_year(
             self,
@@ -1879,9 +1883,7 @@ class MedicareDF(object):
             all_cols = pf.columns
             ngroups = len(pf.row_groups)
 
-        regexes = {
-            'hcpcs': r'^hcpcs_cd$',
-            'icd9_sg': r'^icd_prcdr_cd(\d+)$'}
+        regexes = {'hcpcs': r'^hcpcs_cd$', 'icd9_sg': r'^icd_prcdr_cd(\d+)$'}
         if data_type == 'carl':
             regexes['icd9_dx'] = r'icd_dgns_cd(\d*)$'
         elif data_type == 'med':
@@ -1953,16 +1955,20 @@ class MedicareDF(object):
 
                 if (f'match_{year}' in self.pl.columns):
                     if cols['pl_id'] == self.pl.index.name:
-                        pl_ids_to_filter = self.pl.loc[self.pl[f'match_{year}'], cols_tokeep]
+                        pl_ids_to_filter = self.pl.loc[self.pl[f'match_{year}'],
+                                                       cols_tokeep]
                     else:
                         cols_tokeep.append(cols['pl_id'])
-                        pl_ids_to_filter = self.pl.loc[self.pl[f'match_{year}'], cols_tokeep].set_index(cols['pl_id'])
+                        pl_ids_to_filter = self.pl.loc[self.pl[f'match_{year}'],
+                                                       cols_tokeep].set_index(
+                                                           cols['pl_id'])
                 else:
                     if cols['pl_id'] == self.pl.index.name:
                         pl_ids_to_filter = self.pl[cols_tokeep]
                     else:
                         cols_tokeep.append(cols['pl_id'])
-                        pl_ids_to_filter = self.pl[cols_tokeep].set_index(cols['pl_id'])
+                        pl_ids_to_filter = self.pl[cols_tokeep].set_index(
+                            cols['pl_id'])
 
         path = self._fpath(self.percent, year, data_type)
         if dask:
