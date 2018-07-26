@@ -939,11 +939,7 @@ class MedicareDF(object):
         if ((buyin_val is not None) or
             (hmo_val is not None)) and (self.year_type == 'age'):
 
-            to_drop = ['dob_month']
-            if not self._str_in_keep_vars('bene_dob', keep_vars):
-                to_drop.append('bene_dob')
-
-            pl = pl.drop(to_drop, axis=1)
+            pl = pl.drop('dob_month', axis=1)
 
         if self.year_type == 'age':
             # Do correct filtering of data based on desired join
