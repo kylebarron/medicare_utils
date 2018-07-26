@@ -1767,8 +1767,6 @@ class MedicareDF(object):
                         cl.loc[cl[cols[key]].apply(
                             lambda col: col.str.contains(code)).any(
                                 axis=1), 'match'] = True
-                        cl[cols[key]].apply(
-                            lambda col: col.str.contains(code)).any(axis=1)
                     else:
                         cl.loc[(
                             cl[cols[key]] == code).any(axis=1), 'match'] = True
