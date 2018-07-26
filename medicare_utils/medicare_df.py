@@ -1877,7 +1877,7 @@ class MedicareDF(object):
             'med': 'admsndt',
             'carc': 'from_dt',
             'ipc': 'from_dt',
-            'opc': 'fromdt'}
+            'opc': 'from_dt'}
         # carc: None; will need to merge carc claim id
         # ipr: None; will need to merge ipc claim id
         # opr: 'rev_dt'; missing in 15% of obs I think
