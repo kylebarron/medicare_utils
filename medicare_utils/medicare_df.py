@@ -1692,6 +1692,7 @@ class MedicareDF(object):
             cl: Union[pd.DataFrame, dd.DataFrame],
             codes: Dict[str, List[Union[str, Pattern]]],
             cols: Dict[str, Union[str, List[str]]],
+            year: int,
             keep_vars: List[Union[str, Pattern]],
             rename: Dict[str, str],
             collapse_codes: bool,
@@ -1746,6 +1747,11 @@ class MedicareDF(object):
         # had a match _sometime_.
         cl = cl.reset_index().set_index(cols['cl_id'])
 
+        if self.year_type == 'age':
+            # True if admission date is on or after birthday
+            cl['older'] = (
+                cl[cols['cl_date']] >= self._dates_to_year(cl['bene_dob'], year))
+
         if collapse_codes:
             cl['match'] = False
         else:
@@ -1794,6 +1800,29 @@ class MedicareDF(object):
         cl = cl.reset_index().set_index(cols['pl_id'])
 
         return cl
+
+    @staticmethod
+    def _dates_to_year(series: pd.Series, year: int) -> pd.Series:
+        """Convert series of Datetimes to given year
+
+        If the year the dates are going to is a leap year, just do the simple
+        to_datetime conversion. Otherwise, convert Feb 29 to Mar 1
+
+        Args:
+            series: data
+            year: year to convert datetimes to
+
+        Returns:
+            series with years set to ``year``
+        """
+
+        try:
+            return pd.to_datetime(
+                {'year': year, 'month': series.dt.month, 'day': series.dt.day})
+        except ValueError:
+            series = series.mask((series.dt.month == 2) & (series.dt.day == 29), pd.to_datetime(f'{year}-03-01'))
+            return pd.to_datetime(
+                {'year': year, 'month': series.dt.month, 'day': series.dt.day})
 
     def _search_for_codes_single_year(
             self,
@@ -1961,6 +1990,7 @@ class MedicareDF(object):
                 cl=cl,
                 codes=codes,
                 cols=cols,
+                year=year,
                 keep_vars=keep_vars,
                 rename=rename,
                 collapse_codes=collapse_codes,
@@ -1975,6 +2005,7 @@ class MedicareDF(object):
                         cl,
                         codes=codes,
                         cols=cols,
+                        year=year,
                         keep_vars=keep_vars,
                         rename=rename,
                         collapse_codes=collapse_codes,
@@ -1986,6 +2017,7 @@ class MedicareDF(object):
                         cl=cl,
                         codes=codes,
                         cols=cols,
+                        year=year,
                         keep_vars=keep_vars,
                         rename=rename,
                         collapse_codes=collapse_codes,
