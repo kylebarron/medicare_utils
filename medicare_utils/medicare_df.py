@@ -528,12 +528,7 @@ class MedicareDF(object):
                 nobs_dropped[year]['hmo_val'] = 1 - (len(pl) / nobs)
                 nobs = len(pl)
 
-        pl.columns = [f'{x}{year}' for x in pl.columns]
-
-        # Indicator for which patients exist in which year
-        if (join != 'inner') or (self.year_type == 'age'):
-            pl[f'match_{year}'] = True
-
+        pl['year'] = year
         return pl, nobs_dropped
 
     # yapf: disable
@@ -829,7 +824,7 @@ class MedicareDF(object):
             gender, ages, races, race_col, buyin_val, hmo_val, keep_vars)
 
         # Now perform extraction
-        extracted_dfs = []
+        extracted_dfs = {}
         nobs_dropped = {year: {} for year in self.years}
 
         # Do filtering for all vars that are checkable within a single year's
@@ -850,9 +845,10 @@ class MedicareDF(object):
                 keep_vars=keep_vars,
                 dask=dask,
                 verbose=verbose)
-            extracted_dfs.append(pl)
+            extracted_dfs[year] = pl
 
-        if verbose & (len(extracted_dfs) > 1):
+
+        if verbose & (len(self.years) > 1):
             msg = f"""\
             Merging together beneficiary files
             - years: {list(self.years)}
