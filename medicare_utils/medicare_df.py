@@ -384,8 +384,8 @@ class MedicareDF(object):
             toload_vars[year] = [x for x in cols if toload_regex(x)]
             for keep_var in keep_vars:
                 if isinstance(keep_var, re._pattern_type):
-                    toload_vars[year].extend(
-                        [x for x in cols if keep_var.search(x)])
+                    toload_vars[year].extend([
+                        x for x in cols if keep_var.search(x)])
 
             # Deduplicate while preserving order
             toload_vars[year] = list(dict.fromkeys(toload_vars[year]))
@@ -502,31 +502,22 @@ class MedicareDF(object):
             if not self._str_in_keep_vars(race_col, keep_vars):
                 pl = pl.drop(race_col, axis=1)
 
-        if (buyin_val is not None) and (self.year_type == 'calendar'):
-            regex = re.compile(r'^buyin\d{2}').search
-            buyin_cols = [x for x in pl.columns if regex(x)]
-            msg = f'{iemsg}buyinXX{iemsg2}\n#cols: {len(buyin_cols)}'
-            assert len(buyin_cols) == 12, msg
-
-            pl = pl.loc[(pl[buyin_cols].isin(buyin_val)).all(axis=1)]
-            pl = pl.drop(set(buyin_cols).difference(keep_vars), axis=1)
-
-            if not dask:
-                nobs_dropped[year]['buyin_val'] = 1 - (len(pl) / nobs)
-                nobs = len(pl)
-
-        if (hmo_val is not None) and (self.year_type == 'calendar'):
-            regex = re.compile(r'^hmoind\d{2}').search
-            hmo_cols = [x for x in pl.columns if regex(x)]
-            msg = f'{iemsg}hmoindXX{iemsg2}\n#cols: {len(hmo_cols)}'
-            assert len(hmo_cols) == 12, msg
-
-            pl = pl.loc[(pl[hmo_cols].isin(hmo_val)).all(axis=1)]
-            pl = pl.drop(set(hmo_cols).difference(keep_vars), axis=1)
-
-            if not dask:
-                nobs_dropped[year]['hmo_val'] = 1 - (len(pl) / nobs)
-                nobs = len(pl)
+        if (buyin_val or hmo_val) and (self.year_type == 'age'):
+            # Create month of birth variable
+            pl['dob_month'] = pl['bene_dob'].dt.month
+            pl = self._get_cohort_month_filter(
+                pl=pl,
+                var='buyin',
+                values=buyin_val,
+                year=year,
+                keep_vars=keep_vars)
+            pl = self._get_cohort_month_filter(
+                pl=pl,
+                var='hmoind',
+                values=hmo_val,
+                year=year,
+                keep_vars=keep_vars)
+            pl = pl.drop('dob_month', axis=1)
 
         pl.columns = [f'{x}{year}' for x in pl.columns]
 
@@ -536,82 +527,55 @@ class MedicareDF(object):
 
         return pl, nobs_dropped
 
-    # yapf: disable
-    def _get_cohort_age_year_filter(
-            self,
-            pl: Union[pd.DataFrame, dd.DataFrame],
-            var: str,
-            values,
-            nobs_dropped: dict,
-            dask: bool,
-            verbose: bool
-        ) -> (Union[pd.DataFrame, dd.DataFrame], Dict[int, Dict[str, float]]):
-        # yapf: enable
-        """Perform filtering for age-year-specific variables
+    def _get_cohort_month_filter(
+            self, pl: Union[pd.DataFrame, dd.DataFrame], var: str, values,
+            year: int, keep_vars):
+        """Filter variables that are at the month level
 
-        Args:
-            pl:
-                patient-level data
-            var:
-                variable to filter on. Either `buyin` or `hmoind`
-            values:
-                values of either `buyin_val` or `hmo_val`
-            nobs_dropped:
-                dict with nobs dropped in each year
-            dask:
-                whether to use dask
-            verbose:
-                log warnings to stdout
+        Namely ``buyinXX`` and ``hmoindXX``.
 
-        Returns:
-            (pd.DataFrame): patient-level data
-            (dict): number of observations dropped with each restriction
+        TODO: add code to update nobs_dropped
         """
 
-        assert var in ['buyin', 'hmoind']
+        if values is None:
+            return pl
 
-        if verbose:
-            msg = f"""\
-            Filtering based on {var}_val
-            - values: {values}
-            - year_type: {self.year_type}
-            - time in function: {(time() - self.t0) / 60:.2f} minutes
-            - time in class: {(time() - self.tc) / 60:.2f} minutes
-            """
-            print(_mywrap(msg))
+        cols = [var + str(x).zfill(2) for x in range(1, 13)]
+        if self.year_type == 'calendar':
+            pl = pl.loc[(pl[cols].isin(values)).all(axis=1)]
 
-        # Create indicator variable for each year if `buyin ==
-        # buyin_val` for the 13 months starting in birthday month of
-        # `year` and ending in birthday month of `year + 1`
+        elif self.year_type == 'age':
+            if year != min(self.years):
+                pl[f'{var}_younger'] = False
+            if year != max(self.years):
+                pl[f'{var}_older'] = False
 
-        for year in self.years[:-1]:
-            if not dask:
-                nobs = len(pl[pl[f'match_{year}']])
-
-            regex_string = r'{}'.format(var) + r'(\d{2})(\d{4})'
-            regex = re.compile(regex_string).search
             for month in range(1, 13):
-                cols = [m for col in pl.columns for m in [regex(col)] if m]
-                cols = [
-                    m[0]
-                    for m in cols
-                    if ((int(m[1]) >= month) & (int(m[2]) == year)) or (
-                        (int(m[1]) <= month) & (int(m[2]) == year + 1))]
+                cols_yo = [var + str(x).zfill(2) for x in range(1, month + 1)]
+                cols_ol = [var + str(x).zfill(2) for x in range(month, 13)]
 
-                pl[f'match_{year}'] = pl[f'match_{year}'].mask(
-                    (pl['dob_month'] == month) &
-                    (~pl[cols].isin(values)).all(axis=1),
-                    False)
+                if year != min(self.years):
+                    pl[f'{var}_younger'] = pl[f'{var}_younger'].mask(
+                        (pl['dob_month'] == month) &
+                        (pl[cols_yo].isin(values)).all(axis=1),
+                        True)
+                if year != max(self.years):
+                    pl[f'{var}_older'] = pl[f'{var}_older'].mask(
+                        (pl['dob_month'] == month) &
+                        (pl[cols_ol].isin(values)).all(axis=1),
+                        True)
 
-            if not dask:
-                nobs_dropped[year]['buyin'] = (
-                    1 - (pl[f'match_{year}'].sum() / nobs))
+            if year == min(self.years):
+                pl = pl.loc[pl[f'{var}_older']]
+            elif year == max(self.years):
+                pl = pl.loc[pl[f'{var}_younger']]
+            else:
+                pl = pl.loc[pl[f'{var}_younger'] | pl[f'{var}_older']]
 
-        regex_string = r'^{}'.format(var) + r'\d{2}\d{4}$'
-        regex = re.compile(regex_string).search
-        pl = pl.drop([x for x in pl.columns if regex(x)], axis=1)
-
-        return pl, nobs_dropped
+        pl = pl.drop(
+            [x for x in cols if not self._str_in_keep_vars(x, keep_vars)],
+            axis=1)
+        return pl
 
     def _str_in_keep_vars(
             self, instr: str, keep_vars: List[Union[str, Pattern]]) -> bool:
@@ -909,42 +873,25 @@ class MedicareDF(object):
                 cols = [f'match_{year}' for year in self.years]
                 pl[cols] = pl[cols].fillna(False)
 
-        if ((buyin_val is not None) or
-            (hmo_val is not None)) and (self.year_type == 'age'):
-
-            # Create month of birth variable
-            pl['bene_dob'] = pd.NaT
-            for year in self.years:
-                pl['bene_dob'] = pl['bene_dob'].combine_first(
-                    pl[f'bene_dob{year}'])
-                pl = pl.drop(f'bene_dob{year}', axis=1)
-
-            pl['dob_month'] = pl['bene_dob'].dt.month
-
-        if (buyin_val is not None) and (self.year_type == 'age'):
-            pl, nobs_dropped = self._get_cohort_age_year_filter(
-                pl=pl,
-                var='buyin',
-                values=buyin_val,
-                nobs_dropped=nobs_dropped,
-                dask=dask,
-                verbose=verbose)
-
-        if (hmo_val is not None) and (self.year_type == 'age'):
-            pl, nobs_dropped = self._get_cohort_age_year_filter(
-                pl=pl,
-                var='hmoind',
-                values=hmo_val,
-                nobs_dropped=nobs_dropped,
-                dask=dask,
-                verbose=verbose)
-
-        if ((buyin_val is not None) or
-            (hmo_val is not None)) and (self.year_type == 'age'):
-
-            pl = pl.drop('dob_month', axis=1)
-
         if self.year_type == 'age':
+            if buyin_val is not None:
+                for year in self.years[:-1]:
+                    pl[f'match_{year}'] = pl[f'match_{year}'].mask(
+                        (pl[f'buyin_older{year}'] != True) |
+                        (pl[f'buyin_younger{year + 1}'] != True), False)
+                    pl = pl.drop(
+                        [f'buyin_older{year}', f'buyin_younger{year + 1}'],
+                        axis=1)
+
+            if hmo_val is not None:
+                for year in self.years[:-1]:
+                    pl[f'match_{year}'] = pl[f'match_{year}'].mask(
+                        (pl[f'hmoind_older{year}'] != True) |
+                        (pl[f'hmoind_younger{year + 1}'] != True), False)
+                    pl = pl.drop(
+                        [f'hmoind_older{year}', f'hmoind_younger{year + 1}'],
+                        axis=1)
+
             # Do correct filtering of data based on desired join
             match_cols = [f'match_{year}' for year in self.years[:-1]]
             if join == 'inner':
