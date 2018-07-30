@@ -915,7 +915,8 @@ class MedicareDF(object):
 
         # Reshape non-static variables
         stubs = {x[:-5] for x in pl.columns if re.search(r'_\d{4}$', x)}
-        pl = pd.wide_to_long(pl.reset_index(), stubs, i='bene_id', j='year', sep='_')
+        pl = pd.wide_to_long(
+            pl.reset_index(), stubs, i='bene_id', j='year', sep='_')
 
         if not dask:
             self.nobs_dropped = nobs_dropped
@@ -1597,10 +1598,11 @@ class MedicareDF(object):
                 # If self.pl exists, then cl data frames use only those ids
                 # So I can merge using that
                 if self.pl is not None:
-                    if f'match_{year}' in self.pl.columns:
-                        right = self.pl.loc[self.pl[f'match_{year}'], 'ehic']
+                    if 'match' in self.pl.columns:
+                        right = self.pl.loc(axis=0)[:, year]
+                        right.loc[right['match'], 'ehic']
                     else:
-                        right = self.pl['ehic']
+                        right = self.pl.loc[(slice(None), year), 'ehic']
                     right = right.to_frame()
                 else:
                     if self.parquet_engine == 'pyarrow':
@@ -1897,31 +1899,41 @@ class MedicareDF(object):
             cols[i] = cols[i][0]
 
         if (pl_ids_to_filter is None) and (self.pl is not None):
-            # Assumes bene_id or ehic is index name or name of a column
+            # Assumes bene_id or ehic is an index name or name of a column
             # Unless `join` in `get_cohort` is `inner`, we have a variable
-            # `match_{year}` that's True is the patient was found in that year
-            # and False otherwise. We should use that information so that we
-            # aren't trying to join observations that we know don't exist.
+            # `match` that's True is the patient was found in that year and
+            # False otherwise. We should use that information so that we aren't
+            # trying to join observations that we know don't exist.
             cols_tokeep = []
             if self.year_type == 'age':
                 cols_tokeep.append('bene_dob')
+            if cols['pl_id'] not in self.pl.index.names:
+                cols_tokeep.append(cols['pl_id'])
 
-            if (f'match_{year}' in self.pl.columns):
-                if cols['pl_id'] == self.pl.index.name:
-                    pl_ids_to_filter = self.pl.loc[self.pl[f'match_{year}'],
-                                                   cols_tokeep]
-                else:
-                    cols_tokeep.append(cols['pl_id'])
-                    pl_ids_to_filter = self.pl.loc[self.pl[f'match_{year}'],
-                                                   cols_tokeep].set_index(
-                                                       cols['pl_id'])
+            if self.year_type == 'age':
+                # The codes in this calendar year can match people who were
+                # younger in this calendar year or older in this calendar year
+                # than their birthday. Hence need to keep all who were matched
+                # in either this year or the previous year.
+                pl = self.pl.loc(axis=0)[:, range(year - 1, year + 1)]
+                pl = pl.reset_index('year', drop=True)
             else:
-                if cols['pl_id'] == self.pl.index.name:
-                    pl_ids_to_filter = self.pl[cols_tokeep]
-                else:
-                    cols_tokeep.append(cols['pl_id'])
-                    pl_ids_to_filter = self.pl[cols_tokeep].set_index(
-                        cols['pl_id'])
+                pl = self.pl.xs(year, level='year')
+
+            if 'match' in self.pl.columns:
+                pl = pl.loc[pl['match'], cols_tokeep]
+            else:
+                pl = pl[cols_tokeep]
+
+            if cols['pl_id'] not in self.pl.index.names:
+                pl = pl.set_index(cols['pl_id'])
+
+            if self.year_type == 'age':
+                # The possibility exists that if someone was matched in year i
+                # and i - 1, that there are two records for that person atm
+                pl = pl.loc[pl.index.drop_duplicates()]
+
+            pl_ids_to_filter = pl
 
         path = self._fpath(self.percent, year, data_type)
         if dask:
