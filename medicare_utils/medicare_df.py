@@ -346,11 +346,6 @@ class MedicareDF(object):
         """
 
         # Get list of variables to import for each year
-        if self._str_in_keep_vars('age', keep_vars) & (len(self.years) > 1):
-            keep_vars.remove('age')
-            keep_vars.append('bene_dob')
-            print("Warning: Can't export age, exporting bene_dob instead")
-
         toload_regex = []
         toload_regex.append(r'^(ehic)$')
         toload_regex.append(r'^(bene_id)$')
@@ -519,11 +514,13 @@ class MedicareDF(object):
                 keep_vars=keep_vars)
             pl = pl.drop('dob_month', axis=1)
 
-        pl.columns = [f'{x}{year}' for x in pl.columns]
+        pl = pl.rename(columns=lambda x: x + f'_{year}')
 
         # Indicator for which patients exist in which year
         if self.year_type == 'age':
-            if year != max(self.years):
+            if year == max(self.years):
+                pl = pl[f'buyin_younger_{year}'].to_frame()
+            else:
                 pl[f'match_{year}'] = True
         elif join != 'inner':
             pl[f'match_{year}'] = True
@@ -871,57 +868,54 @@ class MedicareDF(object):
             if buyin_val is not None:
                 for year in self.years[:-1]:
                     pl[f'match_{year}'] = pl[f'match_{year}'].mask(
-                        (pl[f'buyin_older{year}'] != True) |
-                        (pl[f'buyin_younger{year + 1}'] != True), False)
+                        (pl[f'buyin_older_{year}'] != True) |
+                        (pl[f'buyin_younger_{year + 1}'] != True), False)
                     pl = pl.drop(
-                        [f'buyin_older{year}', f'buyin_younger{year + 1}'],
+                        [f'buyin_older_{year}', f'buyin_younger_{year + 1}'],
                         axis=1)
 
             if hmo_val is not None:
                 for year in self.years[:-1]:
                     pl[f'match_{year}'] = pl[f'match_{year}'].mask(
-                        (pl[f'hmoind_older{year}'] != True) |
-                        (pl[f'hmoind_younger{year + 1}'] != True), False)
+                        (pl[f'hmoind_older_{year}'] != True) |
+                        (pl[f'hmoind_younger_{year + 1}'] != True), False)
                     pl = pl.drop(
-                        [f'hmoind_older{year}', f'hmoind_younger{year + 1}'],
+                        [f'hmoind_older_{year}', f'hmoind_younger_{year + 1}'],
                         axis=1)
 
             # Do correct filtering of data based on desired join
-            match_cols = [f'match_{year}' for year in self.years[:-1]]
+            cols = [x for x in pl.columns if re.search(r'match_\d{4}', x)]
             if join == 'inner':
-                pl = pl.loc[pl[match_cols].all(axis=1)]
+                pl = pl.loc[pl[cols].all(axis=1)]
             elif join == 'outer':
-                pl = pl.loc[pl[match_cols].any(axis=1)]
+                pl = pl.loc[pl[cols].any(axis=1)]
             elif join == 'left':
                 pl = pl.loc[pl[f'match_{min(self.years)}']]
             elif join == 'right':
                 pl = pl.loc[pl[f'match_{max(self.years) - 1}']]
 
-        # Create single variable across years for any non month-oriented vars
-        # Columns that vary by year:
-        regex = re.compile(r'(?!_).\d{4}$').search
-        year_cols = [x for x in pl.columns if regex(x)]
-
-        # unique names of columns that vary by year:
-        year_cols_stub = list(set([x[:-4] for x in year_cols]))
-
-        for col in year_cols_stub:
-            dest_col = f'{col}{min(self.years)}'
-
-            if len(self.years) == 1:
-                pl = pl.rename(columns={dest_col: col})
+        # Create single variable across years for any columns that should be
+        # static by definition. I.e. race or dob does not change; age does.
+        static_names = [
+            'ehic', 'efivepct', 'covstart', 'bene_dob', 'death_dt',
+            'ndi_death_dt', 'sex', 'race', 'rti_race_cd']
+        cols_static = {
+            name: [
+                x for x in pl.columns if re.search(r'^' + name + r'_\d{4}$', x)]
+            for name in static_names}
+        for name, cols in cols_static.items():
+            if not cols:
                 continue
 
-            for year in self.years[1:]:
-                try:
-                    pl[dest_col] = pl[dest_col].combine_first(
-                        pl[f'{col}{year}'])
-                    pl = pl.drop(f'{col}{year}', axis=1)
-                except KeyError:
-                    # Means that f'{col}{year}' wasn't loaded
-                    pass
+            for col in cols[1:]:
+                pl[cols[0]] = pl[cols[0]].combine_first(pl[col])
 
-            pl = pl.rename(columns={dest_col: col})
+            pl = pl.drop(cols[1:], axis=1)
+            pl = pl.rename(columns={cols[0]: name})
+
+        # Reshape non-static variables
+        stubs = {x[:-5] for x in pl.columns if re.search(r'_\d{4}$', x)}
+        pl = pd.wide_to_long(pl.reset_index(), stubs, i='bene_id', j='year', sep='_')
 
         if not dask:
             self.nobs_dropped = nobs_dropped
