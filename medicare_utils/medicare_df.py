@@ -522,7 +522,10 @@ class MedicareDF(object):
         pl.columns = [f'{x}{year}' for x in pl.columns]
 
         # Indicator for which patients exist in which year
-        if (join != 'inner') or (self.year_type == 'age'):
+        if self.year_type == 'age':
+            if year != max(self.years):
+                pl[f'match_{year}'] = True
+        elif join != 'inner':
             pl[f'match_{year}'] = True
 
         return pl, nobs_dropped
@@ -861,17 +864,8 @@ class MedicareDF(object):
         pl.index.name = 'bene_id'
 
         if (join != 'inner') or (self.year_type == 'age'):
-            if self.year_type == 'age':
-                # Don't need last calendar year match variable
-                # Am only matching part of last calendar year when doing age-
-                # year match
-                cols = [f'match_{year}' for year in self.years]
-                cols.remove(f'match_{max(self.years)}')
-                pl[cols] = pl[cols].fillna(False)
-                pl = pl.drop(f'match_{max(self.years)}', axis=1)
-            else:
-                cols = [f'match_{year}' for year in self.years]
-                pl[cols] = pl[cols].fillna(False)
+            cols = [x for x in pl.columns if re.search(r'match_\d{4}', x)]
+            pl[cols] = pl[cols].fillna(False)
 
         if self.year_type == 'age':
             if buyin_val is not None:
