@@ -1896,33 +1896,32 @@ class MedicareDF(object):
             assert len(cols[i]) == 1
             cols[i] = cols[i][0]
 
-        if pl_ids_to_filter is None:
+        if (pl_ids_to_filter is None) and (self.pl is not None):
             # Assumes bene_id or ehic is index name or name of a column
             # Unless `join` in `get_cohort` is `inner`, we have a variable
             # `match_{year}` that's True is the patient was found in that year
             # and False otherwise. We should use that information so that we
             # aren't trying to join observations that we know don't exist.
-            if self.pl is not None:
-                cols_tokeep = []
-                if self.year_type == 'age':
-                    cols_tokeep.append('bene_dob')
+            cols_tokeep = []
+            if self.year_type == 'age':
+                cols_tokeep.append('bene_dob')
 
-                if (f'match_{year}' in self.pl.columns):
-                    if cols['pl_id'] == self.pl.index.name:
-                        pl_ids_to_filter = self.pl.loc[self.pl[f'match_{year}'],
-                                                       cols_tokeep]
-                    else:
-                        cols_tokeep.append(cols['pl_id'])
-                        pl_ids_to_filter = self.pl.loc[self.pl[f'match_{year}'],
-                                                       cols_tokeep].set_index(
-                                                           cols['pl_id'])
+            if (f'match_{year}' in self.pl.columns):
+                if cols['pl_id'] == self.pl.index.name:
+                    pl_ids_to_filter = self.pl.loc[self.pl[f'match_{year}'],
+                                                   cols_tokeep]
                 else:
-                    if cols['pl_id'] == self.pl.index.name:
-                        pl_ids_to_filter = self.pl[cols_tokeep]
-                    else:
-                        cols_tokeep.append(cols['pl_id'])
-                        pl_ids_to_filter = self.pl[cols_tokeep].set_index(
-                            cols['pl_id'])
+                    cols_tokeep.append(cols['pl_id'])
+                    pl_ids_to_filter = self.pl.loc[self.pl[f'match_{year}'],
+                                                   cols_tokeep].set_index(
+                                                       cols['pl_id'])
+            else:
+                if cols['pl_id'] == self.pl.index.name:
+                    pl_ids_to_filter = self.pl[cols_tokeep]
+                else:
+                    cols_tokeep.append(cols['pl_id'])
+                    pl_ids_to_filter = self.pl[cols_tokeep].set_index(
+                        cols['pl_id'])
 
         path = self._fpath(self.percent, year, data_type)
         if dask:
