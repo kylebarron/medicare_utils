@@ -429,10 +429,12 @@ class TestSearchForCodesTypeCheck(object):
     def init(self):
         init = {
             'data_types': 'med',
+            'pl': None,
             'hcpcs': None,
             'icd9_dx': None,
             'icd9_dx_max_cols': None,
             'icd9_sg': None,
+            'icd9_sg_max_cols': None,
             'keep_vars': {},
             'collapse_codes': True,
             'rename': {
@@ -440,6 +442,7 @@ class TestSearchForCodesTypeCheck(object):
                 'icd9_dx': None,
                 'icd9_sg': None},
             'convert_ehic': True,
+            'dask': False,
             'verbose': False}
         return init
 
@@ -469,6 +472,39 @@ class TestSearchForCodesTypeCheck(object):
         init['data_types'] = data_types
         with pytest.raises(error):
             mdf._search_for_codes_type_check(**init)
+
+    @pytest.mark.parametrize(
+        'pl,error',
+        [('a', TypeError),
+         (1, TypeError),
+         (pd.DataFrame({'a': [1, 2, 3, 4]}), ValueError)]) # yapf: disable
+    def test_pl_error(self, mdf, init, pl, error):
+        init['pl'] = pl
+        with pytest.raises(error):
+            mdf._search_for_codes_type_check(**init)
+
+    @pytest.mark.parametrize(
+        'pl,res',
+        [(
+            pd.DataFrame({'bene_id': [1, 2, 3, 4]}),
+            pd.DataFrame({'bene_id': [1, 2, 3, 4]})
+         ), (
+            pd.DataFrame({'bene_id': [1, 2, 3, 4], 'other': ['a', 'b', 'c', 'd']}),
+            pd.DataFrame({'bene_id': [1, 2, 3, 4]})
+         ), (
+            pd.DataFrame({'bene_id': [1, 2, 3, 4], 'ehic': ['a', 'b', 'c', 'd']}),
+            pd.DataFrame({'bene_id': [1, 2, 3, 4], 'ehic': ['a', 'b', 'c', 'd']}),
+         ), (
+            pd.DataFrame({'bene_id': [1, 2, 3, 4], 'ehic': ['a', 'b', 'c', 'd'], 'other': ['a', 'b', 'c', 'd']}),
+            pd.DataFrame({'bene_id': [1, 2, 3, 4], 'ehic': ['a', 'b', 'c', 'd']}),
+         ), (
+            pd.DataFrame({'ehic': [1, 2, 3, 4], 'other': ['a', 'b', 'c', 'd']}),
+            pd.DataFrame({'ehic': [1, 2, 3, 4]})
+         )]) # yapf: disable
+    def test_pl(self, mdf, init, pl, res):
+        init['pl'] = pl
+        obj = mdf._search_for_codes_type_check(**init)
+        assert obj.pl_ids_to_filter.equals(res)
 
     @pytest.mark.parametrize(
         'codes,error',
@@ -563,6 +599,12 @@ class TestSearchForCodesTypeCheck(object):
     def test_icd9_dx_max_cols(self, mdf, init):
         init['icd9_dx'] = None
         init['icd9_dx_max_cols'] = 5
+        with pytest.raises(ValueError):
+            mdf._search_for_codes_type_check(**init)
+
+    def test_icd9_sg_max_cols(self, mdf, init):
+        init['icd9_sg'] = None
+        init['icd9_sg_max_cols'] = 5
         with pytest.raises(ValueError):
             mdf._search_for_codes_type_check(**init)
 

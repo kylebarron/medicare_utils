@@ -1118,12 +1118,12 @@ class MedicareDF(object):
             if not isinstance(pl, pd.DataFrame):
                 raise TypeError('pl must be DataFrame')
 
-            columns = [*pl.columns, pl.index.name]
-            if not any(x in columns for x in ['ehic', 'bene_id']):
+            columns = {*pl.columns, pl.index.name}
+            pl_cols = list(columns.intersection(['ehic', 'bene_id']))
+            if not pl_cols:
                 raise ValueError('pl must have `ehic` or `bene_id` as a column')
 
-            pl_ids_to_filter = pl.reset_index()[list({
-                'ehic', 'bene_id'}.intersection(columns))].copy()
+            pl_ids_to_filter = pl.reset_index()[pl_cols].copy()
         else:
             pl_ids_to_filter = None
 
