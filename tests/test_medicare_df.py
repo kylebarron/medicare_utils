@@ -1,5 +1,6 @@
 import re
 import pytest
+import pandas as pd
 import medicare_utils as med
 
 
@@ -74,6 +75,7 @@ class TestGetCohortTypeCheck(object):
             'hmo_val': None,
             'join': 'left',
             'keep_vars': None,
+            'dask': False,
             'verbose': True}
 
     @pytest.fixture
@@ -264,6 +266,50 @@ class TestGetCohortTypeCheck(object):
         with pytest.raises(TypeError):
             mdf._get_cohort_type_check(**init)
 
+class TestGetCohortMonthFilter(object):
+    @pytest.fixture
+    def mdf(self):
+        return med.MedicareDF('01', [2010, 2011, 2012], year_type='age')
+
+    @pytest.fixture
+    def pl(self):
+        data = [
+            [1, '2','2','1','1','2','2','1','2','1','2','2','2'],
+            [2, '2','2','2','1','2','2','1','1','2','2','2','1'],
+            [3, '2','2','2','1','2','2','1','1','1','2','2','2'],
+            [4, '1','2','1','1','1','1','2','2','2','1','2','2'],
+            [5, '2','2','2','1','1','2','2','1','2','1','2','1'],
+            [6, '2','1','1','1','2','1','1','1','1','2','2','2'],
+            [7, '2','2','1','1','2','2','1','2','1','2','2','2'],
+            [8, '2','2','2','1','2','2','1','1','2','2','2','2'],
+            [9, '2','2','1','1','2','2','1','1','2','2','2','2'],
+            [10, '1','2','1','1','1','1','2','2','2','2','2','2'],
+            [11, '2','2','2','1','1','2','2','1','2','2','2','2'],
+            [12, '2','1','1','1','2','1','1','1','1','2','2','2']]
+        cols = ['dob_month', 'var01', 'var02', 'var03', 'var04', 'var05', 'var06', 'var07', 'var08', 'var09', 'var10', 'var11', 'var12']
+        return pd.DataFrame.from_records(data, columns=cols)
+
+    @pytest.fixture
+    def exp(self):
+        return pd.DataFrame({
+            'dob_month': [1, 2, 3, 9, 10, 11, 12],
+            'var_younger': [True, True, True, False, False, False, False],
+            'var_older': [False, False, False, True, True, True, True]},
+            index=[0, 1, 2, 8, 9, 10, 11])
+
+    def test_month_filter_mid(self, mdf, pl, exp):
+        df = mdf._get_cohort_month_filter(pl=pl, var='var', values=['2'], year=2011, keep_vars=[])
+        assert df.equals(exp)
+
+    def test_month_filter_first(self, mdf, pl, exp):
+        df = mdf._get_cohort_month_filter(pl=pl, var='var', values=['2'], year=2010, keep_vars=[])
+        exp = exp.loc[exp['var_older'], ['dob_month', 'var_older']]
+        assert df.equals(exp)
+
+    def test_month_filter_last(self, mdf, pl, exp):
+        df = mdf._get_cohort_month_filter(pl=pl, var='var', values=['2'], year=2012, keep_vars=[])
+        exp = exp.loc[exp['var_younger'], ['dob_month', 'var_younger']]
+        assert df.equals(exp)
 
 class TestGetPattern(object):
     @pytest.fixture

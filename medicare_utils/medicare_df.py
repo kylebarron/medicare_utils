@@ -407,7 +407,6 @@ class MedicareDF(object):
             gender: Optional[str],
             ages: Optional[List[int]],
             races: Optional[List[str]],
-            rti_race: bool,
             race_col: str,
             buyin_val: Optional[List[str]],
             hmo_val: Optional[List[str]],
@@ -528,13 +527,18 @@ class MedicareDF(object):
         return pl, nobs_dropped
 
     def _get_cohort_month_filter(
-            self, pl: Union[pd.DataFrame, dd.DataFrame], var: str, values,
+            self, pl: Union[pd.DataFrame, dd.DataFrame], var: str, values: list,
             year: int, keep_vars):
         """Filter variables that are at the month level
 
-        Namely ``buyinXX`` and ``hmoindXX``.
-
         TODO: add code to update nobs_dropped
+
+        Args:
+            pl: patient-level data for a single year
+            var: Variable to filter on. Either ``buyinXX`` or ``hmoindXX``.
+            values: Values that ``var`` can take
+            year: Year of data
+            keep_vars: variables to not drop from dataframe
         """
 
         if values is None:
