@@ -59,8 +59,6 @@ class MedicareDF(object):
             The engine to use to read Parquet files: ``pyarrow`` or
             ``fastparquet``. Usually you'll have better reliability when using
             the engine you created the Parquet files with.
-        dta_path:
-            Path to root directory of Stata Medicare files.
         max_cores:
             Maximum number of CPU cores to use. By default uses
             ``multiprocessing.cpu_count() - 1``.
@@ -106,7 +104,6 @@ class MedicareDF(object):
             verbose: bool = False,
             parquet_engine: str = 'pyarrow',
             max_cores: Optional[int] = None,
-            dta_path: str = '/disk/aging/medicare/data',
             pq_path:
             str = '/disk/agebulk3/medicare.work/doyle-dua51929/barronk-dua51929/raw/pq'
             ) -> None: # yapf: disable
@@ -168,19 +165,16 @@ class MedicareDF(object):
         self.pl = None
         self.cl = None
 
-        self.dta_path = dta_path
         self.pq_path = pq_path
 
     def _fpath(
-            self, percent: str, year: int, data_type: str,
-            dta: bool = False) -> str:
+            self, percent: str, year: int, data_type: str) -> str:
 
         return fpath(
             percent=percent,
             year=year,
             data_type=data_type,
-            dta=dta,
-            dta_path=self.dta_path,
+            dta=False,
             pq_path=self.pq_path)
 
     class _ReturnGetCohortTypeCheck(NamedTuple):
