@@ -3,6 +3,61 @@ import pandas as pd
 import medicare_utils as med
 
 
+class TestGetCohortGetVarsToload(object):
+    @pytest.fixture
+    def init(self):
+        return {
+            'gender': None,
+            'ages': None,
+            'races': None,
+            'race_col': 'race',
+            'buyin_val': None,
+            'hmo_val': None,
+            'keep_vars': []}
+
+    @pytest.fixture
+    def mdf(self, year, percent):
+        return med.MedicareDF(percent, year)
+
+    @pytest.fixture(params=['0001', '01', '05', '20', '100'])
+    def percent(self, request):
+        return request.param
+
+    @pytest.fixture(params=[2005, 2012])
+    def year(self, request):
+        return request.param
+
+    def add_ehic(self, x, year):
+        if year >= 2006:
+            return x
+        else:
+            x.append('ehic')
+            return x
+
+    def assert_exp(self, mdf, init, exp, year):
+        res = mdf._get_cohort_get_vars_toload(**init)
+        exp = TestGetCohortGetVarsToload().add_ehic(exp, year)
+        assert set(res[year]) == set(exp)
+
+    # Only need to adjust these inputs
+    @pytest.mark.parametrize(
+    'inputs,extra_vars',
+    [
+    ({'gender': '1'}, ['sex']),
+    ({'ages': range(70, 80)}, ['age']),
+    ({'races': ['1'], 'race_col': 'race'}, ['race']),
+    ({'races': ['1'], 'race_col': 'rti_race_cd'}, ['rti_race_cd']),
+    ({'buyin_val': ['1', '2']}, ['buyin01', 'buyin02', 'buyin03', 'buyin04', 'buyin05', 'buyin06', 'buyin07', 'buyin08', 'buyin09', 'buyin10', 'buyin11', 'buyin12']),
+    ({'hmo_val': ['1', '2']}, ['hmoind01', 'hmoind02', 'hmoind03', 'hmoind04', 'hmoind05', 'hmoind06', 'hmoind07', 'hmoind08', 'hmoind09', 'hmoind10', 'hmoind11', 'hmoind12']),
+    ]) # yapf: disable
+    def test_gender(self, year, mdf, init, inputs, extra_vars):
+        for key, val in inputs.items():
+            init[key] = val
+        exp = ['bene_id']
+        exp.extend(extra_vars)
+        TestGetCohortGetVarsToload().assert_exp(mdf, init, exp, year)
+
+
 class TestGetCohortExtractEachYear(object):
     """Tests for a single year of cohort extraction
     """
