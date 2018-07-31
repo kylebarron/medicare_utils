@@ -135,13 +135,18 @@ class MedicareDF(object):
         if type(years) == int:
             years = [years]
         elif isinstance(years, (list, range)):
-            years = years
+            pass
         else:
             raise TypeError('years must be a number or list of numbers')
 
-        if (len(years) == 1) & (year_type == 'age'):
-            msg = "year_type can't be `age` when only one year is given"
-            raise ValueError(msg)
+        if year_type == 'age':
+            if len(years) == 1:
+                msg = "year_type can't be `age` when only one year is given"
+                raise ValueError(msg)
+
+            if list(years) != list(range(min(years), max(years) + 1)):
+                msg = 'When year_type is `age`, years provided must be continuous.'
+                raise ValueError(msg)
 
         self.years = years
         self.year_type = year_type
