@@ -311,6 +311,23 @@ class TestGetCohortMonthFilter(object):
         exp = exp.loc[exp['var_younger'], ['dob_month', 'var_younger']]
         assert df.equals(exp)
 
+class TestStrInKeepVars(object):
+    @pytest.fixture
+    def mdf(self):
+        return med.MedicareDF('01', 2012)
+
+    @pytest.mark.parametrize(
+        'instr,keep_vars,res',
+        [
+        ('a', ['a', 'b', 'c'], True),
+        ('d', ['a', 'b', 'c'], False),
+        ('a', ['a', re.compile(r'b')], True),
+        ('d', ['a', re.compile(r'b')], False),
+        ('a', [re.compile(r'a')], True),
+        ('a', [re.compile(r'b')], False)])
+    def test_str_in_keep_vars(self, mdf, instr, keep_vars, res):
+        assert res == mdf._str_in_keep_vars(instr, keep_vars)
+
 class TestGetPattern(object):
     @pytest.fixture
     def mdf(self):

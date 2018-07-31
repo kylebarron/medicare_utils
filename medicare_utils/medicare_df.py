@@ -581,8 +581,9 @@ class MedicareDF(object):
             axis=1)
         return pl
 
+    @staticmethod
     def _str_in_keep_vars(
-            self, instr: str, keep_vars: List[Union[str, Pattern]]) -> bool:
+            instr: str, keep_vars: List[Union[str, Pattern]]) -> bool:
         """Return True if string is in keep_vars
         """
 
