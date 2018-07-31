@@ -59,10 +59,11 @@ class MedicareDF(object):
             The engine to use to read Parquet files: ``pyarrow`` or
             ``fastparquet``. Usually you'll have better reliability when using
             the engine you created the Parquet files with.
-        parquet_nthreads:
-            Number of threads to use when reading file.
         dta_path:
             Path to root directory of Stata Medicare files.
+        max_cores:
+            Maximum number of CPU cores to use. By default uses
+            ``multiprocessing.cpu_count() - 1``.
         pq_path:
             Path to Parquet Medicare files. As of now, these must be created by
             hand using :func:`medicare_utils.parquet.convert_med`, but I hope to
@@ -158,7 +159,7 @@ class MedicareDF(object):
             raise ValueError('parquet_engine must be pyarrow or fastparquet')
 
         if max_cores is None:
-            max_cores = cpu_count()
+            max_cores = cpu_count() - 1
 
         self.parquet_engine = parquet_engine
         self.parquet_nthreads = max_cores
