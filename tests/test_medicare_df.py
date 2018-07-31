@@ -4,6 +4,11 @@ import medicare_utils as med
 
 
 class TestInit(object):
+    # All the non-default arguments
+    @pytest.fixture
+    def init(self):
+        return {'percent': '01', 'years': 2012}
+
     @pytest.mark.parametrize(
         'pct,pct_act',
         [('0001', '0001'),
@@ -16,39 +21,45 @@ class TestInit(object):
          (5, '05'),
          (20, '20'),
          (100, '100')]) # yapf: disable
-    def test_percents(self, pct, pct_act):
-        mdf = med.MedicareDF(pct, 2012)
+    def test_percents(self, init, pct, pct_act):
+        init['percent'] = pct
+        mdf = med.MedicareDF(**init)
         assert mdf.percent == pct_act
 
     @pytest.mark.parametrize('pct', ['02', '45', 2, 56])
-    def test_invalid_percents(self, pct):
+    def test_invalid_percents(self, init, pct):
+        init['percent'] = pct
         with pytest.raises(ValueError):
-            med.MedicareDF(pct, 2012)
+            med.MedicareDF(**init)
 
     @pytest.mark.parametrize(
         'years,years_act',
         [(2005, [2005]),
          (range(2010, 2013), range(2010, 2013)),
          ([2010, 2011, 2012], [2010, 2011, 2012])]) # yapf: disable
-    def test_years(self, years, years_act):
-        mdf = med.MedicareDF('01', years)
+    def test_years(self, init, years, years_act):
+        init['years'] = years
+        mdf = med.MedicareDF(**init)
         assert mdf.years == years_act
 
     @pytest.mark.parametrize('years', ['2012', 2012.0])
-    def test_invalid_years(self, years):
+    def test_invalid_years(self, init, years):
+        init['years'] = years
         with pytest.raises(TypeError):
-            med.MedicareDF('01', years)
+            med.MedicareDF(**init)
 
     @pytest.mark.parametrize('year_type', ['calendar', 'age'])
     def test_year_type(self, year_type):
         mdf = med.MedicareDF('01', [2011, 2012], year_type=year_type)
         mdf.year_type == year_type
 
-    def test_age_year_type_with_one_year(self):
+    @pytest.mark.parametrize(
+        'years', [2012, [2012], range(2012, 2013), [2010, 2012]])
+    def test_invalid_age_years(self, init, years):
+        init['year_type'] = 'age'
+        init['years'] = years
         with pytest.raises(ValueError):
-            med.MedicareDF('01', 2012, year_type='age')
-            med.MedicareDF('01', [2012], year_type='age')
-            med.MedicareDF('01', range(2012, 2013), year_type='age')
+            med.MedicareDF(**init)
 
 
 class TestGetCohortTypeCheck(object):
@@ -63,7 +74,6 @@ class TestGetCohortTypeCheck(object):
             'hmo_val': None,
             'join': 'left',
             'keep_vars': None,
-            'dask': True,
             'verbose': True}
 
     @pytest.fixture
