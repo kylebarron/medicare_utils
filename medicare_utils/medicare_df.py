@@ -941,7 +941,7 @@ class MedicareDF(object):
 
         # Rename `match` to `cohort_match` to reduce confusion between
         # patient-level and claim-level datasets
-        pl = pl.rename(columns={'match': 'cohort_match'}, axis=1)
+        pl = pl.rename(columns={'match': 'cohort_match'})
 
         if not dask:
             self.nobs_dropped = nobs_dropped
