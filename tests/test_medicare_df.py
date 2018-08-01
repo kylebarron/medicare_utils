@@ -427,7 +427,7 @@ class TestCreateRenameDict(object):
 class TestSearchForCodesTypeCheck(object):
     @pytest.fixture
     def init(self):
-        init = {
+        return {
             'data_types': 'med',
             'pl': None,
             'hcpcs': None,
@@ -444,7 +444,6 @@ class TestSearchForCodesTypeCheck(object):
             'convert_ehic': True,
             'dask': False,
             'verbose': False}
-        return init
 
     @pytest.fixture
     def mdf(self):
@@ -681,5 +680,92 @@ class TestSearchForCodesTypeCheck(object):
         with pytest.raises(error):
             mdf._search_for_codes_type_check(**init)
 
+
+class TestSearchForCodesDfInner(object):
+    @pytest.fixture
+    def init(self):
+        # yapf: disable
+        # strings of random numbers between 10000 and 20000
+        cl = [
+            ['a', 'a1', '12330', '11561', '16595', '19645', '12857'],
+            ['a', 'a2', '19119', '15046', '11443', '10912', '12049'],
+            ['a', 'a3', '11970', '11287', '15761', '18922', '17237'],
+            ['d', 'd1', '12339', '13261', '16721', '16916', '14030'],
+            ['d', 'd2', '17472', '12268', '16866', '19018', '15955'],
+            ['d', 'd3', '19984', '12176', '15422', '17639', '15978'],
+            ['g', 'g1', '14664', '16756', '17961', '11753', '14142'],
+            ['h', 'h1', '17978', '17134', '19126', '15506', '19840'],
+            ['h', 'h2', '19970', '14396', '10766', '13759', '16496'],
+            ['h', 'h3', '10135', '19787', '15254', '16429', '19755'],
+            ['k', 'k1', '14184', '14980', '11988', '19129', '15954'],
+            ['l', 'l1', '18656', '16262', '17277', '14809', '13158'],
+            ['l', 'l2', '12183', '17934', '14647', '16925', '10645'],
+            ['l', 'l3', '16389', '15936', '15057', '11984', '16037'],
+            ['o', 'o1', '17409', '13543', '10463', '12570', '14592'],
+            ['p', 'p1', '14828', '11101', '18290', '15968', '10171'],
+            ['q', 'q1', '15680', '10538', '16378', '18132', '15117'],
+            ['r', 'r1', '19623', '17485', '11370', '18089', '14946'],
+            ['r', 'r2', '12488', '13445', '16946', '11697', '17000'],
+            ['r', 'r3', '12433', '15126', '16657', '10305', '13371'],
+            ['r', 'r4', '14366', '11205', '18033', '15486', '10191'],
+            ['v', 'v1', '19662', '16793', '18033', '10708', '17447'],
+            ['v', 'v2', '13856', '16934', '19373', '13596', '19218'],
+            ['v', 'v3', '18428', '12335', '14074', '15931', '12287'],
+            ['v', 'v4', '11527', '16453', '15934', '11127', '19378'],
+            ['z', 'z1', '13459', '17823', '15864', '19867', '11651'],
+            ]
+        # yapf: enable
+        cols_toload = [
+            'bene_id', 'medparid', 'dgnscd1', 'dgnscd2', 'dgnscd3', 'dgnscd4',
+            'dgnscd5']
+        cl = pd.DataFrame.from_records(cl, columns=cols_toload)
+        cl = cl.set_index('bene_id')
+
+        codes = {'icd9_dx': [re.compile(r'^12'), '18428']}
+
+        cols = {
+            'cl_id': 'medparid',
+            'pl_id': 'bene_id',
+            'keep_vars': [],
+            'icd9_dx': ['dgnscd1', 'dgnscd2', 'dgnscd3', 'dgnscd4', 'dgnscd5']}
+
+        return {
+            'cl': cl,
+            'codes': codes,
+            'cols': cols,
+            'year': 2012,
+            'keep_vars': [],
+            'rename': {},
+            'collapse_codes': True,
+            'pl_ids_to_filter': None}
+
+    @pytest.fixture
+    def mdf(self):
+        return med.MedicareDF('01', 2012)
+
+    # yapf: disable
+    @pytest.mark.parametrize(
+        'args,exp',
+        [(
+            {},
+            pd.Series(
+                True,
+                index=['a1', 'a2', 'd1', 'd2', 'd3', 'l2', 'o1', 'r2', 'r3',
+                       'v3'])
+        ), (
+            {'cols': {'cl_id': 'medparid',
+             'pl_id': 'bene_id',
+             'keep_vars': [],
+             'icd9_dx': ['dgnscd1']}},
+            pd.Series(True, index=['a1', 'd1', 'l2', 'r2', 'r3', 'v3'])
+            )
+        ])
+    # yapf: enable
+    def test_output_collapse_codes(self, mdf, init, args, exp):
+        args = {**init, **args}
+
+        df = mdf._search_for_codes_df_inner(**args)
+        df = df[df['match']]
+        assert df.set_index('medparid')['match'].equals(exp)
 
 # verbose
