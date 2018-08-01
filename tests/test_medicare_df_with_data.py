@@ -78,7 +78,7 @@ class TestGetCohortExtractEachYear(object):
 
     @pytest.fixture
     def full_df(self):
-        path = med.fpath(percent='01', year=2012, data_type='bsfab')
+        path = med.fpath(percent='0001', year=2012, data_type='bsfab')
         cols = [
             'bene_id', 'age', 'sex', 'race', 'rti_race_cd', 'buyin01',
             'buyin02', 'buyin03', 'buyin04', 'buyin05', 'buyin06', 'buyin07',
@@ -87,7 +87,7 @@ class TestGetCohortExtractEachYear(object):
             'hmoind07', 'hmoind08', 'hmoind09', 'hmoind10', 'hmoind11',
             'hmoind12']
         full_df = pd.read_parquet(path, columns=cols)
-        print('Finished reading 1% bsfab data in 2012')
+        print('Finished reading 0.01% bsfab data in 2012')
         return full_df
 
     # gender = 'm'
@@ -113,14 +113,15 @@ class TestGetCohortExtractEachYear(object):
             keep_vars,
             dask,
             verbose,
-            pct='01',
+            year_type='calendar',
+            pct='0001',
             year=2012):
         """Set up to run _get_cohort_extract_each_year()
 
         Replicate get_cohort methods up to call of _get_cohort_extract_each_year
         """
 
-        mdf = med.MedicareDF(pct, year)
+        mdf = med.MedicareDF(pct, year, year_type=year_type)
         objs = mdf._get_cohort_type_check(
             gender=gender,
             ages=ages,
@@ -155,7 +156,6 @@ class TestGetCohortExtractEachYear(object):
             'gender': gender,
             'ages': ages,
             'races': races,
-            'rti_race': rti_race,
             'race_col': race_col,
             'buyin_val': buyin_val,
             'hmo_val': hmo_val,
