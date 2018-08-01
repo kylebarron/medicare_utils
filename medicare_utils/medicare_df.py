@@ -1605,7 +1605,7 @@ class MedicareDF(object):
         if not years_ehic:
             for data_type in data.keys():
                 data[data_type] = data[data_type].pop('bene_id')
-            return data
+            return data.set_index('year', append=True)
 
         # Always convert ehic to bene_id if data from before *and* after 2006
         if years_ehic and years_bene_id:
@@ -1657,7 +1657,7 @@ class MedicareDF(object):
                 [data[data_type].pop('ehic'), data[data_type].pop('bene_id')],
                 sort=False)
 
-        return data
+        return data.set_index('year', append=True)
 
     def _search_for_codes_df_inner(self,
             cl: Union[pd.DataFrame, dd.DataFrame],
@@ -2023,7 +2023,6 @@ class MedicareDF(object):
             cl = pd.concat(all_cl, axis=0, sort=False)
 
         cl['year'] = np.uint16(year)
-        cl = cl.set_index('year', append=True)
         return cl
 
     def _search_for_codes_pl(
