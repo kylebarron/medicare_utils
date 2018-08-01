@@ -1726,6 +1726,7 @@ class MedicareDF(object):
             cl['older'] = (
                 cl[cols['cl_date']] >= self._dates_to_year(
                     cl['bene_dob'], year))
+            cl = cl.drop('bene_dob', axis=1)
 
             # If the first year; only care about claims on or after birthday,
             # because they'll be merged with the earlier part of the next year.
