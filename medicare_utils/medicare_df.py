@@ -37,10 +37,27 @@ class MedicareDF(object):
 
     Args:
         percent:
-            Percent sample of data to use. Either ``0.01``, ``1``, ``5``,
-            ``20``, or ``100``.
+            Percent sample of data to use. As a numeric value, either ``0.01``,
+            ``1``, ``5``, ``20``, or ``100``. If a string, must be either
+            ``'0001'``, ``'01'``, ``'05'``, ``'20'``, or ``'100'``.
         years:
             Years of data to use.
+
+            If ``year_type`` is ``'calendar'``, all data within calendar years
+            provided will be used for the :meth:`get_cohort` and
+            :meth:`search_for_codes` methods.
+
+            If ``year_type`` is ``'age'``, each year of exported data starts on
+            the patient's birthday of that year. For example if ``years`` is
+            ``[2008, 2009, 2010]`` and ``year_type`` is ``'age'``, the exported
+            data with label ``2008`` will be derived starting from each
+            patient's birthday in 2008 up through the day before the patient's
+            birthday in 2009. Because this discards the data before a patient's
+            birthday in the first year and after a patient's birthday in the
+            last year, providing ``n`` years will result in ``n-1`` years in the
+            output. Patients who were born on February 29th in a leap year
+            include data from that date through February 28th of the following
+            year.
         year_type:
             ``calendar`` to work with multiple years as calendar years; ``age``
             to work with patients' age years. The latter does computations
@@ -65,7 +82,7 @@ class MedicareDF(object):
         pq_path:
             Path to Parquet Medicare files. As of now, these must be created by
             hand using :func:`medicare_utils.parquet.convert_med`, but I hope to
-            have these available for general use in the future.
+            have these available for NBER use in the future.
     Returns:
         ``MedicareDF`` object. Can then create a cohort based on demographic
         characteristics using :meth:`get_cohort` or search for claims with given
@@ -86,7 +103,7 @@ class MedicareDF(object):
         .. code-block:: python
 
             >>> import medicare_utils as med
-            >>> mdf = med.MedicareDF(percent=100, years=range(2010, 2013), year_type='calendar', verbose=True)
+            >>> mdf = med.MedicareDF(percent=100, years=range(2010, 2013), year_type='age', verbose=True)
 
         **Note**: in Python, ``range`` doesn't include the upper bound, so ``range(2010, 2013)`` is equivalent to ``[2010, 2011, 2012]``.
 
