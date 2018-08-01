@@ -828,7 +828,6 @@ class MedicareDF(object):
                 gender=gender,
                 ages=ages,
                 races=races,
-                rti_race=rti_race,
                 race_col=race_col,
                 buyin_val=buyin_val,
                 hmo_val=hmo_val,
