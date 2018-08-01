@@ -2023,20 +2023,7 @@ class MedicareDF(object):
             cl = pd.concat(all_cl, axis=0, sort=False)
 
         cl['year'] = np.uint16(year)
-
-        # Merge back onto pl_ids_to_filter so that claim-level df
-        # has same index values as person-level df
-        # cl = cl.join(
-        #     pd.DataFrame(index=pl_ids_to_filter),
-        #     how='outer')
-
-        # Revert to the following if change index back to cl_id_col
-        # cl = cl.reset_index().merge(
-        #     pd.DataFrame(index=pl_ids_to_filter),
-        #     how='outer',
-        #     left_on=cols['pl_id'],
-        #     right_index=True).set_index(cols['pl_id'])
-
+        cl = cl.set_index('year', append=True)
         return cl
 
     def _search_for_codes_pl(
