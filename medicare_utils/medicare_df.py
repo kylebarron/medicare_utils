@@ -939,6 +939,10 @@ class MedicareDF(object):
         pl = pd.wide_to_long(
             pl.reset_index(), stubs, i='bene_id', j='year', sep='_')
 
+        # Rename `match` to `cohort_match` to reduce confusion between
+        # patient-level and claim-level datasets
+        pl = pl.rename(columns={'match': 'cohort_match'}, axis=1)
+
         if not dask:
             self.nobs_dropped = nobs_dropped
             self.pl = pl
