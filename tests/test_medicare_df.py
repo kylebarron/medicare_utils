@@ -504,7 +504,9 @@ class TestSearchForCodesTypeCheck(object):
     def test_pl(self, mdf, init, pl, res):
         init['pl'] = pl
         obj = mdf._search_for_codes_type_check(**init)
-        assert obj.pl_ids_to_filter.equals(res)
+        pl = obj.pl_ids_to_filter
+        for col in pl.columns:
+            assert pl[col].equals(res[col])
 
     @pytest.mark.parametrize(
         'codes,error',
