@@ -447,7 +447,7 @@ class MedicareDF(object):
         if dask:
             pl = dd.read_parquet(
                 self._fpath(self.percent, year, 'bsfab'),
-                columns=toload_vars,
+                columns=[x for x in toload_vars if x != 'bene_id'],
                 index=['bene_id'],
                 engine=self.parquet_engine)
         elif self.parquet_engine == 'pyarrow':
@@ -934,6 +934,9 @@ class MedicareDF(object):
             pl = pl.drop(cols[1:], axis=1)
             pl = pl.rename(columns={cols[0]: name})
 
+        if dask:
+            pl = pl.compute()
+
         # Reshape non-static variables
         stubs = {x[:-5] for x in pl.columns if re.search(r'_\d{4}$', x)}
         pl = pd.wide_to_long(
@@ -945,9 +948,8 @@ class MedicareDF(object):
 
         if not dask:
             self.nobs_dropped = nobs_dropped
-            self.pl = pl
-        else:
-            self.pl = pl.compute()
+
+        self.pl = pl
 
         if verbose:
             msg = f"""\
