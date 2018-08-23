@@ -1875,6 +1875,7 @@ class MedicareDF(object):
             regexes['icd9_dx'] = r'icd_dgns_cd(\d*)$'
         elif data_type == 'med':
             regexes['icd9_dx'] = r'^dgnscd(\d+)$'
+            regexes['icd9_sg'] = r'^prcdrcd(\d+)$'
         else:
             regexes['icd9_dx'] = r'^icd_dgns_cd(\d+)$'
 
