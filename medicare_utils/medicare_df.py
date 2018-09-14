@@ -1986,7 +1986,7 @@ class MedicareDF(object):
                 for i in range(pf.num_row_groups))
         elif self.parquet_engine == 'fastparquet':
             pf = fp.ParquetFile(path)
-            itr = pf.iter_row_groups(columns=cols_toload, index=cols['pl_id'])
+            itr = pf.iter_row_groups(columns=list(cols_toload), index=cols['pl_id'])
 
         if dask:
             cl = self._search_for_codes_df_inner(
