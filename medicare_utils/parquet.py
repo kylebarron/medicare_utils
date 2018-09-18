@@ -201,7 +201,8 @@ def _convert_med(
         raise TypeError('year must be int')
 
     infile = fpath(percent=pct, year=year, data_type=data_type, dta=True)
-    outfile = fpath(percent=pct, year=year, data_type=data_type, dta=False)
+    outfile = fpath(
+        percent=pct, year=year, data_type=data_type, dta=False, pq_path=med_pq)
 
     if data_type.startswith('bsf'):
         varnames = None
@@ -372,7 +373,7 @@ def convert_file(
                 else:
                     schema = pa.Table.from_pandas(
                         df, preserve_index=False).schema
-                writer = pq.ParquetWriter(outfile, schema)
+                writer = pq.ParquetWriter(outfile, schema, flavor='spark')
 
             writer.write_table(pa.Table.from_pandas(df, preserve_index=False))
         elif parquet_engine == 'fastparquet':
@@ -427,7 +428,8 @@ def _scan_file(
         infile: str,
         categorical: bool = True,
         chunksize: int = 100000,
-        cat_threshold: float = 0.1) -> Dict[str, Any]:
+        cat_threshold: float = 0.1,
+        unsigned: bool = False) -> Dict[str, Any]:
     """Scan dta file to find minimal dtypes to hold data in
 
     For each of the chunks of df:
@@ -557,7 +559,7 @@ def _scan_file(
 
     # Int dtypes:
     for col in end_cols['int_cols']['names']:
-        if end_cols['int_cols']['min'][col] >= 0:
+        if unsigned and (end_cols['int_cols']['min'][col] >= 0):
             if end_cols['int_cols']['max'][col] <= np.iinfo(np.uint8).max:
                 dtypes_dict[col] = np.uint8
             elif end_cols['int_cols']['max'][col] <= np.iinfo(np.uint16).max:
