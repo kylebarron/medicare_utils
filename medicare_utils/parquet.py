@@ -201,7 +201,8 @@ def _convert_med(
         raise TypeError('year must be int')
 
     infile = fpath(percent=pct, year=year, data_type=data_type, dta=True)
-    outfile = fpath(percent=pct, year=year, data_type=data_type, dta=False)
+    outfile = fpath(
+        percent=pct, year=year, data_type=data_type, dta=False, pq_path=med_pq)
 
     if data_type.startswith('bsf'):
         varnames = None
