@@ -1107,7 +1107,7 @@ class MedicareDF(object):
 
     class _ReturnSearchForCodesTypeCheck(NamedTuple):
         data_types: List[str]
-        pl_ids_to_filter: Optional[pd.DataFrame]
+        pl_ids_to_filter: Optional[Union[pd.DataFrame, pd.Index]]
         codes: Dict[str, List[Union[str, Pattern]]]
         max_cols: Dict[str, Optional[int]]
         keep_vars: Dict[str, List[Union[str, Pattern]]]
@@ -1120,7 +1120,7 @@ class MedicareDF(object):
     def _search_for_codes_type_check(
             self,
             data_types: Union[str, List[str]],
-            pl: Optional[pd.DataFrame],
+            pl: Optional[Union[pd.DataFrame, pd.Index]],
             hcpcs: Union[str, Pattern, List[Union[str, Pattern]], None],
             icd9_dx: Union[str, Pattern, List[Union[str, Pattern]], None],
             icd9_dx_max_cols: Optional[int],
@@ -1158,15 +1158,21 @@ class MedicareDF(object):
             raise TypeError('data_types must be str or List[str]')
 
         if pl is not None:
-            if not isinstance(pl, pd.DataFrame):
+            if isinstance(pl, pd.DataFrame):
+                columns = {*pl.columns, pl.index.name}
+                pl_cols = list(columns.intersection(['ehic', 'bene_id']))
+                if not pl_cols:
+                    msg = 'pl must have `ehic` or `bene_id` as a column'
+                    raise ValueError(msg)
+
+                pl_ids_to_filter = pl.reset_index()[pl_cols].copy()
+            elif isinstance(pl, pd.Index):
+                msg = 'if type pd.Index, pl must have name `bene_id` or `ehic`'
+                assert pl.name in ['bene_id', 'ehic'], msg
+                pl_ids_to_filter = pl
+            else:
                 raise TypeError('pl must be DataFrame')
 
-            columns = {*pl.columns, pl.index.name}
-            pl_cols = list(columns.intersection(['ehic', 'bene_id']))
-            if not pl_cols:
-                raise ValueError('pl must have `ehic` or `bene_id` as a column')
-
-            pl_ids_to_filter = pl.reset_index()[pl_cols].copy()
         else:
             pl_ids_to_filter = None
 
@@ -1282,7 +1288,7 @@ class MedicareDF(object):
     def search_for_codes(
             self,
             data_types: Union[str, List[str]],
-            pl: Optional[pd.DataFrame] = None,
+            pl: Optional[Union[pd.DataFrame, pd.Index]] = None,
             hcpcs: Union[str, Pattern, List[Union[str, Pattern]], None] = None,
             icd9_dx: Union[str, Pattern, List[Union[str, Pattern]], None] = None,
             icd9_dx_max_cols: Optional[int] = None,
@@ -1723,7 +1729,7 @@ class MedicareDF(object):
                 Whether to return match column for each code
             pl_ids_to_filter:
                 DataFrame where the index is either ``bene_id`` or ``ehic``.
-                This is no longer an index to allow a column ``bene_dob`` to be
+                This is no longer pd.Index to allow a column ``bene_dob`` to be
                 included when ``self.year_type`` is ``age``. Generally, this
                 data is derived from the result of :func:``get_cohort``.
 
@@ -1840,7 +1846,7 @@ class MedicareDF(object):
             self,
             year: int,
             data_type: str,
-            pl_ids_to_filter: Optional[pd.DataFrame],
+            pl_ids_to_filter: Optional[Union[pd.DataFrame, pd.Index]],
             codes: Dict[str, List[Union[str, Pattern]]],
             max_cols: Dict[str, Optional[int]],
             keep_vars: List[Union[str, Pattern]],
@@ -1987,6 +1993,11 @@ class MedicareDF(object):
                 pl = pl.loc[pl.index.drop_duplicates()]
 
             pl_ids_to_filter = pl
+        elif pl_ids_to_filter is not None:
+            if isinstance(pl_ids_to_filter, pd.Index):
+                pl_ids_to_filter = pd.DataFrame(index=pl_ids_to_filter)
+            elif isinstance(pl_ids_to_filter, pd.DataFrame):
+                pass
 
         path = self._fpath(self.percent, year, data_type)
         if dask:
