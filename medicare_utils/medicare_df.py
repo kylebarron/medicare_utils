@@ -513,22 +513,43 @@ class MedicareDF(object):
             if not self._str_in_keep_vars(race_col, keep_vars):
                 pl = pl.drop(race_col, axis=1)
 
-        if (buyin_val or hmo_val) and (self.year_type == 'age'):
-            # Create month of birth variable
-            pl['dob_month'] = pl['bene_dob'].dt.month
-            pl = self._get_cohort_month_filter(
-                pl=pl,
-                var='buyin',
-                values=buyin_val,
-                year=year,
-                keep_vars=keep_vars)
-            pl = self._get_cohort_month_filter(
-                pl=pl,
-                var='hmoind',
-                values=hmo_val,
-                year=year,
-                keep_vars=keep_vars)
-            pl = pl.drop('dob_month', axis=1)
+        if buyin_val or hmo_val:
+            if self.year_type == 'calendar':
+                cols = pl.columns
+                buyin_cols = [x for x in cols if re.search(r'^buyin\d\d', x)]
+                hmo_cols = [x for x in cols if re.search(r'^hmoind\d\d', x)]
+                if buyin_val:
+                    pl = pl.loc[(pl[buyin_cols].isin(buyin_val)).all(axis=1)]
+                    pl = pl.drop(set(buyin_cols).difference(keep_vars), axis=1)
+
+                    if not dask:
+                        nobs_dropped[year]['buyin_val'] = 1 - (len(pl) / nobs)
+                        nobs = len(pl)
+
+                if hmo_val:
+                    pl = pl.loc[(pl[hmo_cols].isin(hmo_val)).all(axis=1)]
+                    pl = pl.drop(set(hmo_cols).difference(keep_vars), axis=1)
+
+                    if not dask:
+                        nobs_dropped[year]['hmo_val'] = 1 - (len(pl) / nobs)
+                        nobs = len(pl)
+
+            elif self.year_type == 'age':
+                # Create month of birth variable
+                pl['dob_month'] = pl['bene_dob'].dt.month
+                pl = self._get_cohort_month_filter(
+                    pl=pl,
+                    var='buyin',
+                    values=buyin_val,
+                    year=year,
+                    keep_vars=keep_vars)
+                pl = self._get_cohort_month_filter(
+                    pl=pl,
+                    var='hmoind',
+                    values=hmo_val,
+                    year=year,
+                    keep_vars=keep_vars)
+                pl = pl.drop('dob_month', axis=1)
 
         pl = pl.rename(columns=lambda x: x + f'_{year}')
 
