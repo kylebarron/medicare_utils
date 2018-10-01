@@ -1,28 +1,58 @@
 {
     "acrtn_dt": {
-        "2002": {
+        "1999": {
             "format": "%tdD_m_Y",
-            "name": "sacrtndt",
+            "name": "bacrdt",
             "type": "long"
+        },
+        "2000": {
+            "format": "%tdD_m_Y",
+            "name": "acrtn_dt",
+            "type": "long"
+        },
+        "2001": {
+            "format": "%tdD_m_Y",
+            "name": "acrtn_dt",
+            "type": "long"
+        },
+        "2002": {
+            "format": "%8.0g",
+            "name": "sacrtndt",
+            "type": "int"
         },
         "2003": {
-            "format": "%tdD_m_Y",
+            "format": "%8.0g",
             "name": "sacrtndt",
-            "type": "long"
+            "type": "int"
         },
         "2004": {
-            "format": "%tdD_m_Y",
+            "format": "%8.0g",
             "name": "sacrtndt",
-            "type": "long"
+            "type": "int"
         },
         "2005": {
-            "format": "%tdD_m_Y",
+            "format": "%8.0g",
             "name": "sacrtndt",
-            "type": "long"
+            "type": "int"
         },
         "desc": "17. cwf claim accretion date (sas yyyymmdd)"
     },
     "acrtn_nm": {
+        "1999": {
+            "format": "%8.0g",
+            "name": "bacrtnnm",
+            "type": "byte"
+        },
+        "2000": {
+            "format": "%8.0g",
+            "name": "acrtn_nm",
+            "type": "byte"
+        },
+        "2001": {
+            "format": "%8.0g",
+            "name": "acrtn_nm",
+            "type": "byte"
+        },
         "2002": {
             "format": "%8.0g",
             "name": "acrtn_nm",
@@ -49,7 +79,7 @@
         "2002": {
             "format": "%8.0g",
             "name": "age",
-            "type": "byte"
+            "type": "int"
         },
         "2003": {
             "format": "%8.0g",
@@ -59,7 +89,7 @@
         "2004": {
             "format": "%8.0g",
             "name": "age",
-            "type": "byte"
+            "type": "int"
         },
         "2005": {
             "format": "%8.0g",
@@ -92,48 +122,63 @@
         "desc": "age group (8 levels)"
     },
     "alowchrg": {
+        "1999": {
+            "format": "%9.0g",
+            "name": "alowchrg",
+            "type": "float"
+        },
+        "2000": {
+            "format": "%10.0g",
+            "name": "alowchrg",
+            "type": "double"
+        },
+        "2001": {
+            "format": "%9.0g",
+            "name": "alowchrg",
+            "type": "float"
+        },
         "2002": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "alowchrg",
             "type": "double"
         },
         "2003": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "alowchrg",
             "type": "double"
         },
         "2004": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "alowchrg",
             "type": "double"
         },
         "2005": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "alowchrg",
             "type": "double"
         },
         "2006": {
-            "format": "%9.0g",
+            "format": "%10.0g",
             "name": "alowchrg",
-            "type": "float"
+            "type": "double"
         },
         "2007": {
-            "format": "%9.0g",
+            "format": "%10.0g",
             "name": "alowchrg",
-            "type": "float"
+            "type": "double"
         },
         "2008": {
-            "format": "%9.0g",
+            "format": "%10.0g",
             "name": "alowchrg",
-            "type": "float"
+            "type": "double"
         },
         "2009": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "alowchrg",
             "type": "double"
         },
         "2010": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "alowchrg",
             "type": "double"
         },
@@ -155,6 +200,16 @@
         "desc": "nch carrier claim allowed charge amount"
     },
     "asgmntcd": {
+        "2000": {
+            "format": "%1s",
+            "name": "asgmntcd",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "asgmntcd",
+            "type": "str1"
+        },
         "2002": {
             "format": "%1s",
             "name": "asgmntcd",
@@ -215,7 +270,41 @@
             "name": "asgmntcd",
             "type": "str1"
         },
-        "desc": "claim provider assignment indicator switch"
+        "desc": "carrier claim provider assignment indicator switch"
+    },
+    "astnt_cd": {
+        "1999": {
+            "format": "%1s",
+            "name": "blnasc",
+            "type": "str1"
+        },
+        "2000": {
+            "format": "%1s",
+            "name": "astnt_cd",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "astnt_cd",
+            "type": "str1"
+        },
+        "desc": "carr_line_rdcd_physn_astnt_cd"
+    },
+    "bbic": {
+        "1999": {
+            "format": "%2s",
+            "name": "bbic",
+            "type": "str2"
+        },
+        "desc": "14. beneficiary identification code"
+    },
+    "bcpppn": {
+        "1999": {
+            "format": "%10s",
+            "name": "bcpppn",
+            "type": "str10"
+        },
+        "desc": "98. carr. line performing pin no."
     },
     "bene_id": {
         "2006": {
@@ -261,48 +350,63 @@
         "desc": "encrypted 723 beneficiary id"
     },
     "bene_pmt": {
+        "1999": {
+            "format": "%9.0g",
+            "name": "bene_pmt",
+            "type": "float"
+        },
+        "2000": {
+            "format": "%10.0g",
+            "name": "bene_pmt",
+            "type": "double"
+        },
+        "2001": {
+            "format": "%9.0g",
+            "name": "bene_pmt",
+            "type": "float"
+        },
         "2002": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "bene_pmt",
             "type": "double"
         },
         "2003": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "bene_pmt",
             "type": "double"
         },
         "2004": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "bene_pmt",
             "type": "double"
         },
         "2005": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "bene_pmt",
             "type": "double"
         },
         "2006": {
-            "format": "%9.0g",
+            "format": "%10.0g",
             "name": "bene_pmt",
-            "type": "float"
+            "type": "double"
         },
         "2007": {
-            "format": "%9.0g",
+            "format": "%10.0g",
             "name": "bene_pmt",
-            "type": "float"
+            "type": "double"
         },
         "2008": {
-            "format": "%9.0g",
+            "format": "%10.0g",
             "name": "bene_pmt",
-            "type": "float"
+            "type": "double"
         },
         "2009": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "bene_pmt",
             "type": "double"
         },
         "2010": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "bene_pmt",
             "type": "double"
         },
@@ -323,93 +427,91 @@
         },
         "desc": "nch claim beneficiary payment amount"
     },
+    "bene_zip": {
+        "1999": {
+            "format": "%9s",
+            "name": "bzip",
+            "type": "str9"
+        },
+        "2000": {
+            "format": "%9s",
+            "name": "bene_zip",
+            "type": "str9"
+        },
+        "2001": {
+            "format": "%9s",
+            "name": "bene_zip",
+            "type": "str9"
+        },
+        "desc": "bene_mlg_cntct_zip_cd"
+    },
     "benepaid": {
+        "1999": {
+            "format": "%9.0g",
+            "name": "benepaid",
+            "type": "float"
+        },
+        "2000": {
+            "format": "%10.0g",
+            "name": "benepaid",
+            "type": "double"
+        },
+        "2001": {
+            "format": "%9.0g",
+            "name": "benepaid",
+            "type": "float"
+        },
         "2002": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "benepaid",
             "type": "double"
         },
         "2003": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "benepaid",
             "type": "double"
         },
         "2004": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "benepaid",
             "type": "double"
         },
         "2005": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "benepaid",
             "type": "double"
         },
         "desc": "61. carrier claim beneficiary paid amount"
     },
     "betos": {
-        "2002": {
+        "1999": {
             "format": "%3s",
             "name": "betos",
             "type": "str3"
         },
-        "2003": {
+        "2000": {
             "format": "%3s",
             "name": "betos",
             "type": "str3"
         },
-        "2004": {
+        "2001": {
             "format": "%3s",
             "name": "betos",
             "type": "str3"
         },
-        "2005": {
-            "format": "%3s",
-            "name": "betos",
-            "type": "str3"
-        },
-        "2006": {
-            "format": "%3s",
-            "name": "betos",
-            "type": "str3"
-        },
-        "2007": {
-            "format": "%3s",
-            "name": "betos",
-            "type": "str3"
-        },
-        "2008": {
-            "format": "%3s",
-            "name": "betos",
-            "type": "str3"
-        },
-        "2009": {
-            "format": "%3s",
-            "name": "betos",
-            "type": "str3"
-        },
-        "2010": {
-            "format": "%3s",
-            "name": "betos",
-            "type": "str3"
-        },
-        "2011": {
-            "format": "%3s",
-            "name": "betos",
-            "type": "str3"
-        },
-        "2012": {
-            "format": "%3s",
-            "name": "betos",
-            "type": "str3"
-        },
-        "2013": {
-            "format": "%3s",
-            "name": "betos",
-            "type": "str3"
-        },
-        "desc": "line nch betos code"
+        "desc": "line_nch_betos_cd"
     },
     "bic": {
+        "2000": {
+            "format": "%2s",
+            "name": "bic",
+            "type": "str2"
+        },
+        "2001": {
+            "format": "%2s",
+            "name": "bic",
+            "type": "str2"
+        },
         "2002": {
             "format": "%2s",
             "name": "bic",
@@ -433,6 +535,21 @@
         "desc": "11. beneficiary identification code"
     },
     "bic_mdfy": {
+        "1999": {
+            "format": "%1s",
+            "name": "bic_mdfy",
+            "type": "str1"
+        },
+        "2000": {
+            "format": "%1s",
+            "name": "bic_mdfy",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "bic_mdfy",
+            "type": "str1"
+        },
         "2002": {
             "format": "%1s",
             "name": "bic_mdfy",
@@ -456,6 +573,21 @@
         "desc": "32. nch claim bic modify h code"
     },
     "bld_ded": {
+        "1999": {
+            "format": "%8.0g",
+            "name": "bbldded",
+            "type": "byte"
+        },
+        "2000": {
+            "format": "%8.0g",
+            "name": "bld_ded",
+            "type": "byte"
+        },
+        "2001": {
+            "format": "%8.0g",
+            "name": "bld_ded",
+            "type": "byte"
+        },
         "2002": {
             "format": "%8.0g",
             "name": "bld_ded",
@@ -479,6 +611,21 @@
         "desc": "73. claim blood deductible pints quantity"
     },
     "bldfrnsh": {
+        "1999": {
+            "format": "%8.0g",
+            "name": "bbldfurn",
+            "type": "byte"
+        },
+        "2000": {
+            "format": "%8.0g",
+            "name": "bldfrnsh",
+            "type": "byte"
+        },
+        "2001": {
+            "format": "%8.0g",
+            "name": "bldfrnsh",
+            "type": "byte"
+        },
         "2002": {
             "format": "%8.0g",
             "name": "bldfrnsh",
@@ -501,53 +648,74 @@
         },
         "desc": "72. claim blood pints furnished quantity"
     },
+    "blksize": {
+        "2000": {
+            "format": "%12.0g",
+            "name": "blksize",
+            "type": "long"
+        },
+        "desc": ""
+    },
+    "blnbded": {
+        "1999": {
+            "format": "%9.0g",
+            "name": "blnbded",
+            "type": "float"
+        },
+        "desc": "129. line benef. part b deductible amt"
+    },
     "carr_line_ansthsa_unit_cnt": {
-        "2002": {
+        "1999": {
+            "format": "%8.0g",
+            "name": "bmturei",
+            "type": "int"
+        },
+        "2000": {
             "format": "%8.0g",
             "name": "ansthunt",
-            "type": "byte"
+            "type": "int"
         },
-        "2003": {
+        "2001": {
             "format": "%8.0g",
             "name": "ansthunt",
-            "type": "byte"
+            "type": "int"
         },
-        "2004": {
-            "format": "%8.0g",
-            "name": "ansthunt",
-            "type": "byte"
-        },
-        "2005": {
-            "format": "%8.0g",
-            "name": "ansthunt",
-            "type": "byte"
-        },
-        "desc": "152. carrier line anesthesia base unit count"
+        "desc": "carr_line_ansthsa_unit_cnt"
     },
     "carr_line_clia_lab_num": {
-        "2002": {
+        "1999": {
+            "format": "%10s",
+            "name": "blabno",
+            "type": "str10"
+        },
+        "2000": {
             "format": "%10s",
             "name": "lab_num",
             "type": "str10"
         },
-        "2003": {
+        "2001": {
             "format": "%10s",
             "name": "lab_num",
             "type": "str10"
         },
-        "2004": {
-            "format": "%10s",
-            "name": "lab_num",
-            "type": "str10"
-        },
-        "2005": {
-            "format": "%10s",
-            "name": "lab_num",
-            "type": "str10"
-        },
-        "desc": "142. carrier line clinical lab number"
+        "desc": "carr_line_clncl_lab_num"
     },
     "carr_num": {
+        "1999": {
+            "format": "%5s",
+            "name": "bcarrier",
+            "type": "str5"
+        },
+        "2000": {
+            "format": "%5s",
+            "name": "carr_num",
+            "type": "str5"
+        },
+        "2001": {
+            "format": "%5s",
+            "name": "carr_num",
+            "type": "str5"
+        },
         "2002": {
             "format": "%5s",
             "name": "carr_num",
@@ -611,6 +779,21 @@
         "desc": "carrier number"
     },
     "carrcntl": {
+        "1999": {
+            "format": "%15s",
+            "name": "bccn",
+            "type": "str15"
+        },
+        "2000": {
+            "format": "%15s",
+            "name": "carrcntl",
+            "type": "str15"
+        },
+        "2001": {
+            "format": "%15s",
+            "name": "carrcntl",
+            "type": "str15"
+        },
         "2002": {
             "format": "%15s",
             "name": "carrcntl",
@@ -676,7 +859,71 @@
         },
         "desc": "clinical trial number"
     },
-    "clm_id": {
+    "cdemcnt": {
+        "1999": {
+            "format": "%8.0g",
+            "name": "cdemcnt",
+            "type": "byte"
+        },
+        "2000": {
+            "format": "%8.0g",
+            "name": "cdemcnt",
+            "type": "byte"
+        },
+        "2001": {
+            "format": "%8.0g",
+            "name": "cdemcnt",
+            "type": "byte"
+        },
+        "desc": "carr_clm_demo_id_cnt"
+    },
+    "cdgncnt": {
+        "2000": {
+            "format": "%8.0g",
+            "name": "cdgncnt",
+            "type": "byte"
+        },
+        "2001": {
+            "format": "%8.0g",
+            "name": "cdgncnt",
+            "type": "byte"
+        },
+        "2002": {
+            "format": "%8.0g",
+            "name": "cdgncnt",
+            "type": "byte"
+        },
+        "2003": {
+            "format": "%8.0g",
+            "name": "cdgncnt",
+            "type": "byte"
+        },
+        "2004": {
+            "format": "%8.0g",
+            "name": "cdgncnt",
+            "type": "byte"
+        },
+        "2005": {
+            "format": "%8.0g",
+            "name": "cdgncnt",
+            "type": "byte"
+        },
+        "desc": "79. carrier claim diagnosis code count"
+    },
+    "cedcnt": {
+        "2000": {
+            "format": "%8.0g",
+            "name": "cedcnt",
+            "type": "byte"
+        },
+        "2001": {
+            "format": "%8.0g",
+            "name": "cedcnt",
+            "type": "byte"
+        },
+        "desc": "carr_nch_edit_cd_cnt"
+    },
+    "claimindex": {
         "2002": {
             "format": "%12.0g",
             "name": "claimindex",
@@ -697,6 +944,42 @@
             "name": "claimindex",
             "type": "long"
         },
+        "desc": "claimindex"
+    },
+    "clinecnt": {
+        "2000": {
+            "format": "%8.0g",
+            "name": "clinecnt",
+            "type": "byte"
+        },
+        "2001": {
+            "format": "%8.0g",
+            "name": "clinecnt",
+            "type": "byte"
+        },
+        "2002": {
+            "format": "%8.0g",
+            "name": "clinecnt",
+            "type": "byte"
+        },
+        "2003": {
+            "format": "%8.0g",
+            "name": "clinecnt",
+            "type": "byte"
+        },
+        "2004": {
+            "format": "%8.0g",
+            "name": "clinecnt",
+            "type": "byte"
+        },
+        "2005": {
+            "format": "%8.0g",
+            "name": "clinecnt",
+            "type": "byte"
+        },
+        "desc": "80. carrier claim line count"
+    },
+    "clm_id": {
         "2006": {
             "format": "%15s",
             "name": "clm_id",
@@ -740,6 +1023,21 @@
         "desc": "encrypted claim id"
     },
     "clm_type": {
+        "1999": {
+            "format": "%2s",
+            "name": "clm_type",
+            "type": "str2"
+        },
+        "2000": {
+            "format": "%2s",
+            "name": "clm_type",
+            "type": "str2"
+        },
+        "2001": {
+            "format": "%2s",
+            "name": "clm_type",
+            "type": "str2"
+        },
         "2002": {
             "format": "%2s",
             "name": "clm_type",
@@ -802,7 +1100,40 @@
         },
         "desc": "nch claim type code"
     },
+    "cmcocnt": {
+        "1999": {
+            "format": "%8.0g",
+            "name": "cmcocnt",
+            "type": "byte"
+        },
+        "2000": {
+            "format": "%8.0g",
+            "name": "cmcocnt",
+            "type": "byte"
+        },
+        "2001": {
+            "format": "%8.0g",
+            "name": "cmcocnt",
+            "type": "byte"
+        },
+        "desc": "carr_mco_prd_cnt"
+    },
     "cnty_cd": {
+        "1999": {
+            "format": "%3s",
+            "name": "bcounty",
+            "type": "str3"
+        },
+        "2000": {
+            "format": "%3s",
+            "name": "cnty_cd",
+            "type": "str3"
+        },
+        "2001": {
+            "format": "%3s",
+            "name": "cnty_cd",
+            "type": "str3"
+        },
         "2002": {
             "format": "%3s",
             "name": "county",
@@ -866,69 +1197,78 @@
         "desc": "county code from claim (ssa)"
     },
     "coinamt": {
-        "2002": {
-            "format": "%12.0g",
-            "name": "coinamt",
-            "type": "double"
-        },
-        "2003": {
-            "format": "%12.0g",
-            "name": "coinamt",
-            "type": "double"
-        },
-        "2004": {
-            "format": "%12.0g",
-            "name": "coinamt",
-            "type": "double"
-        },
-        "2005": {
-            "format": "%12.0g",
-            "name": "coinamt",
-            "type": "double"
-        },
-        "2006": {
+        "1999": {
             "format": "%9.0g",
             "name": "coinamt",
             "type": "float"
         },
-        "2007": {
-            "format": "%12.0g",
+        "2000": {
+            "format": "%10.0g",
             "name": "coinamt",
             "type": "double"
         },
-        "2008": {
+        "2001": {
             "format": "%9.0g",
             "name": "coinamt",
             "type": "float"
         },
-        "2009": {
-            "format": "%12.0g",
-            "name": "coinamt",
-            "type": "double"
+        "desc": "line_coinsrnc_amt"
+    },
+    "cpatcnt": {
+        "1999": {
+            "format": "%8.0g",
+            "name": "cpatcnt",
+            "type": "byte"
         },
-        "2010": {
-            "format": "%10.0g",
-            "name": "coinamt",
-            "type": "double"
+        "2000": {
+            "format": "%8.0g",
+            "name": "cpatcnt",
+            "type": "byte"
         },
-        "2011": {
-            "format": "%10.0g",
-            "name": "coinamt",
-            "type": "double"
+        "2001": {
+            "format": "%8.0g",
+            "name": "cpatcnt",
+            "type": "byte"
         },
-        "2012": {
-            "format": "%12.0g",
-            "name": "coinamt",
-            "type": "double"
+        "desc": "carr_nch_patch_cd_i_cnt"
+    },
+    "cplncnt": {
+        "2000": {
+            "format": "%8.0g",
+            "name": "cplncnt",
+            "type": "byte"
         },
-        "2013": {
-            "format": "%12.0g",
-            "name": "coinamt",
-            "type": "double"
+        "2001": {
+            "format": "%8.0g",
+            "name": "cplncnt",
+            "type": "byte"
         },
-        "desc": "line coinsurance amount"
+        "desc": "carr_clm_hlth_planid_cnt"
+    },
+    "cpo_loc": {
+        "1999": {
+            "format": "%1s",
+            "name": "cpo_loc",
+            "type": "str1"
+        },
+        "desc": "66. cpo org. provider loc. code"
     },
     "cpo_npi": {
+        "1999": {
+            "format": "%1s",
+            "name": "cpo_npi",
+            "type": "str1"
+        },
+        "2000": {
+            "format": "%1s",
+            "name": "cpo_npi",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "cpo_npi",
+            "type": "str1"
+        },
         "2002": {
             "format": "%1s",
             "name": "cpo_npi",
@@ -952,29 +1292,59 @@
         "desc": "71. cpo organization npi number"
     },
     "cpo_prov": {
-        "2002": {
-            "format": "%1s",
+        "1999": {
+            "format": "%9s",
+            "name": "borighb",
+            "type": "str6"
+        },
+        "2000": {
+            "format": "%9s",
             "name": "cpo_prov",
-            "type": "str1"
+            "type": "str6"
+        },
+        "2001": {
+            "format": "%6s",
+            "name": "cpo_prov",
+            "type": "str6"
+        },
+        "2002": {
+            "format": "%6s",
+            "name": "cpo_prov",
+            "type": "str6"
         },
         "2003": {
-            "format": "%1s",
+            "format": "%6s",
             "name": "cpo_prov",
-            "type": "str1"
+            "type": "str6"
         },
         "2004": {
-            "format": "%1s",
+            "format": "%6s",
             "name": "cpo_prov",
-            "type": "str1"
+            "type": "str6"
         },
         "2005": {
-            "format": "%1s",
+            "format": "%9s",
             "name": "cpo_prov",
-            "type": "str1"
+            "type": "str6"
         },
         "desc": "70. care plan oversight (cpo) provider number"
     },
     "cwfloccd": {
+        "1999": {
+            "format": "%1s",
+            "name": "bloccd",
+            "type": "str1"
+        },
+        "2000": {
+            "format": "%1s",
+            "name": "cwfloccd",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "cwfloccd",
+            "type": "str1"
+        },
         "2002": {
             "format": "%1s",
             "name": "cwfloccd",
@@ -998,134 +1368,119 @@
         "desc": "48. beneficiary cwf location code"
     },
     "daily_dt": {
-        "2002": {
+        "1999": {
             "format": "%tdD_m_Y",
-            "name": "sdailydt",
+            "name": "daily_dt",
             "type": "long"
+        },
+        "2000": {
+            "format": "%tdD_m_Y",
+            "name": "daily_dt",
+            "type": "long"
+        },
+        "2001": {
+            "format": "%tdD_m_Y",
+            "name": "daily_dt",
+            "type": "long"
+        },
+        "2002": {
+            "format": "%8.0g",
+            "name": "sdailydt",
+            "type": "int"
         },
         "2003": {
-            "format": "%tdD_m_Y",
+            "format": "%8.0g",
             "name": "sdailydt",
-            "type": "long"
+            "type": "int"
         },
         "2004": {
-            "format": "%tdD_m_Y",
+            "format": "%8.0g",
             "name": "sdailydt",
-            "type": "long"
+            "type": "int"
         },
         "2005": {
-            "format": "%tdD_m_Y",
+            "format": "%8.0g",
             "name": "sdailydt",
-            "type": "long"
+            "type": "int"
         },
         "desc": "21. nch daily processs date (sas yyyymmdd)"
     },
     "ded_sw": {
-        "2002": {
+        "1999": {
+            "format": "%1s",
+            "name": "bdedsw",
+            "type": "str1"
+        },
+        "2000": {
             "format": "%1s",
             "name": "ded_sw",
             "type": "str1"
         },
-        "2003": {
+        "2001": {
             "format": "%1s",
             "name": "ded_sw",
             "type": "str1"
         },
-        "2004": {
-            "format": "%1s",
-            "name": "ded_sw",
-            "type": "str1"
-        },
-        "2005": {
-            "format": "%1s",
-            "name": "ded_sw",
-            "type": "str1"
-        },
-        "2006": {
-            "format": "%1s",
-            "name": "ded_sw",
-            "type": "str1"
-        },
-        "2007": {
-            "format": "%1s",
-            "name": "ded_sw",
-            "type": "str1"
-        },
-        "2008": {
-            "format": "%1s",
-            "name": "ded_sw",
-            "type": "str1"
-        },
-        "2009": {
-            "format": "%1s",
-            "name": "ded_sw",
-            "type": "str1"
-        },
-        "2010": {
-            "format": "%1s",
-            "name": "ded_sw",
-            "type": "str1"
-        },
-        "2011": {
-            "format": "%1s",
-            "name": "ded_sw",
-            "type": "str1"
-        },
-        "2012": {
-            "format": "%1s",
-            "name": "ded_sw",
-            "type": "str1"
-        },
-        "2013": {
-            "format": "%1s",
-            "name": "ded_sw",
-            "type": "str1"
-        },
-        "desc": "line service deductible indicator switch"
+        "desc": "line_srvc_ddctbl_ind_sw"
     },
     "dedapply": {
+        "1999": {
+            "format": "%9.0g",
+            "name": "dedapply",
+            "type": "float"
+        },
+        "2000": {
+            "format": "%10.0g",
+            "name": "dedapply",
+            "type": "double"
+        },
+        "2001": {
+            "format": "%9.0g",
+            "name": "dedapply",
+            "type": "float"
+        },
         "2002": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "dedapply",
             "type": "double"
         },
         "2003": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "dedapply",
             "type": "double"
         },
         "2004": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "dedapply",
             "type": "double"
         },
         "2005": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "dedapply",
             "type": "double"
         },
         "2006": {
-            "format": "%9.0g",
+            "format": "%10.0g",
             "name": "dedapply",
-            "type": "float"
+            "type": "double"
         },
         "2007": {
-            "format": "%9.0g",
+            "format": "%10.0g",
             "name": "dedapply",
-            "type": "float"
+            "type": "double"
         },
         "2008": {
-            "format": "%9.0g",
+            "format": "%10.0g",
             "name": "dedapply",
-            "type": "float"
+            "type": "double"
         },
         "2009": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "dedapply",
             "type": "double"
         },
         "2010": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "dedapply",
             "type": "double"
         },
@@ -1146,11 +1501,169 @@
         },
         "desc": "carrier claim cash deductible applied amount"
     },
+    "demoind1": {
+        "1999": {
+            "format": "%1s",
+            "name": "demoind1",
+            "type": "str1"
+        },
+        "2000": {
+            "format": "%1s",
+            "name": "demoind1",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "demoind1",
+            "type": "str1"
+        },
+        "desc": "nch_demo_trlr_ind_cd(1)"
+    },
+    "demoind2": {
+        "2000": {
+            "format": "%1s",
+            "name": "demoind2",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "demoind2",
+            "type": "str1"
+        },
+        "desc": "nch_demo_trlr_ind_cd(2)"
+    },
+    "demoind3": {
+        "2000": {
+            "format": "%1s",
+            "name": "demoind3",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "demoind3",
+            "type": "str1"
+        },
+        "desc": "nch_demo_trlr_ind_cd(3)"
+    },
+    "demoind4": {
+        "2000": {
+            "format": "%1s",
+            "name": "demoind4",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "demoind4",
+            "type": "str1"
+        },
+        "desc": "nch_demo_trlr_ind_cd(4)"
+    },
+    "demoind5": {
+        "2000": {
+            "format": "%1s",
+            "name": "demoind5",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "demoind5",
+            "type": "str1"
+        },
+        "desc": "nch_demo_trlr_ind_cd(5)"
+    },
+    "demonum": {
+        "1999": {
+            "format": "%2s",
+            "name": "demonum1",
+            "type": "str2"
+        },
+        "2000": {
+            "format": "%1s",
+            "name": "demonum4",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "demonum3",
+            "type": "str1"
+        },
+        "desc": "clm_demo_id_num(5)"
+    },
+    "demotxt1": {
+        "1999": {
+            "format": "%12s",
+            "name": "demotxt1",
+            "type": "str12"
+        },
+        "2000": {
+            "format": "%9s",
+            "name": "demotxt1",
+            "type": "str5"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "demotxt1",
+            "type": "str1"
+        },
+        "desc": "clm_demo_info_txt(1)"
+    },
+    "demotxt2": {
+        "2000": {
+            "format": "%1s",
+            "name": "demotxt2",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "demotxt2",
+            "type": "str1"
+        },
+        "desc": "clm_demo_info_txt(2)"
+    },
+    "demotxt3": {
+        "2000": {
+            "format": "%1s",
+            "name": "demotxt3",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "demotxt3",
+            "type": "str1"
+        },
+        "desc": "clm_demo_info_txt(3)"
+    },
+    "demotxt4": {
+        "2000": {
+            "format": "%1s",
+            "name": "demotxt4",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "demotxt4",
+            "type": "str1"
+        },
+        "desc": "clm_demo_info_txt(4)"
+    },
+    "demotxt5": {
+        "2000": {
+            "format": "%1s",
+            "name": "demotxt5",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "demotxt5",
+            "type": "str1"
+        },
+        "desc": "clm_demo_info_txt(5)"
+    },
     "desykey": {
         "2002": {
-            "format": "%9s",
+            "format": "%1s",
             "name": "desykey",
-            "type": "str9"
+            "type": "str1"
         },
         "2003": {
             "format": "%1s",
@@ -1192,7 +1705,89 @@
         },
         "desc": "1. desy system user"
     },
+    "dgnsind1": {
+        "1999": {
+            "format": "%1s",
+            "name": "dgnsind1",
+            "type": "str1"
+        },
+        "2000": {
+            "format": "%1s",
+            "name": "dgnsind1",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "dgnsind1",
+            "type": "str1"
+        },
+        "desc": "nch_dgns_trlr_ind_cd(1)"
+    },
+    "dgnsind2": {
+        "1999": {
+            "format": "%1s",
+            "name": "dgnsind2",
+            "type": "str1"
+        },
+        "2000": {
+            "format": "%1s",
+            "name": "dgnsind2",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "dgnsind2",
+            "type": "str1"
+        },
+        "desc": "nch_dgns_trlr_ind_cd(2)"
+    },
+    "dgnsind3": {
+        "1999": {
+            "format": "%1s",
+            "name": "dgnsind3",
+            "type": "str1"
+        },
+        "2000": {
+            "format": "%1s",
+            "name": "dgnsind3",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "dgnsind3",
+            "type": "str1"
+        },
+        "desc": "nch_dgns_trlr_ind_cd(3)"
+    },
+    "dgnsind4": {
+        "1999": {
+            "format": "%1s",
+            "name": "dgnsind4",
+            "type": "str1"
+        },
+        "2000": {
+            "format": "%1s",
+            "name": "dgnsind4",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "dgnsind4",
+            "type": "str1"
+        },
+        "desc": "nch_dgns_trlr_ind_cd(4)"
+    },
     "disp_cd": {
+        "2000": {
+            "format": "%2s",
+            "name": "disp_cd",
+            "type": "str2"
+        },
+        "2001": {
+            "format": "%2s",
+            "name": "disp_cd",
+            "type": "str2"
+        },
         "2002": {
             "format": "%2s",
             "name": "disp_cd",
@@ -1255,170 +1850,59 @@
         },
         "desc": "claim disposition code"
     },
-    "dme_purc": {
-        "2002": {
-            "format": "%12.0g",
-            "name": "dme_purc",
-            "type": "double"
-        },
-        "2003": {
-            "format": "%12.0g",
-            "name": "dme_purc",
-            "type": "double"
-        },
-        "2004": {
-            "format": "%12.0g",
-            "name": "dme_purc",
-            "type": "double"
-        },
-        "2005": {
-            "format": "%12.0g",
-            "name": "dme_purc",
-            "type": "double"
-        },
-        "2006": {
-            "format": "%9.0g",
-            "name": "dme_purc",
-            "type": "float"
-        },
-        "2007": {
-            "format": "%12.0g",
-            "name": "dme_purc",
-            "type": "double"
-        },
-        "2008": {
-            "format": "%9.0g",
-            "name": "dme_purc",
-            "type": "float"
-        },
-        "2009": {
-            "format": "%12.0g",
-            "name": "dme_purc",
-            "type": "double"
-        },
-        "2010": {
-            "format": "%10.0g",
-            "name": "dme_purc",
-            "type": "double"
-        },
-        "2011": {
-            "format": "%10.0g",
-            "name": "dme_purc",
-            "type": "double"
-        },
-        "2012": {
-            "format": "%12.0g",
-            "name": "dme_purc",
-            "type": "double"
-        },
-        "2013": {
-            "format": "%12.0g",
-            "name": "dme_purc",
-            "type": "double"
-        },
-        "desc": "line dme purchase price amount"
-    },
-    "dme_unit": {
-        "2002": {
-            "format": "%8.0g",
-            "name": "dme_unit",
-            "type": "int"
-        },
-        "2003": {
-            "format": "%8.0g",
-            "name": "dme_unit",
-            "type": "int"
-        },
-        "2004": {
-            "format": "%8.0g",
-            "name": "dme_unit",
-            "type": "int"
-        },
-        "2005": {
-            "format": "%8.0g",
-            "name": "dme_unit",
-            "type": "int"
-        },
-        "2006": {
-            "format": "%8.0g",
-            "name": "dme_unit",
-            "type": "int"
-        },
-        "2007": {
-            "format": "%8.0g",
-            "name": "dme_unit",
-            "type": "int"
-        },
-        "2008": {
-            "format": "%8.0g",
-            "name": "dme_unit",
-            "type": "int"
-        },
-        "2009": {
-            "format": "%8.0g",
-            "name": "dme_unit",
-            "type": "int"
-        },
-        "2010": {
-            "format": "%8.0g",
-            "name": "dme_unit",
-            "type": "int"
-        },
-        "2011": {
-            "format": "%8.0g",
-            "name": "dme_unit",
-            "type": "int"
-        },
-        "2012": {
-            "format": "%8.0g",
-            "name": "dme_unit",
-            "type": "int"
-        },
-        "2013": {
-            "format": "%8.0g",
-            "name": "dme_unit",
-            "type": "int"
-        },
-        "desc": "dmerc line miles/time/units/services count"
-    },
     "dob_dt": {
-        "2002": {
+        "1999": {
             "format": "%tdD_m_Y",
-            "name": "sdob",
+            "name": "bbdate",
             "type": "long"
+        },
+        "2000": {
+            "format": "%8s",
+            "name": "bene_dob",
+            "type": "str8"
+        },
+        "2001": {
+            "format": "%8s",
+            "name": "bene_dob",
+            "type": "str8"
+        },
+        "2002": {
+            "format": "%8.0g",
+            "name": "sdob",
+            "type": "int"
         },
         "2003": {
-            "format": "%tdD_m_Y",
+            "format": "%8.0g",
             "name": "sdob",
-            "type": "long"
+            "type": "int"
         },
         "2004": {
-            "format": "%tdD_m_Y",
+            "format": "%8.0g",
             "name": "sdob",
-            "type": "long"
+            "type": "int"
         },
         "2005": {
-            "format": "%tdD_m_Y",
+            "format": "%8.0g",
             "name": "sdob",
-            "type": "long"
+            "type": "int"
         },
         "2006": {
-            "format": "%dD_m_Y",
+            "format": "%tdD_m_Y",
             "name": "dob_dt",
             "type": "long"
         },
         "2007": {
-            "format": "%dD_m_Y",
+            "format": "%tdD_m_Y",
             "name": "dob_dt",
             "type": "long"
         },
         "2008": {
-            "format": "%dD_m_Y",
+            "format": "%tdD_m_Y",
             "name": "dob_dt",
             "type": "long"
         },
         "2009": {
-            "format": "%d",
+            "format": "%tdD_m_Y",
             "name": "dob_dt",
             "type": "long"
         },
@@ -1444,7 +1928,196 @@
         },
         "desc": "date of birth from claim (date)"
     },
+    "editcd1": {
+        "1999": {
+            "format": "%4s",
+            "name": "bcec1",
+            "type": "str4"
+        },
+        "2000": {
+            "format": "%9s",
+            "name": "editcd1",
+            "type": "str4"
+        },
+        "2001": {
+            "format": "%4s",
+            "name": "editcd1",
+            "type": "str4"
+        },
+        "desc": "nch_edit_cd(1)"
+    },
+    "editcd10": {
+        "2000": {
+            "format": "%1s",
+            "name": "editcd10",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "editcd10",
+            "type": "str1"
+        },
+        "desc": "nch_edit_cd(10)"
+    },
+    "editcd11": {
+        "2000": {
+            "format": "%1s",
+            "name": "editcd11",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "editcd11",
+            "type": "str1"
+        },
+        "desc": "nch_edit_cd(11)"
+    },
+    "editcd12": {
+        "2000": {
+            "format": "%1s",
+            "name": "editcd12",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "editcd12",
+            "type": "str1"
+        },
+        "desc": "nch_edit_cd(12)"
+    },
+    "editcd13": {
+        "2000": {
+            "format": "%1s",
+            "name": "editcd13",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "editcd13",
+            "type": "str1"
+        },
+        "desc": "nch_edit_cd(13)"
+    },
+    "editcd2": {
+        "2000": {
+            "format": "%9s",
+            "name": "editcd2",
+            "type": "str4"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "editcd2",
+            "type": "str1"
+        },
+        "desc": "nch_edit_cd(2)"
+    },
+    "editcd3": {
+        "2000": {
+            "format": "%1s",
+            "name": "editcd3",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "editcd3",
+            "type": "str1"
+        },
+        "desc": "nch_edit_cd(3)"
+    },
+    "editcd4": {
+        "2000": {
+            "format": "%1s",
+            "name": "editcd4",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "editcd4",
+            "type": "str1"
+        },
+        "desc": "nch_edit_cd(4)"
+    },
+    "editcd5": {
+        "2000": {
+            "format": "%1s",
+            "name": "editcd5",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "editcd5",
+            "type": "str1"
+        },
+        "desc": "nch_edit_cd(5)"
+    },
+    "editcd6": {
+        "2000": {
+            "format": "%1s",
+            "name": "editcd6",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "editcd6",
+            "type": "str1"
+        },
+        "desc": "nch_edit_cd(6)"
+    },
+    "editcd7": {
+        "2000": {
+            "format": "%1s",
+            "name": "editcd7",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "editcd7",
+            "type": "str1"
+        },
+        "desc": "nch_edit_cd(7)"
+    },
+    "editcd8": {
+        "2000": {
+            "format": "%1s",
+            "name": "editcd8",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "editcd8",
+            "type": "str1"
+        },
+        "desc": "nch_edit_cd(8)"
+    },
+    "editcd9": {
+        "2000": {
+            "format": "%1s",
+            "name": "editcd9",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "editcd9",
+            "type": "str1"
+        },
+        "desc": "nch_edit_cd(9)"
+    },
     "editdisp": {
+        "1999": {
+            "format": "%1s",
+            "name": "editdisp",
+            "type": "str1"
+        },
+        "2000": {
+            "format": "%1s",
+            "name": "editdisp",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "editdisp",
+            "type": "str1"
+        },
         "2002": {
             "format": "%1s",
             "name": "editdisp",
@@ -1468,6 +2141,21 @@
         "desc": "31. nch edit disposition code"
     },
     "ehic": {
+        "1999": {
+            "format": "%11s",
+            "name": "ehic",
+            "type": "str11"
+        },
+        "2000": {
+            "format": "%11s",
+            "name": "ehic",
+            "type": "str11"
+        },
+        "2001": {
+            "format": "%11s",
+            "name": "ehic",
+            "type": "str11"
+        },
         "2002": {
             "format": "%11s",
             "name": "ehic",
@@ -1491,6 +2179,16 @@
         "desc": ""
     },
     "entry_cd": {
+        "2000": {
+            "format": "%1s",
+            "name": "entry_cd",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "entry_cd",
+            "type": "str1"
+        },
         "2002": {
             "format": "%1s",
             "name": "entry_cd",
@@ -1553,133 +2251,79 @@
         },
         "desc": "carrier claim entry code"
     },
+    "eor": {
+        "2000": {
+            "format": "%3s",
+            "name": "eor",
+            "type": "str3"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "eor",
+            "type": "str1"
+        },
+        "desc": "end_rec_cd"
+    },
+    "eq_bic": {
+        "2001": {
+            "format": "%2s",
+            "name": "eq_bic",
+            "type": "str2"
+        },
+        "desc": "nch_ctgry_eqtbl_bic_cd"
+    },
     "expnsdt1": {
-        "2002": {
+        "1999": {
             "format": "%tdD_m_Y",
-            "name": "sexpndt1",
+            "name": "bexpdt1",
             "type": "long"
         },
-        "2003": {
-            "format": "%tdD_m_Y",
-            "name": "sexpndt1",
-            "type": "long"
-        },
-        "2004": {
-            "format": "%tdD_m_Y",
-            "name": "sexpndt1",
-            "type": "long"
-        },
-        "2005": {
-            "format": "%tdD_m_Y",
-            "name": "sexpndt1",
-            "type": "long"
-        },
-        "2006": {
-            "format": "%dD_m_Y",
-            "name": "expnsdt1",
-            "type": "long"
-        },
-        "2007": {
+        "2000": {
             "format": "%tdD_m_Y",
             "name": "expnsdt1",
             "type": "long"
         },
-        "2008": {
-            "format": "%dD_m_Y",
-            "name": "expnsdt1",
-            "type": "long"
-        },
-        "2009": {
-            "format": "%d",
-            "name": "expnsdt1",
-            "type": "long"
-        },
-        "2010": {
+        "2001": {
             "format": "%tdD_m_Y",
             "name": "expnsdt1",
             "type": "long"
         },
-        "2011": {
-            "format": "%tdD_m_Y",
-            "name": "expnsdt1",
-            "type": "long"
-        },
-        "2012": {
-            "format": "%tdD_m_Y",
-            "name": "expnsdt1",
-            "type": "long"
-        },
-        "2013": {
-            "format": "%tdD_m_Y",
-            "name": "expnsdt1",
-            "type": "long"
-        },
-        "desc": "line first expense date"
+        "desc": "line_1st_expns_dt"
     },
     "expnsdt2": {
-        "2002": {
+        "1999": {
             "format": "%tdD_m_Y",
-            "name": "sexpndt2",
+            "name": "bexpdt2",
             "type": "long"
         },
-        "2003": {
-            "format": "%tdD_m_Y",
-            "name": "sexpndt2",
-            "type": "long"
-        },
-        "2004": {
-            "format": "%tdD_m_Y",
-            "name": "sexpndt2",
-            "type": "long"
-        },
-        "2005": {
-            "format": "%tdD_m_Y",
-            "name": "sexpndt2",
-            "type": "long"
-        },
-        "2006": {
-            "format": "%dD_m_Y",
-            "name": "expnsdt2",
-            "type": "long"
-        },
-        "2007": {
+        "2000": {
             "format": "%tdD_m_Y",
             "name": "expnsdt2",
             "type": "long"
         },
-        "2008": {
-            "format": "%dD_m_Y",
-            "name": "expnsdt2",
-            "type": "long"
-        },
-        "2009": {
-            "format": "%d",
-            "name": "expnsdt2",
-            "type": "long"
-        },
-        "2010": {
+        "2001": {
             "format": "%tdD_m_Y",
             "name": "expnsdt2",
             "type": "long"
         },
-        "2011": {
-            "format": "%tdD_m_Y",
-            "name": "expnsdt2",
-            "type": "long"
-        },
-        "2012": {
-            "format": "%tdD_m_Y",
-            "name": "expnsdt2",
-            "type": "long"
-        },
-        "2013": {
-            "format": "%tdD_m_Y",
-            "name": "expnsdt2",
-            "type": "long"
-        },
-        "desc": "line last expense date"
+        "desc": "line_last_expns_dt"
     },
     "fibatch": {
+        "1999": {
+            "format": "%4s",
+            "name": "fibatch",
+            "type": "str4"
+        },
+        "2000": {
+            "format": "%4s",
+            "name": "fibatch",
+            "type": "str4"
+        },
+        "2001": {
+            "format": "%4s",
+            "name": "fibatch",
+            "type": "str4"
+        },
         "2002": {
             "format": "%4s",
             "name": "fibatch",
@@ -1703,43 +2347,58 @@
         "desc": "39. cwf transmission batch number"
     },
     "from_dt": {
-        "2002": {
+        "1999": {
             "format": "%tdD_m_Y",
-            "name": "sfromdt",
+            "name": "bfromdt",
             "type": "long"
+        },
+        "2000": {
+            "format": "%tdD_m_Y",
+            "name": "from_dt",
+            "type": "long"
+        },
+        "2001": {
+            "format": "%tdD_m_Y",
+            "name": "from_dt",
+            "type": "long"
+        },
+        "2002": {
+            "format": "%8.0g",
+            "name": "sfromdt",
+            "type": "int"
         },
         "2003": {
-            "format": "%tdD_m_Y",
+            "format": "%8.0g",
             "name": "sfromdt",
-            "type": "long"
+            "type": "int"
         },
         "2004": {
-            "format": "%tdD_m_Y",
+            "format": "%8.0g",
             "name": "sfromdt",
-            "type": "long"
+            "type": "int"
         },
         "2005": {
-            "format": "%tdD_m_Y",
+            "format": "%8.0g",
             "name": "sfromdt",
-            "type": "long"
+            "type": "int"
         },
         "2006": {
-            "format": "%dD_m_Y",
+            "format": "%tdD_m_Y",
             "name": "from_dt",
             "type": "long"
         },
         "2007": {
-            "format": "%dD_m_Y",
+            "format": "%tdD_m_Y",
             "name": "from_dt",
             "type": "long"
         },
         "2008": {
-            "format": "%dD_m_Y",
+            "format": "%tdD_m_Y",
             "name": "from_dt",
             "type": "long"
         },
         "2009": {
-            "format": "%d",
+            "format": "%tdD_m_Y",
             "name": "from_dt",
             "type": "long"
         },
@@ -1766,6 +2425,11 @@
         "desc": "claim from date"
     },
     "frstinit": {
+        "2000": {
+            "format": "%1s",
+            "name": "frstinit",
+            "type": "str1"
+        },
         "2002": {
             "format": "%1s",
             "name": "frstinit",
@@ -1789,29 +2453,59 @@
         "desc": "46. claim patient 1st initial given name"
     },
     "frwrd_dt": {
-        "2002": {
+        "1999": {
             "format": "%tdD_m_Y",
-            "name": "sfrwrddt",
+            "name": "frwrd_dt",
             "type": "long"
+        },
+        "2000": {
+            "format": "%tdD_m_Y",
+            "name": "frwrd_dt",
+            "type": "long"
+        },
+        "2001": {
+            "format": "%tdD_m_Y",
+            "name": "frwrd_dt",
+            "type": "long"
+        },
+        "2002": {
+            "format": "%8.0g",
+            "name": "sfrwrddt",
+            "type": "int"
         },
         "2003": {
-            "format": "%tdD_m_Y",
+            "format": "%8.0g",
             "name": "sfrwrddt",
-            "type": "long"
+            "type": "int"
         },
         "2004": {
-            "format": "%tdD_m_Y",
+            "format": "%8.0g",
             "name": "sfrwrddt",
-            "type": "long"
+            "type": "int"
         },
         "2005": {
-            "format": "%tdD_m_Y",
+            "format": "%8.0g",
             "name": "sfrwrddt",
-            "type": "long"
+            "type": "int"
         },
         "desc": "36. cwf forwarded date (sas yyyymmdd)"
     },
     "gndr_cd": {
+        "1999": {
+            "format": "%1s",
+            "name": "bsex",
+            "type": "str1"
+        },
+        "2000": {
+            "format": "%1s",
+            "name": "sex",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "sex",
+            "type": "str1"
+        },
         "2002": {
             "format": "%1s",
             "name": "sex",
@@ -1875,132 +2569,57 @@
         "desc": "gender code from claim"
     },
     "hcfaspcl": {
-        "2002": {
+        "1999": {
+            "format": "%2s",
+            "name": "bspec",
+            "type": "str2"
+        },
+        "2000": {
             "format": "%2s",
             "name": "hcfaspcl",
             "type": "str2"
         },
-        "2003": {
+        "2001": {
             "format": "%2s",
             "name": "hcfaspcl",
             "type": "str2"
         },
-        "2004": {
-            "format": "%2s",
-            "name": "hcfaspcl",
-            "type": "str2"
-        },
-        "2005": {
-            "format": "%2s",
-            "name": "hcfaspcl",
-            "type": "str2"
-        },
-        "2006": {
-            "format": "%2s",
-            "name": "hcfaspcl",
-            "type": "str2"
-        },
-        "2007": {
-            "format": "%2s",
-            "name": "hcfaspcl",
-            "type": "str2"
-        },
-        "2008": {
-            "format": "%2s",
-            "name": "hcfaspcl",
-            "type": "str2"
-        },
-        "2009": {
-            "format": "%2s",
-            "name": "hcfaspcl",
-            "type": "str2"
-        },
-        "2010": {
-            "format": "%2s",
-            "name": "hcfaspcl",
-            "type": "str2"
-        },
-        "2011": {
-            "format": "%2s",
-            "name": "hcfaspcl",
-            "type": "str2"
-        },
-        "2012": {
-            "format": "%2s",
-            "name": "hcfaspcl",
-            "type": "str2"
-        },
-        "2013": {
-            "format": "%2s",
-            "name": "hcfaspcl",
-            "type": "str2"
-        },
-        "desc": "line hcfa provider specialty code"
+        "desc": "line_hcfa_prvdr_spclty_cd"
     },
     "hcpcs_cd": {
-        "2002": {
+        "1999": {
+            "format": "%5s",
+            "name": "bhcpcs",
+            "type": "str5"
+        },
+        "2000": {
             "format": "%5s",
             "name": "hcpcs_cd",
             "type": "str5"
         },
-        "2003": {
+        "2001": {
             "format": "%5s",
             "name": "hcpcs_cd",
             "type": "str5"
         },
-        "2004": {
-            "format": "%5s",
-            "name": "hcpcs_cd",
-            "type": "str5"
-        },
-        "2005": {
-            "format": "%5s",
-            "name": "hcpcs_cd",
-            "type": "str5"
-        },
-        "2006": {
-            "format": "%5s",
-            "name": "hcpcs_cd",
-            "type": "str5"
-        },
-        "2007": {
-            "format": "%5s",
-            "name": "hcpcs_cd",
-            "type": "str5"
-        },
-        "2008": {
-            "format": "%5s",
-            "name": "hcpcs_cd",
-            "type": "str5"
-        },
-        "2009": {
-            "format": "%5s",
-            "name": "hcpcs_cd",
-            "type": "str5"
-        },
-        "2010": {
-            "format": "%5s",
-            "name": "hcpcs_cd",
-            "type": "str5"
-        },
-        "2011": {
-            "format": "%5s",
-            "name": "hcpcs_cd",
-            "type": "str5"
-        },
-        "2012": {
-            "format": "%5s",
-            "name": "hcpcs_cd",
-            "type": "str5"
-        },
-        "2013": {
-            "format": "%5s",
-            "name": "hcpcs_cd",
-            "type": "str5"
-        },
-        "desc": "line healthcare common procedure coding system"
+        "desc": "line_hcpcs_cd"
     },
     "hcpcs_yr": {
+        "1999": {
+            "format": "%1s",
+            "name": "hcpcs_yr",
+            "type": "str1"
+        },
+        "2000": {
+            "format": "%1s",
+            "name": "hcpcs_yr",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%9s",
+            "name": "hcpcs_yr",
+            "type": "str1"
+        },
         "2002": {
             "format": "%9s",
             "name": "hcpcs_yr",
@@ -2063,93 +2682,22 @@
         },
         "desc": "carrier claim hcpcs year code"
     },
-    "hcthgbrs": {
-        "2006": {
-            "format": "%8.0g",
-            "name": "hcthgbrs",
-            "type": "byte"
-        },
-        "2007": {
-            "format": "%8.0g",
-            "name": "hcthgbrs",
-            "type": "byte"
-        },
-        "2008": {
-            "format": "%8.0g",
-            "name": "hcthgbrs",
-            "type": "byte"
-        },
-        "2009": {
-            "format": "%8.0g",
-            "name": "hcthgbrs",
-            "type": "byte"
-        },
-        "2010": {
-            "format": "%8.0g",
-            "name": "hcthgbrs",
-            "type": "byte"
-        },
-        "2011": {
-            "format": "%10.0g",
-            "name": "hcthgbrs",
-            "type": "double"
-        },
-        "2012": {
-            "format": "%8.0g",
-            "name": "hcthgbrs",
-            "type": "byte"
-        },
-        "2013": {
-            "format": "%8.0g",
-            "name": "hcthgbrs",
-            "type": "byte"
-        },
-        "desc": "hematocrit/hemoglobin test results"
-    },
-    "hcthgbtp": {
-        "2006": {
-            "format": "%1s",
-            "name": "hcthgbtp",
-            "type": "str1"
-        },
-        "2007": {
-            "format": "%1s",
-            "name": "hcthgbtp",
-            "type": "str1"
-        },
-        "2008": {
-            "format": "%1s",
-            "name": "hcthgbtp",
-            "type": "str1"
-        },
-        "2009": {
-            "format": "%1s",
-            "name": "hcthgbtp",
-            "type": "str1"
-        },
-        "2010": {
-            "format": "%1s",
-            "name": "hcthgbtp",
-            "type": "str1"
-        },
-        "2011": {
-            "format": "%2s",
-            "name": "hcthgbtp",
-            "type": "str2"
-        },
-        "2012": {
-            "format": "%1s",
-            "name": "hcthgbtp",
-            "type": "str1"
-        },
-        "2013": {
-            "format": "%1s",
-            "name": "hcthgbtp",
-            "type": "str1"
-        },
-        "desc": "hematocrit/hemoglobin test type code"
-    },
     "hospovrd": {
+        "1999": {
+            "format": "%1s",
+            "name": "hospovrd",
+            "type": "str1"
+        },
+        "2000": {
+            "format": "%1s",
+            "name": "hospovrd",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "hospovrd",
+            "type": "str1"
+        },
         "2002": {
             "format": "%1s",
             "name": "hospovrd",
@@ -2173,15 +2721,30 @@
         "desc": "67. carrier claim hospice override indicator code"
     },
     "icd_dgns_cd1": {
+        "1999": {
+            "format": "%5s",
+            "name": "bdx1",
+            "type": "str5"
+        },
+        "2000": {
+            "format": "%5s",
+            "name": "dgns_cd1",
+            "type": "str5"
+        },
+        "2001": {
+            "format": "%5s",
+            "name": "dgns_cd1",
+            "type": "str5"
+        },
         "2002": {
             "format": "%5s",
             "name": "dgns_cd1",
             "type": "str5"
         },
         "2003": {
-            "format": "%5s",
+            "format": "%6s",
             "name": "dgns_cd1",
-            "type": "str5"
+            "type": "str6"
         },
         "2004": {
             "format": "%5s",
@@ -2214,14 +2777,14 @@
             "type": "str5"
         },
         "2010": {
-            "format": "%5s",
+            "format": "%7s",
             "name": "icd_dgns_cd1",
-            "type": "str5"
+            "type": "str7"
         },
         "2011": {
-            "format": "%6s",
+            "format": "%7s",
             "name": "icd_dgns_cd1",
-            "type": "str6"
+            "type": "str7"
         },
         "2012": {
             "format": "%5s",
@@ -2247,14 +2810,14 @@
             "type": "str5"
         },
         "2012": {
-            "format": "%1s",
+            "format": "%5s",
             "name": "icd_dgns_cd10",
-            "type": "str1"
+            "type": "str5"
         },
         "2013": {
-            "format": "%1s",
+            "format": "%5s",
             "name": "icd_dgns_cd10",
-            "type": "str1"
+            "type": "str5"
         },
         "desc": "claim diagnosis code x"
     },
@@ -2270,14 +2833,14 @@
             "type": "str5"
         },
         "2012": {
-            "format": "%1s",
+            "format": "%5s",
             "name": "icd_dgns_cd11",
-            "type": "str1"
+            "type": "str5"
         },
         "2013": {
-            "format": "%1s",
+            "format": "%5s",
             "name": "icd_dgns_cd11",
-            "type": "str1"
+            "type": "str5"
         },
         "desc": "claim diagnosis code xi"
     },
@@ -2293,18 +2856,33 @@
             "type": "str5"
         },
         "2012": {
-            "format": "%1s",
+            "format": "%5s",
             "name": "icd_dgns_cd12",
-            "type": "str1"
+            "type": "str5"
         },
         "2013": {
-            "format": "%1s",
+            "format": "%5s",
             "name": "icd_dgns_cd12",
-            "type": "str1"
+            "type": "str5"
         },
         "desc": "claim diagnosis code xii"
     },
     "icd_dgns_cd2": {
+        "1999": {
+            "format": "%5s",
+            "name": "bdx2",
+            "type": "str5"
+        },
+        "2000": {
+            "format": "%5s",
+            "name": "dgns_cd2",
+            "type": "str5"
+        },
+        "2001": {
+            "format": "%5s",
+            "name": "dgns_cd2",
+            "type": "str5"
+        },
         "2002": {
             "format": "%5s",
             "name": "dgns_cd2",
@@ -2368,6 +2946,21 @@
         "desc": "claim diagnosis code ii"
     },
     "icd_dgns_cd3": {
+        "1999": {
+            "format": "%5s",
+            "name": "bdx3",
+            "type": "str5"
+        },
+        "2000": {
+            "format": "%5s",
+            "name": "dgns_cd3",
+            "type": "str5"
+        },
+        "2001": {
+            "format": "%5s",
+            "name": "dgns_cd3",
+            "type": "str5"
+        },
         "2002": {
             "format": "%5s",
             "name": "dgns_cd3",
@@ -2414,9 +3007,9 @@
             "type": "str5"
         },
         "2011": {
-            "format": "%5s",
+            "format": "%6s",
             "name": "icd_dgns_cd3",
-            "type": "str5"
+            "type": "str6"
         },
         "2012": {
             "format": "%5s",
@@ -2431,6 +3024,21 @@
         "desc": "claim diagnosis code iii"
     },
     "icd_dgns_cd4": {
+        "1999": {
+            "format": "%5s",
+            "name": "bdx4",
+            "type": "str5"
+        },
+        "2000": {
+            "format": "%5s",
+            "name": "dgns_cd4",
+            "type": "str5"
+        },
+        "2001": {
+            "format": "%5s",
+            "name": "dgns_cd4",
+            "type": "str5"
+        },
         "2002": {
             "format": "%5s",
             "name": "dgns_cd4",
@@ -2495,19 +3103,19 @@
     },
     "icd_dgns_cd5": {
         "2006": {
-            "format": "%1s",
+            "format": "%5s",
             "name": "dgns_cd5",
-            "type": "str1"
+            "type": "str5"
         },
         "2007": {
-            "format": "%1s",
+            "format": "%5s",
             "name": "dgns_cd5",
-            "type": "str1"
+            "type": "str5"
         },
         "2008": {
-            "format": "%1s",
+            "format": "%5s",
             "name": "dgns_cd5",
-            "type": "str1"
+            "type": "str5"
         },
         "2009": {
             "format": "%5s",
@@ -2538,19 +3146,19 @@
     },
     "icd_dgns_cd6": {
         "2006": {
-            "format": "%1s",
+            "format": "%5s",
             "name": "dgns_cd6",
-            "type": "str1"
+            "type": "str5"
         },
         "2007": {
-            "format": "%1s",
+            "format": "%5s",
             "name": "dgns_cd6",
-            "type": "str1"
+            "type": "str5"
         },
         "2008": {
-            "format": "%1s",
+            "format": "%5s",
             "name": "dgns_cd6",
-            "type": "str1"
+            "type": "str5"
         },
         "2009": {
             "format": "%5s",
@@ -2558,14 +3166,14 @@
             "type": "str5"
         },
         "2010": {
-            "format": "%4s",
-            "name": "icd_dgns_cd6",
-            "type": "str4"
-        },
-        "2011": {
             "format": "%5s",
             "name": "icd_dgns_cd6",
             "type": "str5"
+        },
+        "2011": {
+            "format": "%6s",
+            "name": "icd_dgns_cd6",
+            "type": "str6"
         },
         "2012": {
             "format": "%5s",
@@ -2586,24 +3194,24 @@
             "type": "str1"
         },
         "2007": {
-            "format": "%1s",
+            "format": "%5s",
             "name": "dgns_cd7",
-            "type": "str1"
+            "type": "str5"
         },
         "2008": {
-            "format": "%1s",
+            "format": "%5s",
             "name": "dgns_cd7",
-            "type": "str1"
+            "type": "str5"
         },
         "2009": {
-            "format": "%1s",
+            "format": "%5s",
             "name": "dgns_cd7",
-            "type": "str1"
+            "type": "str5"
         },
         "2010": {
-            "format": "%1s",
+            "format": "%5s",
             "name": "icd_dgns_cd7",
-            "type": "str1"
+            "type": "str5"
         },
         "2011": {
             "format": "%5s",
@@ -2629,24 +3237,24 @@
             "type": "str1"
         },
         "2007": {
-            "format": "%1s",
+            "format": "%5s",
             "name": "dgns_cd8",
-            "type": "str1"
+            "type": "str5"
         },
         "2008": {
-            "format": "%1s",
+            "format": "%5s",
             "name": "dgns_cd8",
-            "type": "str1"
+            "type": "str5"
         },
         "2009": {
-            "format": "%1s",
+            "format": "%5s",
             "name": "dgns_cd8",
-            "type": "str1"
+            "type": "str5"
         },
         "2010": {
-            "format": "%1s",
+            "format": "%5s",
             "name": "icd_dgns_cd8",
-            "type": "str1"
+            "type": "str5"
         },
         "2011": {
             "format": "%5s",
@@ -2677,14 +3285,14 @@
             "type": "str5"
         },
         "2012": {
-            "format": "%1s",
+            "format": "%5s",
             "name": "icd_dgns_cd9",
-            "type": "str1"
+            "type": "str5"
         },
         "2013": {
-            "format": "%1s",
+            "format": "%5s",
             "name": "icd_dgns_cd9",
-            "type": "str1"
+            "type": "str5"
         },
         "desc": "claim diagnosis code ix"
     },
@@ -2965,344 +3573,106 @@
         "desc": "claim diagnosis code ix diagnosis version code (icd-9 or icd-10)"
     },
     "lalowchg": {
-        "2002": {
-            "format": "%12.0g",
-            "name": "lalowchg",
-            "type": "double"
-        },
-        "2003": {
-            "format": "%12.0g",
-            "name": "lalowchg",
-            "type": "double"
-        },
-        "2004": {
-            "format": "%12.0g",
-            "name": "lalowchg",
-            "type": "double"
-        },
-        "2005": {
-            "format": "%12.0g",
-            "name": "lalowchg",
-            "type": "double"
-        },
-        "2006": {
+        "1999": {
             "format": "%9.0g",
-            "name": "lalowchg",
+            "name": "ballow",
             "type": "float"
         },
-        "2007": {
-            "format": "%12.0g",
-            "name": "lalowchg",
-            "type": "double"
-        },
-        "2008": {
-            "format": "%9.0g",
-            "name": "lalowchg",
-            "type": "float"
-        },
-        "2009": {
-            "format": "%12.0g",
-            "name": "lalowchg",
-            "type": "double"
-        },
-        "2010": {
+        "2000": {
             "format": "%10.0g",
             "name": "lalowchg",
             "type": "double"
         },
-        "2011": {
-            "format": "%10.0g",
+        "2001": {
+            "format": "%9.0g",
             "name": "lalowchg",
-            "type": "double"
+            "type": "float"
         },
-        "2012": {
-            "format": "%12.0g",
-            "name": "lalowchg",
-            "type": "double"
-        },
-        "2013": {
-            "format": "%12.0g",
-            "name": "lalowchg",
-            "type": "double"
-        },
-        "desc": "line allowed charge amount"
+        "desc": "line_alow_chrg_amt"
     },
     "lbenpmt": {
-        "2002": {
-            "format": "%12.0g",
-            "name": "lbenpmt",
-            "type": "double"
-        },
-        "2003": {
-            "format": "%12.0g",
-            "name": "lbenpmt",
-            "type": "double"
-        },
-        "2004": {
-            "format": "%12.0g",
-            "name": "lbenpmt",
-            "type": "double"
-        },
-        "2005": {
-            "format": "%12.0g",
-            "name": "lbenpmt",
-            "type": "double"
-        },
-        "2006": {
+        "1999": {
             "format": "%9.0g",
             "name": "lbenpmt",
             "type": "float"
         },
-        "2007": {
-            "format": "%12.0g",
+        "2000": {
+            "format": "%10.0g",
             "name": "lbenpmt",
             "type": "double"
         },
-        "2008": {
+        "2001": {
             "format": "%9.0g",
             "name": "lbenpmt",
             "type": "float"
         },
-        "2009": {
-            "format": "%12.0g",
-            "name": "lbenpmt",
-            "type": "double"
+        "desc": "line_bene_pmt_amt"
+    },
+    "lclty_cd": {
+        "1999": {
+            "format": "%2s",
+            "name": "blocalt",
+            "type": "str2"
         },
-        "2010": {
-            "format": "%10.0g",
-            "name": "lbenpmt",
-            "type": "double"
+        "2000": {
+            "format": "%2s",
+            "name": "lclty_cd",
+            "type": "str2"
         },
-        "2011": {
-            "format": "%10.0g",
-            "name": "lbenpmt",
-            "type": "double"
+        "2001": {
+            "format": "%2s",
+            "name": "lclty_cd",
+            "type": "str2"
         },
-        "2012": {
-            "format": "%12.0g",
-            "name": "lbenpmt",
-            "type": "double"
-        },
-        "2013": {
-            "format": "%12.0g",
-            "name": "lbenpmt",
-            "type": "double"
-        },
-        "desc": "line beneficiary payment amount"
+        "desc": "carr_line_prcng_lclty_cd"
     },
     "ldedamt": {
-        "2002": {
-            "format": "%12.0g",
-            "name": "ldedamt",
-            "type": "double"
-        },
-        "2003": {
-            "format": "%12.0g",
-            "name": "ldedamt",
-            "type": "double"
-        },
-        "2004": {
-            "format": "%12.0g",
-            "name": "ldedamt",
-            "type": "double"
-        },
-        "2005": {
-            "format": "%12.0g",
-            "name": "ldedamt",
-            "type": "double"
-        },
-        "2006": {
-            "format": "%9.0g",
-            "name": "ldedamt",
-            "type": "float"
-        },
-        "2007": {
-            "format": "%12.0g",
-            "name": "ldedamt",
-            "type": "double"
-        },
-        "2008": {
-            "format": "%9.0g",
-            "name": "ldedamt",
-            "type": "float"
-        },
-        "2009": {
-            "format": "%12.0g",
-            "name": "ldedamt",
-            "type": "double"
-        },
-        "2010": {
+        "2000": {
             "format": "%10.0g",
             "name": "ldedamt",
             "type": "double"
         },
-        "2011": {
-            "format": "%10.0g",
+        "2001": {
+            "format": "%9.0g",
             "name": "ldedamt",
-            "type": "double"
+            "type": "float"
         },
-        "2012": {
-            "format": "%12.0g",
-            "name": "ldedamt",
-            "type": "double"
-        },
-        "2013": {
-            "format": "%12.0g",
-            "name": "ldedamt",
-            "type": "double"
-        },
-        "desc": "line beneficiary part b deductible amount"
+        "desc": "line_bene_ptb_ddctbl_amt"
     },
     "line_icd_dgns_cd": {
-        "2002": {
+        "1999": {
+            "format": "%5s",
+            "name": "blndx",
+            "type": "str5"
+        },
+        "2000": {
             "format": "%5s",
             "name": "linedgns",
             "type": "str5"
         },
-        "2003": {
+        "2001": {
             "format": "%5s",
             "name": "linedgns",
             "type": "str5"
         },
-        "2004": {
-            "format": "%5s",
-            "name": "linedgns",
-            "type": "str5"
-        },
-        "2005": {
-            "format": "%5s",
-            "name": "linedgns",
-            "type": "str5"
-        },
-        "2006": {
-            "format": "%5s",
-            "name": "linedgns",
-            "type": "str5"
-        },
-        "2007": {
-            "format": "%5s",
-            "name": "linedgns",
-            "type": "str5"
-        },
-        "2008": {
-            "format": "%5s",
-            "name": "linedgns",
-            "type": "str5"
-        },
-        "2009": {
-            "format": "%5s",
-            "name": "linedgns",
-            "type": "str5"
-        },
-        "2010": {
-            "format": "%5s",
-            "name": "line_icd_dgns_cd",
-            "type": "str5"
-        },
-        "2011": {
-            "format": "%6s",
-            "name": "line_icd_dgns_cd",
-            "type": "str6"
-        },
-        "2012": {
-            "format": "%5s",
-            "name": "line_icd_dgns_cd",
-            "type": "str5"
-        },
-        "2013": {
-            "format": "%5s",
-            "name": "line_icd_dgns_cd",
-            "type": "str5"
-        },
-        "desc": "line diagnosis code code"
-    },
-    "line_icd_dgns_vrsn_cd": {
-        "2010": {
-            "format": "%1s",
-            "name": "line_icd_dgns_vrsn_cd",
-            "type": "str1"
-        },
-        "2011": {
-            "format": "%1s",
-            "name": "line_icd_dgns_vrsn_cd",
-            "type": "str1"
-        },
-        "2012": {
-            "format": "%1s",
-            "name": "line_icd_dgns_vrsn_cd",
-            "type": "str1"
-        },
-        "2013": {
-            "format": "%1s",
-            "name": "line_icd_dgns_vrsn_cd",
-            "type": "str1"
-        },
-        "desc": "line diagnosis code diagnosis version code (icd-9 or icd-10)"
-    },
-    "line_num": {
-        "2002": {
-            "format": "%8.0g",
-            "name": "lineindex",
-            "type": "byte"
-        },
-        "2003": {
-            "format": "%8.0g",
-            "name": "lineindex",
-            "type": "byte"
-        },
-        "2004": {
-            "format": "%8.0g",
-            "name": "lineindex",
-            "type": "byte"
-        },
-        "2005": {
-            "format": "%8.0g",
-            "name": "lineindex",
-            "type": "byte"
-        },
-        "2006": {
-            "format": "%8.0g",
-            "name": "line_num",
-            "type": "byte"
-        },
-        "2007": {
-            "format": "%8.0g",
-            "name": "line_num",
-            "type": "byte"
-        },
-        "2008": {
-            "format": "%8.0g",
-            "name": "line_num",
-            "type": "byte"
-        },
-        "2009": {
-            "format": "%8.0g",
-            "name": "line_num",
-            "type": "byte"
-        },
-        "2010": {
-            "format": "%8.0g",
-            "name": "line_num",
-            "type": "byte"
-        },
-        "2011": {
-            "format": "%8.0g",
-            "name": "line_num",
-            "type": "byte"
-        },
-        "2012": {
-            "format": "%8.0g",
-            "name": "line_num",
-            "type": "byte"
-        },
-        "2013": {
-            "format": "%8.0g",
-            "name": "line_num",
-            "type": "byte"
-        },
-        "desc": "claim line number"
+        "desc": "line_dgns_cd"
     },
     "linecnt": {
+        "1999": {
+            "format": "%8.0g",
+            "name": "blinect",
+            "type": "byte"
+        },
+        "2000": {
+            "format": "%8.0g",
+            "name": "linecnt",
+            "type": "byte"
+        },
+        "2001": {
+            "format": "%12.0g",
+            "name": "claim",
+            "type": "long"
+        },
         "2002": {
             "format": "%8.0g",
             "name": "linecnt",
@@ -3326,369 +3696,209 @@
         "desc": "25. claim total line count"
     },
     "linepmt": {
-        "2002": {
-            "format": "%12.0g",
-            "name": "linepmt",
-            "type": "double"
-        },
-        "2003": {
-            "format": "%12.0g",
-            "name": "linepmt",
-            "type": "double"
-        },
-        "2004": {
-            "format": "%12.0g",
-            "name": "linepmt",
-            "type": "double"
-        },
-        "2005": {
-            "format": "%12.0g",
-            "name": "linepmt",
-            "type": "double"
-        },
-        "2006": {
+        "1999": {
             "format": "%9.0g",
-            "name": "linepmt",
+            "name": "bpaymt",
             "type": "float"
         },
-        "2007": {
-            "format": "%12.0g",
-            "name": "linepmt",
-            "type": "double"
-        },
-        "2008": {
-            "format": "%9.0g",
-            "name": "linepmt",
-            "type": "float"
-        },
-        "2009": {
-            "format": "%12.0g",
-            "name": "linepmt",
-            "type": "double"
-        },
-        "2010": {
+        "2000": {
             "format": "%10.0g",
             "name": "linepmt",
             "type": "double"
         },
-        "2011": {
-            "format": "%10.0g",
+        "2001": {
+            "format": "%9.0g",
             "name": "linepmt",
-            "type": "double"
+            "type": "float"
         },
-        "2012": {
-            "format": "%12.0g",
-            "name": "linepmt",
-            "type": "double"
-        },
-        "2013": {
-            "format": "%12.0g",
-            "name": "linepmt",
-            "type": "double"
-        },
-        "desc": "line nch payment amount"
+        "desc": "line_nch_pmt_amt"
     },
     "lnndccd": {
-        "2002": {
+        "1999": {
             "format": "%1s",
             "name": "ndc_cd",
             "type": "str1"
         },
-        "2003": {
+        "2000": {
             "format": "%1s",
             "name": "ndc_cd",
             "type": "str1"
         },
-        "2004": {
-            "format": "%11s",
+        "2001": {
+            "format": "%1s",
             "name": "ndc_cd",
-            "type": "str11"
+            "type": "str1"
         },
-        "2005": {
-            "format": "%11s",
-            "name": "ndc_cd",
-            "type": "str11"
-        },
-        "2009": {
-            "format": "%11s",
-            "name": "lnndccd",
-            "type": "str11"
-        },
-        "2010": {
-            "format": "%11s",
-            "name": "lnndccd",
-            "type": "str11"
-        },
-        "2011": {
-            "format": "%11s",
-            "name": "lnndccd",
-            "type": "str11"
-        },
-        "2012": {
-            "format": "%11s",
-            "name": "lnndccd",
-            "type": "str11"
-        },
-        "2013": {
-            "format": "%11s",
-            "name": "lnndccd",
-            "type": "str11"
-        },
-        "desc": "line national drug code"
+        "desc": "line_natl_drug_cd"
     },
     "lprpaycd": {
-        "2002": {
+        "2000": {
             "format": "%1s",
             "name": "lprpaycd",
             "type": "str1"
         },
-        "2003": {
+        "2001": {
             "format": "%1s",
             "name": "lprpaycd",
             "type": "str1"
         },
-        "2004": {
-            "format": "%1s",
-            "name": "lprpaycd",
-            "type": "str1"
-        },
-        "2005": {
-            "format": "%1s",
-            "name": "lprpaycd",
-            "type": "str1"
-        },
-        "2006": {
-            "format": "%1s",
-            "name": "lprpaycd",
-            "type": "str1"
-        },
-        "2007": {
-            "format": "%1s",
-            "name": "lprpaycd",
-            "type": "str1"
-        },
-        "2008": {
-            "format": "%1s",
-            "name": "lprpaycd",
-            "type": "str1"
-        },
-        "2009": {
-            "format": "%1s",
-            "name": "lprpaycd",
-            "type": "str1"
-        },
-        "2010": {
-            "format": "%1s",
-            "name": "lprpaycd",
-            "type": "str1"
-        },
-        "2011": {
-            "format": "%1s",
-            "name": "lprpaycd",
-            "type": "str1"
-        },
-        "2012": {
-            "format": "%1s",
-            "name": "lprpaycd",
-            "type": "str1"
-        },
-        "2013": {
-            "format": "%1s",
-            "name": "lprpaycd",
-            "type": "str1"
-        },
-        "desc": "line beneficiary primary payer code"
+        "desc": "line_bene_prmry_pyr_cd"
     },
     "lprpdamt": {
-        "2002": {
-            "format": "%12.0g",
+        "1999": {
+            "format": "%9.0g",
+            "name": "bprpmt",
+            "type": "float"
+        },
+        "2000": {
+            "format": "%8.0g",
             "name": "lprpdamt",
             "type": "double"
         },
-        "2003": {
-            "format": "%12.0g",
-            "name": "lprpdamt",
-            "type": "double"
-        },
-        "2004": {
-            "format": "%12.0g",
-            "name": "lprpdamt",
-            "type": "double"
-        },
-        "2005": {
-            "format": "%12.0g",
-            "name": "lprpdamt",
-            "type": "double"
-        },
-        "2006": {
+        "2001": {
             "format": "%9.0g",
             "name": "lprpdamt",
             "type": "float"
         },
-        "2007": {
-            "format": "%12.0g",
-            "name": "lprpdamt",
-            "type": "double"
-        },
-        "2008": {
-            "format": "%9.0g",
-            "name": "lprpdamt",
-            "type": "float"
-        },
-        "2009": {
-            "format": "%12.0g",
-            "name": "lprpdamt",
-            "type": "double"
-        },
-        "2010": {
-            "format": "%10.0g",
-            "name": "lprpdamt",
-            "type": "double"
-        },
-        "2011": {
-            "format": "%10.0g",
-            "name": "lprpdamt",
-            "type": "double"
-        },
-        "2012": {
-            "format": "%12.0g",
-            "name": "lprpdamt",
-            "type": "double"
-        },
-        "2013": {
-            "format": "%12.0g",
-            "name": "lprpdamt",
-            "type": "double"
-        },
-        "desc": "line beneficiary primary payer paid amount"
+        "desc": "line_bene_prmry_pyr_pd_amt"
     },
     "lprvpmt": {
-        "2002": {
-            "format": "%12.0g",
-            "name": "lprvpmt",
-            "type": "double"
-        },
-        "2003": {
-            "format": "%12.0g",
-            "name": "lprvpmt",
-            "type": "double"
-        },
-        "2004": {
-            "format": "%12.0g",
-            "name": "lprvpmt",
-            "type": "double"
-        },
-        "2005": {
-            "format": "%12.0g",
-            "name": "lprvpmt",
-            "type": "double"
-        },
-        "2006": {
+        "1999": {
             "format": "%9.0g",
             "name": "lprvpmt",
             "type": "float"
         },
-        "2007": {
-            "format": "%12.0g",
+        "2000": {
+            "format": "%10.0g",
             "name": "lprvpmt",
             "type": "double"
         },
-        "2008": {
+        "2001": {
             "format": "%9.0g",
             "name": "lprvpmt",
             "type": "float"
         },
-        "2009": {
-            "format": "%12.0g",
-            "name": "lprvpmt",
-            "type": "double"
-        },
-        "2010": {
-            "format": "%10.0g",
-            "name": "lprvpmt",
-            "type": "double"
-        },
-        "2011": {
-            "format": "%10.0g",
-            "name": "lprvpmt",
-            "type": "double"
-        },
-        "2012": {
-            "format": "%12.0g",
-            "name": "lprvpmt",
-            "type": "double"
-        },
-        "2013": {
-            "format": "%12.0g",
-            "name": "lprvpmt",
-            "type": "double"
-        },
-        "desc": "line provider payment amount"
+        "desc": "line_prvdr_pmt_amt"
     },
     "lsbmtchg": {
-        "2002": {
-            "format": "%12.0g",
-            "name": "lsbmtchg",
-            "type": "double"
-        },
-        "2003": {
-            "format": "%12.0g",
-            "name": "lsbmtchg",
-            "type": "double"
-        },
-        "2004": {
-            "format": "%12.0g",
-            "name": "lsbmtchg",
-            "type": "double"
-        },
-        "2005": {
-            "format": "%12.0g",
-            "name": "lsbmtchg",
-            "type": "double"
-        },
-        "2006": {
+        "1999": {
             "format": "%9.0g",
-            "name": "lsbmtchg",
+            "name": "bsubchg",
             "type": "float"
         },
-        "2007": {
-            "format": "%12.0g",
-            "name": "lsbmtchg",
-            "type": "double"
-        },
-        "2008": {
-            "format": "%9.0g",
-            "name": "lsbmtchg",
-            "type": "float"
-        },
-        "2009": {
-            "format": "%12.0g",
-            "name": "lsbmtchg",
-            "type": "double"
-        },
-        "2010": {
+        "2000": {
             "format": "%10.0g",
             "name": "lsbmtchg",
             "type": "double"
         },
-        "2011": {
-            "format": "%10.0g",
+        "2001": {
+            "format": "%9.0g",
             "name": "lsbmtchg",
-            "type": "double"
+            "type": "float"
         },
-        "2012": {
-            "format": "%12.0g",
-            "name": "lsbmtchg",
-            "type": "double"
+        "desc": "line_sbmt_chrg_amt"
+    },
+    "mcffdt1": {
+        "1999": {
+            "format": "%tdD_m_Y",
+            "name": "mceffdt1",
+            "type": "long"
         },
-        "2013": {
-            "format": "%12.0g",
-            "name": "lsbmtchg",
-            "type": "double"
+        "2000": {
+            "format": "%tdD_m_Y",
+            "name": "mcffdt1",
+            "type": "long"
         },
-        "desc": "line submitted charge amount"
+        "2001": {
+            "format": "%tdD_m_Y",
+            "name": "mcffdt1",
+            "type": "long"
+        },
+        "desc": "mco_prd_efctv_dt(1)"
+    },
+    "mcffdt2": {
+        "2000": {
+            "format": "%tdD_m_Y",
+            "name": "mcffdt2",
+            "type": "long"
+        },
+        "2001": {
+            "format": "%tdD_m_Y",
+            "name": "mcffdt2",
+            "type": "long"
+        },
+        "desc": "mco_prd_efctv_dt(2)"
+    },
+    "mcoind": {
+        "1999": {
+            "format": "%1s",
+            "name": "mcoind1",
+            "type": "str1"
+        },
+        "2000": {
+            "format": "%1s",
+            "name": "mcoind2",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "mcoind2",
+            "type": "str1"
+        },
+        "desc": "nch_mco_trlr_ind_cd(1)"
+    },
+    "mconum": {
+        "1999": {
+            "format": "%5s",
+            "name": "mconum1",
+            "type": "str5"
+        },
+        "2000": {
+            "format": "%9s",
+            "name": "mconum2",
+            "type": "str5"
+        },
+        "2001": {
+            "format": "%5s",
+            "name": "mconum2",
+            "type": "str5"
+        },
+        "desc": "mco_cntrct_num(1)"
+    },
+    "mcooptn": {
+        "1999": {
+            "format": "%1s",
+            "name": "mcooptn1",
+            "type": "str1"
+        },
+        "2000": {
+            "format": "%1s",
+            "name": "mcooptn1",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "mcooptn2",
+            "type": "str1"
+        },
+        "desc": "mco_optn_cd(1)"
     },
     "mcoovrrd": {
+        "1999": {
+            "format": "%1s",
+            "name": "mcoovrrd",
+            "type": "str1"
+        },
+        "2000": {
+            "format": "%1s",
+            "name": "mcoovrrd",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "mcoovrrd",
+            "type": "str1"
+        },
         "2002": {
             "format": "%1s",
             "name": "mcoovrrd",
@@ -3711,259 +3921,79 @@
         },
         "desc": "66. carrier claim mco override indicator code"
     },
+    "mcoplnid": {
+        "2000": {
+            "format": "%1s",
+            "name": "mcplnd1",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "mcplnd2",
+            "type": "str1"
+        },
+        "desc": "mco_hlth_planid_num(1)"
+    },
+    "mctrmdt": {
+        "1999": {
+            "format": "%tdD_m_Y",
+            "name": "mctrmdt1",
+            "type": "long"
+        },
+        "2000": {
+            "format": "%tdD_m_Y",
+            "name": "mctrmdt1",
+            "type": "long"
+        },
+        "2001": {
+            "format": "%tdD_m_Y",
+            "name": "mctrmdt2",
+            "type": "long"
+        },
+        "desc": "mco_prd_trmntn_dt(1)"
+    },
     "mdfr_cd1": {
-        "2002": {
+        "1999": {
+            "format": "%2s",
+            "name": "bhmod1",
+            "type": "str2"
+        },
+        "2000": {
             "format": "%2s",
             "name": "mdfr_cd1",
             "type": "str2"
         },
-        "2003": {
+        "2001": {
             "format": "%2s",
             "name": "mdfr_cd1",
             "type": "str2"
         },
-        "2004": {
-            "format": "%2s",
-            "name": "mdfr_cd1",
-            "type": "str2"
-        },
-        "2005": {
-            "format": "%2s",
-            "name": "mdfr_cd1",
-            "type": "str2"
-        },
-        "2006": {
-            "format": "%2s",
-            "name": "mdfr_cd1",
-            "type": "str2"
-        },
-        "2007": {
-            "format": "%2s",
-            "name": "mdfr_cd1",
-            "type": "str2"
-        },
-        "2008": {
-            "format": "%2s",
-            "name": "mdfr_cd1",
-            "type": "str2"
-        },
-        "2009": {
-            "format": "%2s",
-            "name": "mdfr_cd1",
-            "type": "str2"
-        },
-        "2010": {
-            "format": "%2s",
-            "name": "mdfr_cd1",
-            "type": "str2"
-        },
-        "2011": {
-            "format": "%2s",
-            "name": "mdfr_cd1",
-            "type": "str2"
-        },
-        "2012": {
-            "format": "%2s",
-            "name": "mdfr_cd1",
-            "type": "str2"
-        },
-        "2013": {
-            "format": "%2s",
-            "name": "mdfr_cd1",
-            "type": "str2"
-        },
-        "desc": "line hcpcs initial modifier code"
+        "desc": "line_hcpcs_initl_mdfr_cd"
     },
     "mdfr_cd2": {
-        "2002": {
+        "1999": {
+            "format": "%2s",
+            "name": "bhmod2",
+            "type": "str2"
+        },
+        "2000": {
             "format": "%2s",
             "name": "mdfr_cd2",
             "type": "str2"
         },
-        "2003": {
+        "2001": {
             "format": "%2s",
             "name": "mdfr_cd2",
             "type": "str2"
         },
-        "2004": {
-            "format": "%2s",
-            "name": "mdfr_cd2",
-            "type": "str2"
-        },
-        "2005": {
-            "format": "%2s",
-            "name": "mdfr_cd2",
-            "type": "str2"
-        },
-        "2006": {
-            "format": "%2s",
-            "name": "mdfr_cd2",
-            "type": "str2"
-        },
-        "2007": {
-            "format": "%2s",
-            "name": "mdfr_cd2",
-            "type": "str2"
-        },
-        "2008": {
-            "format": "%2s",
-            "name": "mdfr_cd2",
-            "type": "str2"
-        },
-        "2009": {
-            "format": "%2s",
-            "name": "mdfr_cd2",
-            "type": "str2"
-        },
-        "2010": {
-            "format": "%2s",
-            "name": "mdfr_cd2",
-            "type": "str2"
-        },
-        "2011": {
-            "format": "%2s",
-            "name": "mdfr_cd2",
-            "type": "str2"
-        },
-        "2012": {
-            "format": "%2s",
-            "name": "mdfr_cd2",
-            "type": "str2"
-        },
-        "2013": {
-            "format": "%2s",
-            "name": "mdfr_cd2",
-            "type": "str2"
-        },
-        "desc": "line hcpcs second modifier code"
-    },
-    "mdfr_cd3": {
-        "2002": {
-            "format": "%2s",
-            "name": "mdfr_cd3",
-            "type": "str2"
-        },
-        "2003": {
-            "format": "%2s",
-            "name": "mdfr_cd3",
-            "type": "str2"
-        },
-        "2004": {
-            "format": "%2s",
-            "name": "mdfr_cd3",
-            "type": "str2"
-        },
-        "2005": {
-            "format": "%2s",
-            "name": "mdfr_cd3",
-            "type": "str2"
-        },
-        "2006": {
-            "format": "%2s",
-            "name": "mdfr_cd3",
-            "type": "str2"
-        },
-        "2007": {
-            "format": "%2s",
-            "name": "mdfr_cd3",
-            "type": "str2"
-        },
-        "2008": {
-            "format": "%2s",
-            "name": "mdfr_cd3",
-            "type": "str2"
-        },
-        "2009": {
-            "format": "%2s",
-            "name": "mdfr_cd3",
-            "type": "str2"
-        },
-        "2010": {
-            "format": "%2s",
-            "name": "mdfr_cd3",
-            "type": "str2"
-        },
-        "2011": {
-            "format": "%2s",
-            "name": "mdfr_cd3",
-            "type": "str2"
-        },
-        "2012": {
-            "format": "%2s",
-            "name": "mdfr_cd3",
-            "type": "str2"
-        },
-        "2013": {
-            "format": "%2s",
-            "name": "mdfr_cd3",
-            "type": "str2"
-        },
-        "desc": "dmerc line hcpcs third modifier code"
-    },
-    "mdfr_cd4": {
-        "2002": {
-            "format": "%2s",
-            "name": "mdfr_cd4",
-            "type": "str2"
-        },
-        "2003": {
-            "format": "%2s",
-            "name": "mdfr_cd4",
-            "type": "str2"
-        },
-        "2004": {
-            "format": "%2s",
-            "name": "mdfr_cd4",
-            "type": "str2"
-        },
-        "2005": {
-            "format": "%2s",
-            "name": "mdfr_cd4",
-            "type": "str2"
-        },
-        "2006": {
-            "format": "%2s",
-            "name": "mdfr_cd4",
-            "type": "str2"
-        },
-        "2007": {
-            "format": "%2s",
-            "name": "mdfr_cd4",
-            "type": "str2"
-        },
-        "2008": {
-            "format": "%2s",
-            "name": "mdfr_cd4",
-            "type": "str2"
-        },
-        "2009": {
-            "format": "%2s",
-            "name": "mdfr_cd4",
-            "type": "str2"
-        },
-        "2010": {
-            "format": "%2s",
-            "name": "mdfr_cd4",
-            "type": "str2"
-        },
-        "2011": {
-            "format": "%2s",
-            "name": "mdfr_cd4",
-            "type": "str2"
-        },
-        "2012": {
-            "format": "%2s",
-            "name": "mdfr_cd4",
-            "type": "str2"
-        },
-        "2013": {
-            "format": "%2s",
-            "name": "mdfr_cd4",
-            "type": "str2"
-        },
-        "desc": "dmerc line hcpcs fourth modifier code"
+        "desc": "line_hcpcs_2nd_mdfr_cd"
     },
     "mdl_init": {
+        "2000": {
+            "format": "%1s",
+            "name": "mdl_init",
+            "type": "str1"
+        },
         "2002": {
             "format": "%1s",
             "name": "mdl_init",
@@ -3987,6 +4017,21 @@
         "desc": "47. claim patient first initial middle name"
     },
     "mqa_ric": {
+        "1999": {
+            "format": "%1s",
+            "name": "mqa_ric",
+            "type": "str1"
+        },
+        "2000": {
+            "format": "%1s",
+            "name": "mqa_ric",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "mqa_ric",
+            "type": "str1"
+        },
         "2002": {
             "format": "%1s",
             "name": "mqa_ric",
@@ -4010,6 +4055,21 @@
         "desc": "7. nch mqa ric code"
     },
     "ms_cd": {
+        "1999": {
+            "format": "%2s",
+            "name": "bmscd",
+            "type": "str2"
+        },
+        "2000": {
+            "format": "%2s",
+            "name": "ms_cd",
+            "type": "str2"
+        },
+        "2001": {
+            "format": "%2s",
+            "name": "ms_cd",
+            "type": "str2"
+        },
         "2002": {
             "format": "%2s",
             "name": "ms_cd",
@@ -4032,112 +4092,290 @@
         },
         "desc": "44. cwf beneficiary medicare status code"
     },
+    "mtus_cnt": {
+        "2000": {
+            "format": "%8.0g",
+            "name": "mtus_cnt",
+            "type": "int"
+        },
+        "2001": {
+            "format": "%8.0g",
+            "name": "mtus_cnt",
+            "type": "int"
+        },
+        "desc": "carr_line_mtus_cnt"
+    },
+    "mtus_ind": {
+        "1999": {
+            "format": "%1s",
+            "name": "bmtuind",
+            "type": "str1"
+        },
+        "2000": {
+            "format": "%1s",
+            "name": "mtus_ind",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "mtus_ind",
+            "type": "str1"
+        },
+        "desc": "carr_line_mtus_ind_cd"
+    },
+    "obs": {
+        "2000": {
+            "format": "%12.0g",
+            "name": "obsi",
+            "type": "long"
+        },
+        "desc": ""
+    },
+    "patchcd": {
+        "1999": {
+            "format": "%2s",
+            "name": "ptchcd1",
+            "type": "str2"
+        },
+        "2000": {
+            "format": "%1s",
+            "name": "ptchcd29",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "ptchcd16",
+            "type": "str1"
+        },
+        "desc": "nch_patch_cd(8)"
+    },
+    "patchdt": {
+        "1999": {
+            "format": "%tdD_m_Y",
+            "name": "ptchdt1",
+            "type": "long"
+        },
+        "2000": {
+            "format": "%tdD_m_Y",
+            "name": "ptchdt11",
+            "type": "long"
+        },
+        "2001": {
+            "format": "%tdD_m_Y",
+            "name": "ptchdt2",
+            "type": "long"
+        },
+        "desc": "nch_patch_apply_dt(28)"
+    },
+    "patchind": {
+        "1999": {
+            "format": "%1s",
+            "name": "ptchnd1",
+            "type": "str1"
+        },
+        "2000": {
+            "format": "%1s",
+            "name": "ptchnd22",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "ptchnd15",
+            "type": "str1"
+        },
+        "desc": "nch_patch_trlr_ind_cd(22)"
+    },
+    "payernm1": {
+        "1999": {
+            "format": "%1s",
+            "name": "payernm1",
+            "type": "str1"
+        },
+        "desc": "90. claim payerid number 1"
+    },
+    "planid1": {
+        "2000": {
+            "format": "%1s",
+            "name": "planid1",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "planid1",
+            "type": "str1"
+        },
+        "desc": "clm_hlth_planid_num(1)"
+    },
+    "planid2": {
+        "2000": {
+            "format": "%1s",
+            "name": "planid2",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "planid2",
+            "type": "str1"
+        },
+        "desc": "clm_hlth_planid_num(2)"
+    },
+    "planid3": {
+        "2000": {
+            "format": "%1s",
+            "name": "planid3",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "planid3",
+            "type": "str1"
+        },
+        "desc": "clm_hlth_planid_num(3)"
+    },
+    "planidin1": {
+        "2000": {
+            "format": "%1s",
+            "name": "plndnd1",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "plndnd1",
+            "type": "str1"
+        },
+        "desc": "nch_hlth_planid_trlr_ind_cd(1)"
+    },
+    "planidin2": {
+        "2000": {
+            "format": "%1s",
+            "name": "plndnd2",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "plndnd2",
+            "type": "str1"
+        },
+        "desc": "nch_hlth_planid_trlr_ind_cd(2)"
+    },
+    "planidin3": {
+        "2000": {
+            "format": "%1s",
+            "name": "plndnd3",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "plndnd3",
+            "type": "str1"
+        },
+        "desc": "nch_hlth_planid_trlr_ind_cd(3)"
+    },
     "plcsrvc": {
-        "2002": {
+        "2000": {
             "format": "%2s",
             "name": "plcsrvc",
             "type": "str2"
         },
-        "2003": {
+        "2001": {
             "format": "%2s",
             "name": "plcsrvc",
             "type": "str2"
         },
-        "2004": {
-            "format": "%2s",
-            "name": "plcsrvc",
-            "type": "str2"
+        "desc": "line_plc_srvc_cd"
+    },
+    "plndcd1": {
+        "2000": {
+            "format": "%1s",
+            "name": "plndcd1",
+            "type": "str1"
         },
-        "2005": {
-            "format": "%2s",
-            "name": "plcsrvc",
-            "type": "str2"
+        "2001": {
+            "format": "%1s",
+            "name": "plndcd1",
+            "type": "str1"
         },
-        "2006": {
-            "format": "%2s",
-            "name": "plcsrvc",
-            "type": "str2"
+        "desc": "clm_hlth_planid_cd(1)"
+    },
+    "plndcd2": {
+        "2000": {
+            "format": "%1s",
+            "name": "plndcd2",
+            "type": "str1"
         },
-        "2007": {
-            "format": "%2s",
-            "name": "plcsrvc",
-            "type": "str2"
+        "2001": {
+            "format": "%1s",
+            "name": "plndcd2",
+            "type": "str1"
         },
-        "2008": {
-            "format": "%2s",
-            "name": "plcsrvc",
-            "type": "str2"
+        "desc": "clm_hlth_planid_cd(2)"
+    },
+    "plndcd3": {
+        "2000": {
+            "format": "%1s",
+            "name": "plndcd3",
+            "type": "str1"
         },
-        "2009": {
-            "format": "%2s",
-            "name": "plcsrvc",
-            "type": "str2"
+        "2001": {
+            "format": "%1s",
+            "name": "plndcd3",
+            "type": "str1"
         },
-        "2010": {
-            "format": "%2s",
-            "name": "plcsrvc",
-            "type": "str2"
-        },
-        "2011": {
-            "format": "%2s",
-            "name": "plcsrvc",
-            "type": "str2"
-        },
-        "2012": {
-            "format": "%2s",
-            "name": "plcsrvc",
-            "type": "str2"
-        },
-        "2013": {
-            "format": "%2s",
-            "name": "plcsrvc",
-            "type": "str2"
-        },
-        "desc": "line place of service code"
+        "desc": "clm_hlth_planid_cd(3)"
     },
     "pmt_amt": {
+        "2000": {
+            "format": "%10.0g",
+            "name": "pmt_amt",
+            "type": "double"
+        },
+        "2001": {
+            "format": "%9.0g",
+            "name": "pmt_amt",
+            "type": "float"
+        },
         "2002": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "pmt_amt",
             "type": "double"
         },
         "2003": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "pmt_amt",
             "type": "double"
         },
         "2004": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "pmt_amt",
             "type": "double"
         },
         "2005": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "pmt_amt",
             "type": "double"
         },
         "2006": {
-            "format": "%9.0g",
+            "format": "%10.0g",
             "name": "pmt_amt",
-            "type": "float"
+            "type": "double"
         },
         "2007": {
-            "format": "%9.0g",
+            "format": "%10.0g",
             "name": "pmt_amt",
-            "type": "float"
+            "type": "double"
         },
         "2008": {
-            "format": "%9.0g",
+            "format": "%10.0g",
             "name": "pmt_amt",
-            "type": "float"
+            "type": "double"
         },
         "2009": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "pmt_amt",
             "type": "double"
         },
         "2010": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "pmt_amt",
             "type": "double"
         },
@@ -4159,6 +4397,21 @@
         "desc": "claim payment amount"
     },
     "pmtdnlcd": {
+        "1999": {
+            "format": "%1s",
+            "name": "bdenycd",
+            "type": "str1"
+        },
+        "2000": {
+            "format": "%1s",
+            "name": "pmtdnlcd",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "pmtdnlcd",
+            "type": "str1"
+        },
         "2002": {
             "format": "%1s",
             "name": "pmtdnlcd",
@@ -4200,9 +4453,9 @@
             "type": "str1"
         },
         "2010": {
-            "format": "%1s",
+            "format": "%2s",
             "name": "pmtdnlcd",
-            "type": "str1"
+            "type": "str2"
         },
         "2011": {
             "format": "%2s",
@@ -4222,250 +4475,149 @@
         "desc": "carrier claim payment denial code"
     },
     "pmtindcd": {
-        "2002": {
+        "1999": {
             "format": "%1s",
             "name": "pmtindcd",
             "type": "str1"
         },
-        "2003": {
+        "2000": {
             "format": "%1s",
             "name": "pmtindcd",
             "type": "str1"
         },
-        "2004": {
+        "2001": {
             "format": "%1s",
             "name": "pmtindcd",
             "type": "str1"
         },
-        "2005": {
-            "format": "%1s",
-            "name": "pmtindcd",
-            "type": "str1"
-        },
-        "desc": "137. line payment indicator code"
+        "desc": "line_pmt_ind_cd"
     },
     "pmtindsw": {
-        "2002": {
+        "2000": {
             "format": "%1s",
             "name": "pmtindsw",
             "type": "str1"
         },
-        "2003": {
+        "2001": {
             "format": "%1s",
             "name": "pmtindsw",
             "type": "str1"
         },
-        "2004": {
-            "format": "%1s",
-            "name": "pmtindsw",
-            "type": "str1"
-        },
-        "2005": {
-            "format": "%1s",
-            "name": "pmtindsw",
-            "type": "str1"
-        },
-        "2006": {
-            "format": "%1s",
-            "name": "pmtindsw",
-            "type": "str1"
-        },
-        "2007": {
-            "format": "%1s",
-            "name": "pmtindsw",
-            "type": "str1"
-        },
-        "2008": {
-            "format": "%1s",
-            "name": "pmtindsw",
-            "type": "str1"
-        },
-        "2009": {
-            "format": "%1s",
-            "name": "pmtindsw",
-            "type": "str1"
-        },
-        "2010": {
-            "format": "%1s",
-            "name": "pmtindsw",
-            "type": "str1"
-        },
-        "2011": {
-            "format": "%1s",
-            "name": "pmtindsw",
-            "type": "str1"
-        },
-        "2012": {
-            "format": "%1s",
-            "name": "pmtindsw",
-            "type": "str1"
-        },
-        "2013": {
-            "format": "%1s",
-            "name": "pmtindsw",
-            "type": "str1"
-        },
-        "desc": "line payment 80%/100% code"
-    },
-    "prcng_st": {
-        "2002": {
-            "format": "%2s",
-            "name": "prcng_st",
-            "type": "str2"
-        },
-        "2003": {
-            "format": "%2s",
-            "name": "prcng_st",
-            "type": "str2"
-        },
-        "2004": {
-            "format": "%2s",
-            "name": "prcng_st",
-            "type": "str2"
-        },
-        "2005": {
-            "format": "%2s",
-            "name": "prcng_st",
-            "type": "str2"
-        },
-        "2006": {
-            "format": "%2s",
-            "name": "prcng_st",
-            "type": "str2"
-        },
-        "2007": {
-            "format": "%2s",
-            "name": "prcng_st",
-            "type": "str2"
-        },
-        "2008": {
-            "format": "%2s",
-            "name": "prcng_st",
-            "type": "str2"
-        },
-        "2009": {
-            "format": "%2s",
-            "name": "prcng_st",
-            "type": "str2"
-        },
-        "2010": {
-            "format": "%2s",
-            "name": "prcng_st",
-            "type": "str2"
-        },
-        "2011": {
-            "format": "%2s",
-            "name": "prcng_st",
-            "type": "str2"
-        },
-        "2012": {
-            "format": "%2s",
-            "name": "prcng_st",
-            "type": "str2"
-        },
-        "2013": {
-            "format": "%2s",
-            "name": "prcng_st",
-            "type": "str2"
-        },
-        "desc": "dmerc line pricing state code"
+        "desc": "line_pmt_80_100_cd"
     },
     "prcngind": {
-        "2002": {
+        "2000": {
             "format": "%1s",
             "name": "prcngind",
             "type": "str1"
         },
-        "2003": {
+        "2001": {
             "format": "%1s",
             "name": "prcngind",
             "type": "str1"
         },
-        "2004": {
+        "desc": "line_prcsg_ind_cd"
+    },
+    "prf_loc": {
+        "1999": {
             "format": "%1s",
-            "name": "prcngind",
+            "name": "prf_loc",
             "type": "str1"
         },
-        "2005": {
-            "format": "%1s",
-            "name": "prcngind",
-            "type": "str1"
-        },
-        "2006": {
-            "format": "%1s",
-            "name": "prcngind",
-            "type": "str1"
-        },
-        "2007": {
-            "format": "%1s",
-            "name": "prcngind",
-            "type": "str1"
-        },
-        "2008": {
-            "format": "%1s",
-            "name": "prcngind",
-            "type": "str1"
-        },
-        "2009": {
-            "format": "%1s",
-            "name": "prcngind",
-            "type": "str1"
-        },
-        "2010": {
-            "format": "%1s",
-            "name": "prcngind",
-            "type": "str1"
-        },
-        "2011": {
-            "format": "%2s",
-            "name": "prcngind",
-            "type": "str2"
-        },
-        "2012": {
-            "format": "%2s",
-            "name": "prcngind",
-            "type": "str2"
-        },
-        "2013": {
-            "format": "%2s",
-            "name": "prcngind",
-            "type": "str2"
-        },
-        "desc": "line processing indicator code"
+        "desc": "101. carr. line perf. prov. loc. code"
     },
     "prf_npi": {
-        "2002": {
+        "1999": {
+            "format": "%1s",
+            "name": "prf_npi",
+            "type": "str1"
+        },
+        "2000": {
             "format": "%1s",
             "name": "prfnpi",
             "type": "str1"
         },
-        "2003": {
+        "2001": {
             "format": "%1s",
             "name": "prfnpi",
             "type": "str1"
         },
-        "2004": {
+        "desc": "carr_line_prfrmg_npi_num"
+    },
+    "prf_prfl": {
+        "2000": {
+            "format": "%10s",
+            "name": "prf_prfl",
+            "type": "str10"
+        },
+        "2001": {
+            "format": "%10s",
+            "name": "prf_prfl",
+            "type": "str10"
+        },
+        "desc": "carr_line_prfrmg_pin_num"
+    },
+    "prf_upin": {
+        "1999": {
+            "format": "%6s",
+            "name": "blnppun",
+            "type": "str6"
+        },
+        "2000": {
+            "format": "%6s",
+            "name": "prf_upin",
+            "type": "str6"
+        },
+        "2001": {
+            "format": "%6s",
+            "name": "prf_upin",
+            "type": "str6"
+        },
+        "desc": "carr_line_prfrmg_upin_num"
+    },
+    "prgrpnpi": {
+        "1999": {
             "format": "%1s",
-            "name": "prfnpi",
+            "name": "prgrpnpi",
             "type": "str1"
         },
-        "2005": {
+        "2000": {
             "format": "%1s",
-            "name": "prfnpi",
+            "name": "prgrpnpi",
             "type": "str1"
         },
-        "desc": "105. carrier line performing npi number"
+        "2001": {
+            "format": "%1s",
+            "name": "prgrpnpi",
+            "type": "str1"
+        },
+        "desc": "carr_line_prfrmg_grp_npi_num"
     },
     "prncpal_dgns_cd": {
+        "1999": {
+            "format": "%5s",
+            "name": "pdgns_cd",
+            "type": "str5"
+        },
+        "2000": {
+            "format": "%5s",
+            "name": "pdgns_cd",
+            "type": "str5"
+        },
+        "2001": {
+            "format": "%5s",
+            "name": "pdgns_cd",
+            "type": "str5"
+        },
         "2002": {
             "format": "%5s",
             "name": "pdgns_cd",
             "type": "str5"
         },
         "2003": {
-            "format": "%5s",
+            "format": "%6s",
             "name": "pdgns_cd",
-            "type": "str5"
+            "type": "str6"
         },
         "2004": {
             "format": "%5s",
@@ -4478,14 +4630,14 @@
             "type": "str5"
         },
         "2010": {
-            "format": "%5s",
+            "format": "%7s",
             "name": "prncpal_dgns_cd",
-            "type": "str5"
+            "type": "str7"
         },
         "2011": {
-            "format": "%6s",
+            "format": "%7s",
             "name": "prncpal_dgns_cd",
-            "type": "str6"
+            "type": "str7"
         },
         "2012": {
             "format": "%5s",
@@ -4523,48 +4675,63 @@
         "desc": "primary claim diagnosis code diagnosis version code (icd-9 or icd-10)"
     },
     "prov_pmt": {
+        "1999": {
+            "format": "%9.0g",
+            "name": "prov_pmt",
+            "type": "float"
+        },
+        "2000": {
+            "format": "%10.0g",
+            "name": "prov_pmt",
+            "type": "double"
+        },
+        "2001": {
+            "format": "%9.0g",
+            "name": "prov_pmt",
+            "type": "float"
+        },
         "2002": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "prov_pmt",
             "type": "double"
         },
         "2003": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "prov_pmt",
             "type": "double"
         },
         "2004": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "prov_pmt",
             "type": "double"
         },
         "2005": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "prov_pmt",
             "type": "double"
         },
         "2006": {
-            "format": "%9.0g",
+            "format": "%10.0g",
             "name": "prov_pmt",
-            "type": "float"
+            "type": "double"
         },
         "2007": {
-            "format": "%9.0g",
+            "format": "%10.0g",
             "name": "prov_pmt",
-            "type": "float"
+            "type": "double"
         },
         "2008": {
-            "format": "%9.0g",
+            "format": "%10.0g",
             "name": "prov_pmt",
-            "type": "float"
+            "type": "double"
         },
         "2009": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "prov_pmt",
             "type": "double"
         },
         "2010": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "prov_pmt",
             "type": "double"
         },
@@ -4585,49 +4752,82 @@
         },
         "desc": "nch claim provider payment amount"
     },
+    "provzip": {
+        "1999": {
+            "format": "%9s",
+            "name": "bppzip",
+            "type": "str9"
+        },
+        "2000": {
+            "format": "%9s",
+            "name": "provzip",
+            "type": "str9"
+        },
+        "2001": {
+            "format": "%9s",
+            "name": "provzip",
+            "type": "str9"
+        },
+        "desc": "carr_line_prfrmg_prvdr_zip_cd"
+    },
     "prpayamt": {
+        "1999": {
+            "format": "%9.0g",
+            "name": "prpayamt",
+            "type": "float"
+        },
+        "2000": {
+            "format": "%8.0g",
+            "name": "prpayamt",
+            "type": "double"
+        },
+        "2001": {
+            "format": "%9.0g",
+            "name": "prpayamt",
+            "type": "float"
+        },
         "2002": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "prpayamt",
             "type": "double"
         },
         "2003": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "prpayamt",
             "type": "double"
         },
         "2004": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "prpayamt",
             "type": "double"
         },
         "2005": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "prpayamt",
             "type": "double"
         },
         "2006": {
-            "format": "%9.0g",
+            "format": "%10.0g",
             "name": "prpayamt",
-            "type": "float"
+            "type": "double"
         },
         "2007": {
-            "format": "%9.0g",
+            "format": "%10.0g",
             "name": "prpayamt",
-            "type": "float"
+            "type": "double"
         },
         "2008": {
-            "format": "%9.0g",
+            "format": "%10.0g",
             "name": "prpayamt",
-            "type": "float"
+            "type": "double"
         },
         "2009": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "prpayamt",
             "type": "double"
         },
         "2010": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "prpayamt",
             "type": "double"
         },
@@ -4649,195 +4849,83 @@
         "desc": "carrier claim primary payer paid amount"
     },
     "prpyalow": {
-        "2002": {
-            "format": "%12.0g",
-            "name": "prpyalow",
-            "type": "double"
-        },
-        "2003": {
-            "format": "%12.0g",
-            "name": "prpyalow",
-            "type": "double"
-        },
-        "2004": {
-            "format": "%12.0g",
-            "name": "prpyalow",
-            "type": "double"
-        },
-        "2005": {
-            "format": "%12.0g",
-            "name": "prpyalow",
-            "type": "double"
-        },
-        "2006": {
+        "1999": {
             "format": "%9.0g",
             "name": "prpyalow",
             "type": "float"
         },
-        "2007": {
-            "format": "%12.0g",
+        "2000": {
+            "format": "%8.0g",
             "name": "prpyalow",
             "type": "double"
         },
-        "2008": {
+        "2001": {
             "format": "%9.0g",
             "name": "prpyalow",
             "type": "float"
         },
-        "2009": {
-            "format": "%12.0g",
-            "name": "prpyalow",
-            "type": "double"
-        },
-        "2010": {
-            "format": "%10.0g",
-            "name": "prpyalow",
-            "type": "double"
-        },
-        "2011": {
-            "format": "%10.0g",
-            "name": "prpyalow",
-            "type": "double"
-        },
-        "2012": {
-            "format": "%12.0g",
-            "name": "prpyalow",
-            "type": "double"
-        },
-        "2013": {
-            "format": "%12.0g",
-            "name": "prpyalow",
-            "type": "double"
-        },
-        "desc": "line primary payer allowed charge amount"
+        "desc": "line_prmry_pyr_alow_chrg_amt"
     },
     "prtcptg": {
-        "2002": {
+        "2000": {
             "format": "%1s",
             "name": "prtcptg",
             "type": "str1"
         },
-        "2003": {
+        "2001": {
             "format": "%1s",
             "name": "prtcptg",
             "type": "str1"
         },
-        "2004": {
+        "desc": "line_prvdr_prtcptg_ind_cd"
+    },
+    "prv_type": {
+        "2000": {
             "format": "%1s",
-            "name": "prtcptg",
+            "name": "prv_type",
             "type": "str1"
         },
-        "2005": {
+        "2001": {
             "format": "%1s",
-            "name": "prtcptg",
+            "name": "prv_type",
             "type": "str1"
         },
-        "2006": {
-            "format": "%1s",
-            "name": "prtcptg",
-            "type": "str1"
-        },
-        "2007": {
-            "format": "%1s",
-            "name": "prtcptg",
-            "type": "str1"
-        },
-        "2008": {
-            "format": "%1s",
-            "name": "prtcptg",
-            "type": "str1"
-        },
-        "2009": {
-            "format": "%1s",
-            "name": "prtcptg",
-            "type": "str1"
-        },
-        "2010": {
-            "format": "%1s",
-            "name": "prtcptg",
-            "type": "str1"
-        },
-        "2011": {
-            "format": "%1s",
-            "name": "prtcptg",
-            "type": "str1"
-        },
-        "2012": {
-            "format": "%1s",
-            "name": "prtcptg",
-            "type": "str1"
-        },
-        "2013": {
-            "format": "%1s",
-            "name": "prtcptg",
-            "type": "str1"
-        },
-        "desc": "line provider participating indicator code"
+        "desc": "carr_line_prvdr_type_cd"
     },
     "prvstate": {
-        "2002": {
+        "1999": {
             "format": "%2s",
             "name": "prvstate",
             "type": "str2"
         },
-        "2003": {
+        "2000": {
             "format": "%2s",
             "name": "prvstate",
             "type": "str2"
         },
-        "2004": {
+        "2001": {
             "format": "%2s",
             "name": "prvstate",
             "type": "str2"
         },
-        "2005": {
-            "format": "%2s",
-            "name": "prvstate",
-            "type": "str2"
-        },
-        "2006": {
-            "format": "%2s",
-            "name": "prvstate",
-            "type": "str2"
-        },
-        "2007": {
-            "format": "%2s",
-            "name": "prvstate",
-            "type": "str2"
-        },
-        "2008": {
-            "format": "%2s",
-            "name": "prvstate",
-            "type": "str2"
-        },
-        "2009": {
-            "format": "%2s",
-            "name": "prvstate",
-            "type": "str2"
-        },
-        "2010": {
-            "format": "%2s",
-            "name": "prvstate",
-            "type": "str2"
-        },
-        "2011": {
-            "format": "%2s",
-            "name": "prvstate",
-            "type": "str2"
-        },
-        "2012": {
-            "format": "%2s",
-            "name": "prvstate",
-            "type": "str2"
-        },
-        "2013": {
-            "format": "%2s",
-            "name": "prvstate",
-            "type": "str2"
-        },
-        "desc": "dmerc line provider state code"
+        "desc": "line_nch_prvdr_state_cd"
     },
     "race_cd": {
+        "1999": {
+            "format": "%1s",
+            "name": "brace",
+            "type": "str1"
+        },
+        "2000": {
+            "format": "%1s",
+            "name": "race",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "race",
+            "type": "str1"
+        },
         "2002": {
             "format": "%1s",
             "name": "race",
@@ -4901,29 +4989,62 @@
         "desc": "race code from claim"
     },
     "rcpt_dt": {
-        "2002": {
+        "2000": {
             "format": "%tdD_m_Y",
-            "name": "srcptdt",
+            "name": "rcpt_dt",
             "type": "long"
+        },
+        "2001": {
+            "format": "%tdD_m_Y",
+            "name": "rcpt_dt",
+            "type": "long"
+        },
+        "2002": {
+            "format": "%8.0g",
+            "name": "srcptdt",
+            "type": "int"
         },
         "2003": {
-            "format": "%tdD_m_Y",
+            "format": "%8.0g",
             "name": "srcptdt",
-            "type": "long"
+            "type": "int"
         },
         "2004": {
-            "format": "%tdD_m_Y",
+            "format": "%8.0g",
             "name": "srcptdt",
-            "type": "long"
+            "type": "int"
         },
         "2005": {
-            "format": "%tdD_m_Y",
+            "format": "%8.0g",
             "name": "srcptdt",
-            "type": "long"
+            "type": "int"
         },
         "desc": "34. carrier claim receipt date (sas yyyymmdd)"
     },
+    "rec_len": {
+        "2000": {
+            "format": "%8.0g",
+            "name": "rec_len",
+            "type": "int"
+        },
+        "2001": {
+            "format": "%8.0g",
+            "name": "rec_len",
+            "type": "int"
+        },
+        "desc": "rec_lngth_cnt"
+    },
     "rec_lvl": {
+        "2000": {
+            "format": "%1s",
+            "name": "rec_lvl",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "rec_lvl",
+            "type": "str1"
+        },
         "2002": {
             "format": "%1s",
             "name": "rec_lvl",
@@ -4946,7 +5067,50 @@
         },
         "desc": "5. nch near-line record version code"
     },
+    "rfr_loc": {
+        "1999": {
+            "format": "%1s",
+            "name": "rfr_loc",
+            "type": "str1"
+        },
+        "desc": "50. carr. clm refer. physician loc. code"
+    },
     "rfr_npi": {
+        "1999": {
+            "format": "%1s",
+            "name": "rfr_npi",
+            "type": "str1"
+        },
+        "2000": {
+            "format": "%1s",
+            "name": "rfr_npi",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "rfr_npi",
+            "type": "str1"
+        },
+        "2002": {
+            "format": "%1s",
+            "name": "rfr_npi",
+            "type": "str1"
+        },
+        "2003": {
+            "format": "%1s",
+            "name": "rfr_npi",
+            "type": "str1"
+        },
+        "2004": {
+            "format": "%1s",
+            "name": "rfr_npi",
+            "type": "str1"
+        },
+        "2005": {
+            "format": "%1s",
+            "name": "rfr_npi",
+            "type": "str1"
+        },
         "2006": {
             "format": "%10s",
             "name": "rfr_npi",
@@ -4987,9 +5151,24 @@
             "name": "rfr_npi",
             "type": "str10"
         },
-        "desc": "dmerc claim refering physician npi number"
+        "desc": "carrier claim refering physician npi number"
     },
     "rfr_prfl": {
+        "1999": {
+            "format": "%10s",
+            "name": "brfrprfl",
+            "type": "str10"
+        },
+        "2000": {
+            "format": "%10s",
+            "name": "rfr_prfl",
+            "type": "str10"
+        },
+        "2001": {
+            "format": "%10s",
+            "name": "rfr_prfl",
+            "type": "str10"
+        },
         "2002": {
             "format": "%10s",
             "name": "rfr_prfl",
@@ -5010,9 +5189,84 @@
             "name": "rfr_prfl",
             "type": "str10"
         },
-        "desc": "69. carrier claim referring pin number"
+        "2006": {
+            "format": "%10s",
+            "name": "rfr_prfl",
+            "type": "str10"
+        },
+        "2007": {
+            "format": "%10s",
+            "name": "rfr_prfl",
+            "type": "str10"
+        },
+        "2008": {
+            "format": "%10s",
+            "name": "rfr_prfl",
+            "type": "str10"
+        },
+        "2009": {
+            "format": "%10s",
+            "name": "rfr_prfl",
+            "type": "str10"
+        },
+        "2010": {
+            "format": "%14s",
+            "name": "rfr_prfl",
+            "type": "str14"
+        },
+        "2011": {
+            "format": "%14s",
+            "name": "rfr_prfl",
+            "type": "str14"
+        },
+        "2012": {
+            "format": "%14s",
+            "name": "rfr_prfl",
+            "type": "str14"
+        },
+        "2013": {
+            "format": "%10s",
+            "name": "rfr_prfl",
+            "type": "str10"
+        },
+        "desc": "carrier claim referring pin number"
     },
     "rfr_upin": {
+        "1999": {
+            "format": "%6s",
+            "name": "brfrupin",
+            "type": "str6"
+        },
+        "2000": {
+            "format": "%6s",
+            "name": "rfr_upin",
+            "type": "str6"
+        },
+        "2001": {
+            "format": "%6s",
+            "name": "rfr_upin",
+            "type": "str6"
+        },
+        "2002": {
+            "format": "%6s",
+            "name": "rfr_upin",
+            "type": "str6"
+        },
+        "2003": {
+            "format": "%6s",
+            "name": "rfr_upin",
+            "type": "str6"
+        },
+        "2004": {
+            "format": "%6s",
+            "name": "rfr_upin",
+            "type": "str6"
+        },
+        "2005": {
+            "format": "%6s",
+            "name": "rfr_upin",
+            "type": "str6"
+        },
         "2006": {
             "format": "%6s",
             "name": "rfr_upin",
@@ -5053,9 +5307,24 @@
             "name": "rfr_upin",
             "type": "str6"
         },
-        "desc": "dmerc claim ordering physician upin number"
+        "desc": "carrier claim refering physician upin number"
     },
     "ric_cd": {
+        "1999": {
+            "format": "%1s",
+            "name": "bric",
+            "type": "str1"
+        },
+        "2000": {
+            "format": "%1s",
+            "name": "ric_cd",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "ric_cd",
+            "type": "str1"
+        },
         "2002": {
             "format": "%1s",
             "name": "ric_cd",
@@ -5119,48 +5388,63 @@
         "desc": "nch near line record identification code"
     },
     "sbmtchrg": {
+        "1999": {
+            "format": "%9.0g",
+            "name": "sbmtchrg",
+            "type": "float"
+        },
+        "2000": {
+            "format": "%10.0g",
+            "name": "sbmtchrg",
+            "type": "double"
+        },
+        "2001": {
+            "format": "%9.0g",
+            "name": "sbmtchrg",
+            "type": "float"
+        },
         "2002": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "sbmtchrg",
             "type": "double"
         },
         "2003": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "sbmtchrg",
             "type": "double"
         },
         "2004": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "sbmtchrg",
             "type": "double"
         },
         "2005": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "sbmtchrg",
             "type": "double"
         },
         "2006": {
-            "format": "%9.0g",
+            "format": "%10.0g",
             "name": "sbmtchrg",
-            "type": "float"
+            "type": "double"
         },
         "2007": {
-            "format": "%9.0g",
+            "format": "%10.0g",
             "name": "sbmtchrg",
-            "type": "float"
+            "type": "double"
         },
         "2008": {
-            "format": "%9.0g",
+            "format": "%10.0g",
             "name": "sbmtchrg",
-            "type": "float"
+            "type": "double"
         },
         "2009": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "sbmtchrg",
             "type": "double"
         },
         "2010": {
-            "format": "%12.0g",
+            "format": "%10.0g",
             "name": "sbmtchrg",
             "type": "double"
         },
@@ -5181,70 +5465,17 @@
         },
         "desc": "nch carrier claim submitted charge amount"
     },
-    "scrnsvgs": {
-        "2002": {
-            "format": "%12.0g",
-            "name": "scrnsvgs",
-            "type": "double"
-        },
-        "2003": {
-            "format": "%12.0g",
-            "name": "scrnsvgs",
-            "type": "double"
-        },
-        "2004": {
-            "format": "%12.0g",
-            "name": "scrnsvgs",
-            "type": "double"
-        },
-        "2005": {
-            "format": "%12.0g",
-            "name": "scrnsvgs",
-            "type": "double"
-        },
-        "2006": {
-            "format": "%9.0g",
-            "name": "scrnsvgs",
-            "type": "float"
-        },
-        "2007": {
-            "format": "%12.0g",
-            "name": "scrnsvgs",
-            "type": "double"
-        },
-        "2008": {
-            "format": "%9.0g",
-            "name": "scrnsvgs",
-            "type": "float"
-        },
-        "2009": {
-            "format": "%12.0g",
-            "name": "scrnsvgs",
-            "type": "double"
-        },
-        "2010": {
-            "format": "%8.0g",
-            "name": "scrnsvgs",
-            "type": "byte"
-        },
-        "2011": {
-            "format": "%8.0g",
-            "name": "scrnsvgs",
-            "type": "byte"
-        },
-        "2012": {
-            "format": "%8.0g",
-            "name": "scrnsvgs",
-            "type": "byte"
-        },
-        "2013": {
-            "format": "%8.0g",
-            "name": "scrnsvgs",
-            "type": "byte"
-        },
-        "desc": "dmerc line screen savings amount"
-    },
     "sgmt_cnt": {
+        "2000": {
+            "format": "%8.0g",
+            "name": "sgmt_cnt",
+            "type": "byte"
+        },
+        "2001": {
+            "format": "%8.0g",
+            "name": "sgmt_cnt",
+            "type": "byte"
+        },
         "2002": {
             "format": "%8.0g",
             "name": "sgmt_cnt",
@@ -5267,93 +5498,81 @@
         },
         "desc": "23. claim total segment count"
     },
+    "srecsize": {
+        "2000": {
+            "format": "%8.0g",
+            "name": "srecsize",
+            "type": "int"
+        },
+        "desc": ""
+    },
     "srvc_cnt": {
-        "2002": {
+        "1999": {
+            "format": "%8.0g",
+            "name": "bsrvct",
+            "type": "int"
+        },
+        "2000": {
             "format": "%8.0g",
             "name": "srvc_cnt",
             "type": "int"
         },
-        "2003": {
+        "2001": {
             "format": "%8.0g",
             "name": "srvc_cnt",
             "type": "int"
         },
-        "2004": {
-            "format": "%8.0g",
-            "name": "srvc_cnt",
-            "type": "int"
-        },
-        "2005": {
-            "format": "%8.0g",
-            "name": "srvc_cnt",
-            "type": "int"
-        },
-        "2006": {
-            "format": "%8.0g",
-            "name": "srvc_cnt",
-            "type": "int"
-        },
-        "2007": {
-            "format": "%8.0g",
-            "name": "srvc_cnt",
-            "type": "int"
-        },
-        "2008": {
-            "format": "%8.0g",
-            "name": "srvc_cnt",
-            "type": "int"
-        },
-        "2009": {
-            "format": "%8.0g",
-            "name": "srvc_cnt",
-            "type": "int"
-        },
-        "2010": {
-            "format": "%8.0g",
-            "name": "srvc_cnt",
-            "type": "int"
-        },
-        "2011": {
-            "format": "%8.0g",
-            "name": "srvc_cnt",
-            "type": "int"
-        },
-        "2012": {
-            "format": "%8.0g",
-            "name": "srvc_cnt",
-            "type": "int"
-        },
-        "2013": {
-            "format": "%8.0g",
-            "name": "srvc_cnt",
-            "type": "int"
-        },
-        "desc": "line service count"
+        "desc": "line_srvc_cnt"
     },
     "sschlddt": {
-        "2002": {
+        "1999": {
             "format": "%tdD_m_Y",
-            "name": "sschlddt",
+            "name": "bdatepd",
             "type": "long"
+        },
+        "2000": {
+            "format": "%tdD_m_Y",
+            "name": "schld_dt",
+            "type": "long"
+        },
+        "2001": {
+            "format": "%tdD_m_Y",
+            "name": "schld_dt",
+            "type": "long"
+        },
+        "2002": {
+            "format": "%8.0g",
+            "name": "sschlddt",
+            "type": "int"
         },
         "2003": {
-            "format": "%tdD_m_Y",
+            "format": "%8.0g",
             "name": "sschlddt",
-            "type": "long"
+            "type": "int"
         },
         "2004": {
-            "format": "%tdD_m_Y",
+            "format": "%8.0g",
             "name": "sschlddt",
-            "type": "long"
+            "type": "int"
         },
         "2005": {
-            "format": "%tdD_m_Y",
+            "format": "%8.0g",
             "name": "sschlddt",
-            "type": "long"
+            "type": "int"
         },
         "desc": "35. carrier claim scheduled payment date (sas yyyymmdd)"
     },
     "st_sgmt": {
+        "2000": {
+            "format": "%1s",
+            "name": "st_sgmt",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "st_sgmt",
+            "type": "str1"
+        },
         "2002": {
             "format": "%1s",
             "name": "st_sgmt",
@@ -5400,6 +5619,21 @@
         "desc": "13. beneficiary residence ssa standard state code"
     },
     "state_cd": {
+        "1999": {
+            "format": "%2s",
+            "name": "bstate",
+            "type": "str2"
+        },
+        "2000": {
+            "format": "%2s",
+            "name": "state_cd",
+            "type": "str2"
+        },
+        "2001": {
+            "format": "%2s",
+            "name": "state_cd",
+            "type": "str2"
+        },
         "2006": {
             "format": "%1s",
             "name": "state_cd",
@@ -5442,196 +5676,12 @@
         },
         "desc": "state code from claim (ssa)"
     },
-    "sup_npi": {
-        "2002": {
-            "format": "%1s",
-            "name": "sup_npi",
-            "type": "str1"
-        },
-        "2003": {
-            "format": "%1s",
-            "name": "sup_npi",
-            "type": "str1"
-        },
-        "2004": {
-            "format": "%1s",
-            "name": "sup_npi",
-            "type": "str1"
-        },
-        "2005": {
-            "format": "%1s",
-            "name": "sup_npi",
-            "type": "str1"
-        },
-        "2006": {
-            "format": "%10s",
-            "name": "sup_npi",
-            "type": "str10"
-        },
-        "2007": {
-            "format": "%10s",
-            "name": "sup_npi",
-            "type": "str10"
-        },
-        "2008": {
-            "format": "%10s",
-            "name": "sup_npi",
-            "type": "str10"
-        },
-        "2009": {
-            "format": "%10s",
-            "name": "sup_npi",
-            "type": "str10"
-        },
-        "2010": {
-            "format": "%10s",
-            "name": "sup_npi",
-            "type": "str10"
-        },
-        "2011": {
-            "format": "%10s",
-            "name": "sup_npi",
-            "type": "str10"
-        },
-        "2012": {
-            "format": "%10s",
-            "name": "sup_npi",
-            "type": "str10"
-        },
-        "2013": {
-            "format": "%10s",
-            "name": "sup_npi",
-            "type": "str10"
-        },
-        "desc": "dmerc line item supplier npi number"
-    },
-    "sup_type": {
-        "2002": {
-            "format": "%1s",
-            "name": "sup_type",
-            "type": "str1"
-        },
-        "2003": {
-            "format": "%1s",
-            "name": "sup_type",
-            "type": "str1"
-        },
-        "2004": {
-            "format": "%1s",
-            "name": "sup_type",
-            "type": "str1"
-        },
-        "2005": {
-            "format": "%1s",
-            "name": "sup_type",
-            "type": "str1"
-        },
-        "2006": {
-            "format": "%1s",
-            "name": "sup_type",
-            "type": "str1"
-        },
-        "2007": {
-            "format": "%1s",
-            "name": "sup_type",
-            "type": "str1"
-        },
-        "2008": {
-            "format": "%1s",
-            "name": "sup_type",
-            "type": "str1"
-        },
-        "2009": {
-            "format": "%1s",
-            "name": "sup_type",
-            "type": "str1"
-        },
-        "2010": {
-            "format": "%1s",
-            "name": "sup_type",
-            "type": "str1"
-        },
-        "2011": {
-            "format": "%1s",
-            "name": "sup_type",
-            "type": "str1"
-        },
-        "2012": {
-            "format": "%1s",
-            "name": "sup_type",
-            "type": "str1"
-        },
-        "2013": {
-            "format": "%1s",
-            "name": "sup_type",
-            "type": "str1"
-        },
-        "desc": "dmerc line supplier type code"
-    },
-    "suplrnum": {
-        "2002": {
-            "format": "%10s",
-            "name": "suplrnum",
-            "type": "str10"
-        },
-        "2003": {
-            "format": "%10s",
-            "name": "suplrnum",
-            "type": "str10"
-        },
-        "2004": {
-            "format": "%10s",
-            "name": "suplrnum",
-            "type": "str10"
-        },
-        "2005": {
-            "format": "%10s",
-            "name": "suplrnum",
-            "type": "str10"
-        },
-        "2006": {
-            "format": "%10s",
-            "name": "suplrnum",
-            "type": "str10"
-        },
-        "2007": {
-            "format": "%10s",
-            "name": "suplrnum",
-            "type": "str10"
-        },
-        "2008": {
-            "format": "%10s",
-            "name": "suplrnum",
-            "type": "str10"
-        },
-        "2009": {
-            "format": "%10s",
-            "name": "suplrnum",
-            "type": "str10"
-        },
-        "2010": {
-            "format": "%10s",
-            "name": "suplrnum",
-            "type": "str10"
-        },
-        "2011": {
-            "format": "%10s",
-            "name": "suplrnum",
-            "type": "str10"
-        },
-        "2012": {
-            "format": "%10s",
-            "name": "suplrnum",
-            "type": "str10"
-        },
-        "2013": {
-            "format": "%10s",
-            "name": "suplrnum",
-            "type": "str10"
-        },
-        "desc": "dmerc line supplier provider number"
-    },
     "surname": {
+        "2000": {
+            "format": "%1s",
+            "name": "surname",
+            "type": "str1"
+        },
         "2002": {
             "format": "%1s",
             "name": "surname",
@@ -5655,106 +5705,76 @@
         "desc": "45. claim patient 6 position surname"
     },
     "tax_num": {
-        "2002": {
+        "1999": {
+            "format": "%10s",
+            "name": "bprovid",
+            "type": "str10"
+        },
+        "2000": {
             "format": "%10s",
             "name": "tax_num",
             "type": "str10"
         },
-        "2003": {
+        "2001": {
             "format": "%10s",
             "name": "tax_num",
             "type": "str10"
         },
-        "2004": {
-            "format": "%10s",
-            "name": "tax_num",
-            "type": "str10"
-        },
-        "2005": {
-            "format": "%10s",
-            "name": "tax_num",
-            "type": "str10"
-        },
-        "2006": {
-            "format": "%10s",
-            "name": "tax_num",
-            "type": "str10"
-        },
-        "2007": {
-            "format": "%10s",
-            "name": "tax_num",
-            "type": "str10"
-        },
-        "2008": {
-            "format": "%10s",
-            "name": "tax_num",
-            "type": "str10"
-        },
-        "2009": {
-            "format": "%10s",
-            "name": "tax_num",
-            "type": "str10"
-        },
-        "2010": {
-            "format": "%10s",
-            "name": "tax_num",
-            "type": "str10"
-        },
-        "2011": {
-            "format": "%10s",
-            "name": "tax_num",
-            "type": "str10"
-        },
-        "2012": {
-            "format": "%10s",
-            "name": "tax_num",
-            "type": "str10"
-        },
-        "2013": {
-            "format": "%10s",
-            "name": "tax_num",
-            "type": "str10"
-        },
-        "desc": "line provider tax number"
+        "desc": "line_prvdr_tax_num"
     },
     "thru_dt": {
-        "2002": {
+        "1999": {
             "format": "%tdD_m_Y",
-            "name": "sthrudt",
+            "name": "bthrudt",
             "type": "long"
+        },
+        "2000": {
+            "format": "%tdD_m_Y",
+            "name": "thru_dt",
+            "type": "long"
+        },
+        "2001": {
+            "format": "%tdD_m_Y",
+            "name": "thru_dt",
+            "type": "long"
+        },
+        "2002": {
+            "format": "%8.0g",
+            "name": "sthrudt",
+            "type": "int"
         },
         "2003": {
-            "format": "%tdD_m_Y",
+            "format": "%8.0g",
             "name": "sthrudt",
-            "type": "long"
+            "type": "int"
         },
         "2004": {
-            "format": "%tdD_m_Y",
+            "format": "%8.0g",
             "name": "sthrudt",
-            "type": "long"
+            "type": "int"
         },
         "2005": {
-            "format": "%tdD_m_Y",
+            "format": "%8.0g",
             "name": "sthrudt",
-            "type": "long"
+            "type": "int"
         },
         "2006": {
-            "format": "%dD_m_Y",
+            "format": "%tdD_m_Y",
             "name": "thru_dt",
             "type": "long"
         },
         "2007": {
-            "format": "%dD_m_Y",
+            "format": "%tdD_m_Y",
             "name": "thru_dt",
             "type": "long"
         },
         "2008": {
-            "format": "%dD_m_Y",
+            "format": "%tdD_m_Y",
             "name": "thru_dt",
             "type": "long"
         },
         "2009": {
-            "format": "%d",
+            "format": "%tdD_m_Y",
             "name": "thru_dt",
             "type": "long"
         },
@@ -5781,6 +5801,16 @@
         "desc": "claim through date  (determines year of claim)"
     },
     "trtmt_cd": {
+        "2000": {
+            "format": "%1s",
+            "name": "trtmt_cd",
+            "type": "str1"
+        },
+        "2001": {
+            "format": "%1s",
+            "name": "trtmt_cd",
+            "type": "str1"
+        },
         "2002": {
             "format": "%1s",
             "name": "trtmt_cd",
@@ -5804,169 +5834,71 @@
         "desc": "52. claim excepted/nonexcepted medical treatment code"
     },
     "typsrvcb": {
-        "2002": {
+        "1999": {
+            "format": "%1s",
+            "name": "btos",
+            "type": "str1"
+        },
+        "2000": {
             "format": "%1s",
             "name": "typsrvcb",
             "type": "str1"
         },
-        "2003": {
+        "2001": {
             "format": "%1s",
             "name": "typsrvcb",
             "type": "str1"
         },
-        "2004": {
-            "format": "%1s",
-            "name": "typsrvcb",
-            "type": "str1"
-        },
-        "2005": {
-            "format": "%1s",
-            "name": "typsrvcb",
-            "type": "str1"
-        },
-        "2006": {
-            "format": "%1s",
-            "name": "typsrvcb",
-            "type": "str1"
-        },
-        "2007": {
-            "format": "%1s",
-            "name": "typsrvcb",
-            "type": "str1"
-        },
-        "2008": {
-            "format": "%1s",
-            "name": "typsrvcb",
-            "type": "str1"
-        },
-        "2009": {
-            "format": "%1s",
-            "name": "typsrvcb",
-            "type": "str1"
-        },
-        "2010": {
-            "format": "%1s",
-            "name": "typsrvcb",
-            "type": "str1"
-        },
-        "2011": {
-            "format": "%1s",
-            "name": "typsrvcb",
-            "type": "str1"
-        },
-        "2012": {
-            "format": "%1s",
-            "name": "typsrvcb",
-            "type": "str1"
-        },
-        "2013": {
-            "format": "%1s",
-            "name": "typsrvcb",
-            "type": "str1"
-        },
-        "desc": "line hcfa type service code"
-    },
-    "unit_ind": {
-        "2002": {
-            "format": "%1s",
-            "name": "unit_ind",
-            "type": "str1"
-        },
-        "2003": {
-            "format": "%1s",
-            "name": "unit_ind",
-            "type": "str1"
-        },
-        "2004": {
-            "format": "%1s",
-            "name": "unit_ind",
-            "type": "str1"
-        },
-        "2005": {
-            "format": "%1s",
-            "name": "unit_ind",
-            "type": "str1"
-        },
-        "2006": {
-            "format": "%1s",
-            "name": "unit_ind",
-            "type": "str1"
-        },
-        "2007": {
-            "format": "%1s",
-            "name": "unit_ind",
-            "type": "str1"
-        },
-        "2008": {
-            "format": "%1s",
-            "name": "unit_ind",
-            "type": "str1"
-        },
-        "2009": {
-            "format": "%1s",
-            "name": "unit_ind",
-            "type": "str1"
-        },
-        "2010": {
-            "format": "%1s",
-            "name": "unit_ind",
-            "type": "str1"
-        },
-        "2011": {
-            "format": "%1s",
-            "name": "unit_ind",
-            "type": "str1"
-        },
-        "2012": {
-            "format": "%1s",
-            "name": "unit_ind",
-            "type": "str1"
-        },
-        "2013": {
-            "format": "%1s",
-            "name": "unit_ind",
-            "type": "str1"
-        },
-        "desc": "dmerc line miles/time/ units/services indicator code"
+        "desc": "line_hcfa_type_srvc_cd"
     },
     "wkly_dt": {
-        "2002": {
+        "2000": {
             "format": "%tdD_m_Y",
-            "name": "swklydt",
+            "name": "wkly_dt",
             "type": "long"
+        },
+        "2001": {
+            "format": "%tdD_m_Y",
+            "name": "wkly_dt",
+            "type": "long"
+        },
+        "2002": {
+            "format": "%8.0g",
+            "name": "swklydt",
+            "type": "int"
         },
         "2003": {
-            "format": "%tdD_m_Y",
+            "format": "%8.0g",
             "name": "swklydt",
-            "type": "long"
+            "type": "int"
         },
         "2004": {
-            "format": "%tdD_m_Y",
+            "format": "%8.0g",
             "name": "swklydt",
-            "type": "long"
+            "type": "int"
         },
         "2005": {
-            "format": "%tdD_m_Y",
+            "format": "%8.0g",
             "name": "swklydt",
-            "type": "long"
+            "type": "int"
         },
         "2006": {
-            "format": "%dD_m_Y",
+            "format": "%tdD_m_Y",
             "name": "wkly_dt",
             "type": "long"
         },
         "2007": {
-            "format": "%dD_m_Y",
+            "format": "%tdD_m_Y",
             "name": "wkly_dt",
             "type": "long"
         },
         "2008": {
-            "format": "%dD_m_Y",
+            "format": "%tdD_m_Y",
             "name": "wkly_dt",
             "type": "long"
         },
         "2009": {
-            "format": "%d",
+            "format": "%tdD_m_Y",
             "name": "wkly_dt",
             "type": "long"
         },
@@ -5993,6 +5925,11 @@
         "desc": "nch weekly claim processing date"
     },
     "zip5": {
+        "2000": {
+            "format": "%5s",
+            "name": "zip",
+            "type": "str5"
+        },
         "2002": {
             "format": "%5s",
             "name": "zipcode",

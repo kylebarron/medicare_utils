@@ -1,38 +1,13 @@
 import json
 import pandas as pd
 
-
 def main():
-    for data_type in ['med', 'car', 'ip', 'op', 'dme', 'hha', 'hos', 'snf']:
-        if data_type == 'med':
-            df = pd.read_stata('harmmed.dta')
-        elif data_type == 'car':
-            car = pd.read_stata('harmcar.dta')
-            carc = pd.read_stata('harmcarc.dta')
-            carl = pd.read_stata('harmcarl.dta')
-            df = pd.concat([car, carc, carl])
-        elif data_type == 'ip':
-            ip = pd.read_stata('harmip.dta')
-            ipc = pd.read_stata('harmipc.dta')
-            ipr = pd.read_stata('harmipr.dta')
-            df = pd.concat([ip, ipc, ipr])
-        elif data_type == 'op':
-            op = pd.read_stata('harmop.dta')
-            opc = pd.read_stata('harmopc.dta')
-            opr = pd.read_stata('harmopr.dta')
-            df = pd.concat([op, opc, opr])
-        elif data_type == 'dme':
-            dmec = pd.read_stata('harmdmec.dta')
-            dmel = pd.read_stata('harmdmel.dta')
-            df = pd.concat([dmec, dmel])
-        elif data_type in ['hha', 'hos', 'snf']:
-            df1 = pd.read_stata(f'harm{data_type}c.dta')
-            df2 = pd.read_stata(f'harm{data_type}r.dta')
-            df = pd.concat([df1, df2])
-
+    data_types = ['carc', 'carl', 'dmec', 'dmel', 'hhac', 'hhar', 'hosc',
+        'hosr', 'ipc', 'ipr', 'med', 'opc', 'opr', 'snfc', 'snfr']
+    for data_type in data_types:
+        df = pd.read_stata(f'harm{data_type}.dta')
         df = df.sort_values(['cname', 'year'])
         df = df[df['year'] >= 1999]
-
         df = df[df['cname'] != '']
         xw = {}
 
