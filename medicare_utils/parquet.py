@@ -1,5 +1,4 @@
 #! /usr/bin/env python3
-import os
 import re
 import math
 import json
@@ -11,6 +10,7 @@ import pandas as pd
 from time import time
 from joblib import Parallel, delayed
 from typing import Any, Dict, List, Union
+from pathlib import Path
 from pkg_resources import resource_filename
 from pandas.api.types import CategoricalDtype
 
@@ -234,9 +234,8 @@ def _convert_med(
         rename_dict = None
 
     # Make folder path if it doesn't exist
-    folder = re.search(r'^(.+)/[^/]+$', outfile)[1]
-    if not os.path.exists(folder):
-        os.makedirs(folder, exist_ok=True)
+    folder = Path(outfile).parents[0]
+    folder.mkdir(exist_ok=True, parents=True)
 
     msg = f"""\
     Starting {data_type} conversion
@@ -292,7 +291,7 @@ def convert_file(
 
     # Set row group size. The following makes an even multiple of row groups
     # as close as possible to the given `rg_size`
-    file_size = os.stat(infile).st_size / (1024 ** 3)
+    file_size = Path(infile).stat().st_size / (1024 ** 3)
     n_rg = round(file_size / rg_size)
     if n_rg == 0:
         n_rg += 1
