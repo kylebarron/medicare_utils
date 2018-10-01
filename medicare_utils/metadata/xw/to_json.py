@@ -2,6 +2,8 @@ import json
 import pandas as pd
 
 def main():
+    """Internal code to convert Jean's crosswalks to JSON files
+    """
     data_types = ['carc', 'carl', 'dmec', 'dmel', 'hhac', 'hhar', 'hosc',
         'hosr', 'ipc', 'ipr', 'med', 'opc', 'opr', 'snfc', 'snfr']
     for data_type in data_types:
