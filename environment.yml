@@ -3,7 +3,6 @@ channels:
     - conda-forge
 dependencies:
     - bumpversion==0.5.3
-    - coverage==4.5.1
     - dask>=0.18.0
     - fastparquet>=0.1.5
     - flake8>=3.5.0
@@ -13,8 +12,8 @@ dependencies:
     - mypy
     - numpy>=1.14.5
     - pandas>=0.23.3
-    - pip==9.0.1
-    - pyarrow>=0.9.0
+    - pip
+    - pyarrow>=0.10.0
     - pydocstyle>=2.1.1
     - pytest>=3.6.2
     - python-snappy>=0.5.2
@@ -22,7 +21,6 @@ dependencies:
     - recommonmark>=0.4.0
     - requests>=2.19.1
     - sphinx>=1.7.5
-    - tox==2.9.1
     - tqdm>=4.23.4
     - wheel==0.30.0
     - yapf>=0.22.0
