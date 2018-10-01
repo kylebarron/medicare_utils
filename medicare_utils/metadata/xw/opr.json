@@ -1,0 +1,2660 @@
+{
+    "apchipps": {
+        "2001": {
+            "format": "%5s",
+            "name": "apchipps",
+            "type": "str5"
+        },
+        "2002": {
+            "format": "%5s",
+            "name": "apchipps",
+            "type": "str5"
+        },
+        "2003": {
+            "format": "%5s",
+            "name": "apchipps",
+            "type": "str5"
+        },
+        "2004": {
+            "format": "%5s",
+            "name": "apchipps",
+            "type": "str5"
+        },
+        "2005": {
+            "format": "%5s",
+            "name": "apchipps",
+            "type": "str5"
+        },
+        "2006": {
+            "format": "%5s",
+            "name": "apchipps",
+            "type": "str5"
+        },
+        "2007": {
+            "format": "%5s",
+            "name": "apchipps",
+            "type": "str5"
+        },
+        "2008": {
+            "format": "%5s",
+            "name": "apchipps",
+            "type": "str5"
+        },
+        "2009": {
+            "format": "%5s",
+            "name": "apchipps",
+            "type": "str5"
+        },
+        "2010": {
+            "format": "%5s",
+            "name": "apchipps",
+            "type": "str5"
+        },
+        "2011": {
+            "format": "%5s",
+            "name": "apchipps",
+            "type": "str5"
+        },
+        "2012": {
+            "format": "%5s",
+            "name": "apchipps",
+            "type": "str5"
+        },
+        "2013": {
+            "format": "%5s",
+            "name": "apchipps",
+            "type": "str5"
+        },
+        "desc": "revenue center apc/hipps"
+    },
+    "bene_id": {
+        "2006": {
+            "format": "%15s",
+            "name": "bene_id",
+            "type": "str15"
+        },
+        "2007": {
+            "format": "%15s",
+            "name": "bene_id",
+            "type": "str15"
+        },
+        "2008": {
+            "format": "%15s",
+            "name": "bene_id",
+            "type": "str15"
+        },
+        "2009": {
+            "format": "%15s",
+            "name": "bene_id",
+            "type": "str15"
+        },
+        "2010": {
+            "format": "%15s",
+            "name": "bene_id",
+            "type": "str15"
+        },
+        "2011": {
+            "format": "%15s",
+            "name": "bene_id",
+            "type": "str15"
+        },
+        "2012": {
+            "format": "%15s",
+            "name": "bene_id",
+            "type": "str15"
+        },
+        "2013": {
+            "format": "%15s",
+            "name": "bene_id",
+            "type": "str15"
+        },
+        "desc": "encrypted 723 beneficiary id"
+    },
+    "claimindex": {
+        "2001": {
+            "format": "%12.0g",
+            "name": "claimindex",
+            "type": "long"
+        },
+        "2002": {
+            "format": "%12.0g",
+            "name": "claimindex",
+            "type": "long"
+        },
+        "2003": {
+            "format": "%12.0g",
+            "name": "claimindex",
+            "type": "long"
+        },
+        "2004": {
+            "format": "%12.0g",
+            "name": "claimindex",
+            "type": "long"
+        },
+        "2005": {
+            "format": "%12.0g",
+            "name": "claimindex",
+            "type": "long"
+        },
+        "desc": "claimindex"
+    },
+    "clm_id": {
+        "2006": {
+            "format": "%15s",
+            "name": "clm_id",
+            "type": "str15"
+        },
+        "2007": {
+            "format": "%15s",
+            "name": "clm_id",
+            "type": "str15"
+        },
+        "2008": {
+            "format": "%15s",
+            "name": "clm_id",
+            "type": "str15"
+        },
+        "2009": {
+            "format": "%15s",
+            "name": "clm_id",
+            "type": "str15"
+        },
+        "2010": {
+            "format": "%15s",
+            "name": "clm_id",
+            "type": "str15"
+        },
+        "2011": {
+            "format": "%15s",
+            "name": "clm_id",
+            "type": "str15"
+        },
+        "2012": {
+            "format": "%15s",
+            "name": "clm_id",
+            "type": "str15"
+        },
+        "2013": {
+            "format": "%15s",
+            "name": "clm_id",
+            "type": "str15"
+        },
+        "desc": "encrypted claim id"
+    },
+    "clm_ln": {
+        "2001": {
+            "format": "%8.0g",
+            "name": "cntrindex",
+            "type": "byte"
+        },
+        "2002": {
+            "format": "%8.0g",
+            "name": "cntrindex",
+            "type": "byte"
+        },
+        "2003": {
+            "format": "%8.0g",
+            "name": "cntrindex",
+            "type": "byte"
+        },
+        "2004": {
+            "format": "%8.0g",
+            "name": "cntrindex",
+            "type": "byte"
+        },
+        "2005": {
+            "format": "%8.0g",
+            "name": "cntrindex",
+            "type": "byte"
+        },
+        "2006": {
+            "format": "%8.0g",
+            "name": "clm_ln",
+            "type": "int"
+        },
+        "2007": {
+            "format": "%8.0g",
+            "name": "clm_ln",
+            "type": "int"
+        },
+        "2008": {
+            "format": "%8.0g",
+            "name": "clm_ln",
+            "type": "int"
+        },
+        "2009": {
+            "format": "%8.0g",
+            "name": "clm_ln",
+            "type": "int"
+        },
+        "2010": {
+            "format": "%8.0g",
+            "name": "clm_ln",
+            "type": "int"
+        },
+        "2011": {
+            "format": "%8.0g",
+            "name": "clm_ln",
+            "type": "int"
+        },
+        "2012": {
+            "format": "%8.0g",
+            "name": "clm_ln",
+            "type": "int"
+        },
+        "2013": {
+            "format": "%8.0g",
+            "name": "clm_ln",
+            "type": "int"
+        },
+        "desc": "claim line number"
+    },
+    "clm_type": {
+        "2006": {
+            "format": "%2s",
+            "name": "clm_type",
+            "type": "str2"
+        },
+        "2007": {
+            "format": "%2s",
+            "name": "clm_type",
+            "type": "str2"
+        },
+        "2008": {
+            "format": "%2s",
+            "name": "clm_type",
+            "type": "str2"
+        },
+        "2009": {
+            "format": "%2s",
+            "name": "clm_type",
+            "type": "str2"
+        },
+        "2010": {
+            "format": "%2s",
+            "name": "clm_type",
+            "type": "str2"
+        },
+        "2011": {
+            "format": "%2s",
+            "name": "clm_type",
+            "type": "str2"
+        },
+        "2012": {
+            "format": "%2s",
+            "name": "clm_type",
+            "type": "str2"
+        },
+        "2013": {
+            "format": "%2s",
+            "name": "clm_type",
+            "type": "str2"
+        },
+        "desc": "nch claim type code"
+    },
+    "dscntind": {
+        "2001": {
+            "format": "%1s",
+            "name": "dscntind",
+            "type": "str1"
+        },
+        "2002": {
+            "format": "%1s",
+            "name": "dscntind",
+            "type": "str1"
+        },
+        "2003": {
+            "format": "%1s",
+            "name": "dscntind",
+            "type": "str1"
+        },
+        "2004": {
+            "format": "%1s",
+            "name": "dscntind",
+            "type": "str1"
+        },
+        "2005": {
+            "format": "%1s",
+            "name": "dscntind",
+            "type": "str1"
+        },
+        "2006": {
+            "format": "%1s",
+            "name": "dscntind",
+            "type": "str1"
+        },
+        "2007": {
+            "format": "%1s",
+            "name": "dscntind",
+            "type": "str1"
+        },
+        "2008": {
+            "format": "%1s",
+            "name": "dscntind",
+            "type": "str1"
+        },
+        "2009": {
+            "format": "%1s",
+            "name": "dscntind",
+            "type": "str1"
+        },
+        "2010": {
+            "format": "%1s",
+            "name": "dscntind",
+            "type": "str1"
+        },
+        "2011": {
+            "format": "%1s",
+            "name": "dscntind",
+            "type": "str1"
+        },
+        "2012": {
+            "format": "%1s",
+            "name": "dscntind",
+            "type": "str1"
+        },
+        "2013": {
+            "format": "%1s",
+            "name": "dscntind",
+            "type": "str1"
+        },
+        "desc": "revenue center discount indicator code"
+    },
+    "ehic": {
+        "2001": {
+            "format": "%11s",
+            "name": "ehic",
+            "type": "str11"
+        },
+        "2002": {
+            "format": "%11s",
+            "name": "ehic",
+            "type": "str11"
+        },
+        "2003": {
+            "format": "%11s",
+            "name": "ehic",
+            "type": "str11"
+        },
+        "2004": {
+            "format": "%11s",
+            "name": "ehic",
+            "type": "str11"
+        },
+        "2005": {
+            "format": "%11s",
+            "name": "ehic",
+            "type": "str11"
+        },
+        "desc": ""
+    },
+    "hcpcs_cd": {
+        "2001": {
+            "format": "%5s",
+            "name": "hcpcs_cd",
+            "type": "str5"
+        },
+        "2002": {
+            "format": "%5s",
+            "name": "hcpcs_cd",
+            "type": "str5"
+        },
+        "2003": {
+            "format": "%5s",
+            "name": "hcpcs_cd",
+            "type": "str5"
+        },
+        "2004": {
+            "format": "%5s",
+            "name": "hcpcs_cd",
+            "type": "str5"
+        },
+        "2005": {
+            "format": "%5s",
+            "name": "hcpcs_cd",
+            "type": "str5"
+        },
+        "2006": {
+            "format": "%5s",
+            "name": "hcpcs_cd",
+            "type": "str5"
+        },
+        "2007": {
+            "format": "%5s",
+            "name": "hcpcs_cd",
+            "type": "str5"
+        },
+        "2008": {
+            "format": "%5s",
+            "name": "hcpcs_cd",
+            "type": "str5"
+        },
+        "2009": {
+            "format": "%5s",
+            "name": "hcpcs_cd",
+            "type": "str5"
+        },
+        "2010": {
+            "format": "%5s",
+            "name": "hcpcs_cd",
+            "type": "str5"
+        },
+        "2011": {
+            "format": "%5s",
+            "name": "hcpcs_cd",
+            "type": "str5"
+        },
+        "2012": {
+            "format": "%5s",
+            "name": "hcpcs_cd",
+            "type": "str5"
+        },
+        "2013": {
+            "format": "%5s",
+            "name": "hcpcs_cd",
+            "type": "str5"
+        },
+        "desc": "revenue center healthcare common procedure coding system"
+    },
+    "idendc": {
+        "2001": {
+            "format": "%1s",
+            "name": "idendc",
+            "type": "str1"
+        },
+        "2002": {
+            "format": "%1s",
+            "name": "idendc",
+            "type": "str1"
+        },
+        "2003": {
+            "format": "%1s",
+            "name": "idendc",
+            "type": "str1"
+        },
+        "2004": {
+            "format": "%1s",
+            "name": "idendc",
+            "type": "str1"
+        },
+        "2005": {
+            "format": "%1s",
+            "name": "idendc",
+            "type": "str1"
+        },
+        "2006": {
+            "format": "%1s",
+            "name": "idendc",
+            "type": "str1"
+        },
+        "2007": {
+            "format": "%1s",
+            "name": "idendc",
+            "type": "str1"
+        },
+        "2008": {
+            "format": "%1s",
+            "name": "idendc",
+            "type": "str1"
+        },
+        "2009": {
+            "format": "%1s",
+            "name": "idendc",
+            "type": "str1"
+        },
+        "2010": {
+            "format": "%11s",
+            "name": "idendc",
+            "type": "str11"
+        },
+        "2011": {
+            "format": "%11s",
+            "name": "idendc",
+            "type": "str11"
+        },
+        "2012": {
+            "format": "%11s",
+            "name": "idendc",
+            "type": "str11"
+        },
+        "2013": {
+            "format": "%11s",
+            "name": "idendc",
+            "type": "str11"
+        },
+        "desc": "revenue center ide, ndc, upc number"
+    },
+    "link_num": {
+        "2001": {
+            "format": "%12.0g",
+            "name": "link_num",
+            "type": "long"
+        },
+        "2002": {
+            "format": "%12.0g",
+            "name": "link_num",
+            "type": "long"
+        },
+        "2003": {
+            "format": "%12.0g",
+            "name": "link_num",
+            "type": "long"
+        },
+        "2004": {
+            "format": "%12.0g",
+            "name": "link_num",
+            "type": "long"
+        },
+        "2005": {
+            "format": "%12.0g",
+            "name": "link_num",
+            "type": "long"
+        },
+        "desc": "24. nch segment link number"
+    },
+    "mdfr_cd1": {
+        "2001": {
+            "format": "%2s",
+            "name": "mdfr_cd1",
+            "type": "str2"
+        },
+        "2002": {
+            "format": "%2s",
+            "name": "mdfr_cd1",
+            "type": "str2"
+        },
+        "2003": {
+            "format": "%2s",
+            "name": "mdfr_cd1",
+            "type": "str2"
+        },
+        "2004": {
+            "format": "%2s",
+            "name": "mdfr_cd1",
+            "type": "str2"
+        },
+        "2005": {
+            "format": "%2s",
+            "name": "mdfr_cd1",
+            "type": "str2"
+        },
+        "2006": {
+            "format": "%2s",
+            "name": "mdfr_cd1",
+            "type": "str2"
+        },
+        "2007": {
+            "format": "%2s",
+            "name": "mdfr_cd1",
+            "type": "str2"
+        },
+        "2008": {
+            "format": "%2s",
+            "name": "mdfr_cd1",
+            "type": "str2"
+        },
+        "2009": {
+            "format": "%2s",
+            "name": "mdfr_cd1",
+            "type": "str2"
+        },
+        "2010": {
+            "format": "%2s",
+            "name": "mdfr_cd1",
+            "type": "str2"
+        },
+        "2011": {
+            "format": "%2s",
+            "name": "mdfr_cd1",
+            "type": "str2"
+        },
+        "2012": {
+            "format": "%2s",
+            "name": "mdfr_cd1",
+            "type": "str2"
+        },
+        "2013": {
+            "format": "%2s",
+            "name": "mdfr_cd1",
+            "type": "str2"
+        },
+        "desc": "revenue center hcpcs initial modifier code"
+    },
+    "mdfr_cd2": {
+        "2001": {
+            "format": "%2s",
+            "name": "mdfr_cd2",
+            "type": "str2"
+        },
+        "2002": {
+            "format": "%2s",
+            "name": "mdfr_cd2",
+            "type": "str2"
+        },
+        "2003": {
+            "format": "%2s",
+            "name": "mdfr_cd2",
+            "type": "str2"
+        },
+        "2004": {
+            "format": "%2s",
+            "name": "mdfr_cd2",
+            "type": "str2"
+        },
+        "2005": {
+            "format": "%2s",
+            "name": "mdfr_cd2",
+            "type": "str2"
+        },
+        "2006": {
+            "format": "%2s",
+            "name": "mdfr_cd2",
+            "type": "str2"
+        },
+        "2007": {
+            "format": "%2s",
+            "name": "mdfr_cd2",
+            "type": "str2"
+        },
+        "2008": {
+            "format": "%2s",
+            "name": "mdfr_cd2",
+            "type": "str2"
+        },
+        "2009": {
+            "format": "%2s",
+            "name": "mdfr_cd2",
+            "type": "str2"
+        },
+        "2010": {
+            "format": "%2s",
+            "name": "mdfr_cd2",
+            "type": "str2"
+        },
+        "2011": {
+            "format": "%2s",
+            "name": "mdfr_cd2",
+            "type": "str2"
+        },
+        "2012": {
+            "format": "%2s",
+            "name": "mdfr_cd2",
+            "type": "str2"
+        },
+        "2013": {
+            "format": "%2s",
+            "name": "mdfr_cd2",
+            "type": "str2"
+        },
+        "desc": "revenue center hcpcs second modifier code"
+    },
+    "mdfr_cd3": {
+        "2001": {
+            "format": "%1s",
+            "name": "mdfr_cd3",
+            "type": "str1"
+        },
+        "2002": {
+            "format": "%1s",
+            "name": "mdfr_cd3",
+            "type": "str1"
+        },
+        "2003": {
+            "format": "%1s",
+            "name": "mdfr_cd3",
+            "type": "str1"
+        },
+        "2004": {
+            "format": "%1s",
+            "name": "mdfr_cd3",
+            "type": "str1"
+        },
+        "2005": {
+            "format": "%1s",
+            "name": "mdfr_cd3",
+            "type": "str1"
+        },
+        "desc": "172. revenue center hcpcs third modifier code"
+    },
+    "mdfr_cd4": {
+        "2001": {
+            "format": "%1s",
+            "name": "mdfr_cd4",
+            "type": "str1"
+        },
+        "2002": {
+            "format": "%1s",
+            "name": "mdfr_cd4",
+            "type": "str1"
+        },
+        "2003": {
+            "format": "%1s",
+            "name": "mdfr_cd4",
+            "type": "str1"
+        },
+        "2004": {
+            "format": "%1s",
+            "name": "mdfr_cd4",
+            "type": "str1"
+        },
+        "2005": {
+            "format": "%1s",
+            "name": "mdfr_cd4",
+            "type": "str1"
+        },
+        "desc": "173. revenue center hcpcs fourth modifier code"
+    },
+    "mdfr_cd5": {
+        "2001": {
+            "format": "%1s",
+            "name": "mdfr_cd5",
+            "type": "str1"
+        },
+        "2002": {
+            "format": "%1s",
+            "name": "mdfr_cd5",
+            "type": "str1"
+        },
+        "2003": {
+            "format": "%1s",
+            "name": "mdfr_cd5",
+            "type": "str1"
+        },
+        "2004": {
+            "format": "%1s",
+            "name": "mdfr_cd5",
+            "type": "str1"
+        },
+        "2005": {
+            "format": "%1s",
+            "name": "mdfr_cd5",
+            "type": "str1"
+        },
+        "desc": "174. revenue center hcpcs fifth modifier code"
+    },
+    "otaf_1": {
+        "2001": {
+            "format": "%1s",
+            "name": "otaf_1",
+            "type": "str1"
+        },
+        "2002": {
+            "format": "%1s",
+            "name": "otaf_1",
+            "type": "str1"
+        },
+        "2003": {
+            "format": "%1s",
+            "name": "otaf_1",
+            "type": "str1"
+        },
+        "2004": {
+            "format": "%1s",
+            "name": "otaf_1",
+            "type": "str1"
+        },
+        "2005": {
+            "format": "%1s",
+            "name": "otaf_1",
+            "type": "str1"
+        },
+        "2006": {
+            "format": "%1s",
+            "name": "otaf_1",
+            "type": "str1"
+        },
+        "2007": {
+            "format": "%1s",
+            "name": "otaf_1",
+            "type": "str1"
+        },
+        "2008": {
+            "format": "%1s",
+            "name": "otaf_1",
+            "type": "str1"
+        },
+        "2009": {
+            "format": "%1s",
+            "name": "otaf_1",
+            "type": "str1"
+        },
+        "2010": {
+            "format": "%1s",
+            "name": "otaf_1",
+            "type": "str1"
+        },
+        "2011": {
+            "format": "%1s",
+            "name": "otaf_1",
+            "type": "str1"
+        },
+        "2012": {
+            "format": "%1s",
+            "name": "otaf_1",
+            "type": "str1"
+        },
+        "2013": {
+            "format": "%1s",
+            "name": "otaf_1",
+            "type": "str1"
+        },
+        "desc": "revenue center obligation to accept as full (otaf) payment code"
+    },
+    "otaf_2": {
+        "2001": {
+            "format": "%1s",
+            "name": "otaf_2",
+            "type": "str1"
+        },
+        "2002": {
+            "format": "%1s",
+            "name": "otaf_2",
+            "type": "str1"
+        },
+        "2003": {
+            "format": "%1s",
+            "name": "otaf_2",
+            "type": "str1"
+        },
+        "2004": {
+            "format": "%1s",
+            "name": "otaf_2",
+            "type": "str1"
+        },
+        "2005": {
+            "format": "%1s",
+            "name": "otaf_2",
+            "type": "str1"
+        },
+        "desc": "180. revenue center obligation to accept as full (otaf)"
+    },
+    "packgind": {
+        "2001": {
+            "format": "%1s",
+            "name": "packgind",
+            "type": "str1"
+        },
+        "2002": {
+            "format": "%1s",
+            "name": "packgind",
+            "type": "str1"
+        },
+        "2003": {
+            "format": "%1s",
+            "name": "packgind",
+            "type": "str1"
+        },
+        "2004": {
+            "format": "%1s",
+            "name": "packgind",
+            "type": "str1"
+        },
+        "2005": {
+            "format": "%1s",
+            "name": "packgind",
+            "type": "str1"
+        },
+        "2006": {
+            "format": "%1s",
+            "name": "packgind",
+            "type": "str1"
+        },
+        "2007": {
+            "format": "%1s",
+            "name": "packgind",
+            "type": "str1"
+        },
+        "2008": {
+            "format": "%1s",
+            "name": "packgind",
+            "type": "str1"
+        },
+        "2009": {
+            "format": "%1s",
+            "name": "packgind",
+            "type": "str1"
+        },
+        "2010": {
+            "format": "%1s",
+            "name": "packgind",
+            "type": "str1"
+        },
+        "2011": {
+            "format": "%1s",
+            "name": "packgind",
+            "type": "str1"
+        },
+        "2012": {
+            "format": "%1s",
+            "name": "packgind",
+            "type": "str1"
+        },
+        "2013": {
+            "format": "%1s",
+            "name": "packgind",
+            "type": "str1"
+        },
+        "desc": "revenue center packaging indicator code"
+    },
+    "pmtmthd": {
+        "2001": {
+            "format": "%2s",
+            "name": "pmtmthd",
+            "type": "str2"
+        },
+        "2002": {
+            "format": "%2s",
+            "name": "pmtmthd",
+            "type": "str2"
+        },
+        "2003": {
+            "format": "%2s",
+            "name": "pmtmthd",
+            "type": "str2"
+        },
+        "2004": {
+            "format": "%2s",
+            "name": "pmtmthd",
+            "type": "str2"
+        },
+        "2005": {
+            "format": "%2s",
+            "name": "pmtmthd",
+            "type": "str2"
+        },
+        "2006": {
+            "format": "%1s",
+            "name": "pmtmthd",
+            "type": "str1"
+        },
+        "2007": {
+            "format": "%1s",
+            "name": "pmtmthd",
+            "type": "str1"
+        },
+        "2008": {
+            "format": "%1s",
+            "name": "pmtmthd",
+            "type": "str1"
+        },
+        "2009": {
+            "format": "%1s",
+            "name": "pmtmthd",
+            "type": "str1"
+        },
+        "2010": {
+            "format": "%1s",
+            "name": "pmtmthd",
+            "type": "str1"
+        },
+        "2011": {
+            "format": "%1s",
+            "name": "pmtmthd",
+            "type": "str1"
+        },
+        "2012": {
+            "format": "%1s",
+            "name": "pmtmthd",
+            "type": "str1"
+        },
+        "2013": {
+            "format": "%1s",
+            "name": "pmtmthd",
+            "type": "str1"
+        },
+        "desc": "revenue center payment method indicator code"
+    },
+    "pricng": {
+        "2001": {
+            "format": "%1s",
+            "name": "pricng",
+            "type": "str1"
+        },
+        "2002": {
+            "format": "%2s",
+            "name": "pricng",
+            "type": "str2"
+        },
+        "2003": {
+            "format": "%2s",
+            "name": "pricng",
+            "type": "str2"
+        },
+        "2004": {
+            "format": "%2s",
+            "name": "pricng",
+            "type": "str2"
+        },
+        "2005": {
+            "format": "%1s",
+            "name": "pricng",
+            "type": "str1"
+        },
+        "desc": "178. revenue center pricing indicator code"
+    },
+    "ptntresp": {
+        "2001": {
+            "format": "%10.0g",
+            "name": "ptntresp",
+            "type": "double"
+        },
+        "2002": {
+            "format": "%10.0g",
+            "name": "ptntresp",
+            "type": "double"
+        },
+        "2003": {
+            "format": "%10.0g",
+            "name": "ptntresp",
+            "type": "double"
+        },
+        "2004": {
+            "format": "%10.0g",
+            "name": "ptntresp",
+            "type": "double"
+        },
+        "2005": {
+            "format": "%10.0g",
+            "name": "ptntresp",
+            "type": "double"
+        },
+        "2006": {
+            "format": "%9.0g",
+            "name": "ptntresp",
+            "type": "float"
+        },
+        "2007": {
+            "format": "%9.0g",
+            "name": "ptntresp",
+            "type": "float"
+        },
+        "2008": {
+            "format": "%9.0g",
+            "name": "ptntresp",
+            "type": "float"
+        },
+        "2009": {
+            "format": "%9.0g",
+            "name": "ptntresp",
+            "type": "float"
+        },
+        "2010": {
+            "format": "%10.0g",
+            "name": "ptntresp",
+            "type": "double"
+        },
+        "2011": {
+            "format": "%12.0g",
+            "name": "ptntresp",
+            "type": "double"
+        },
+        "2012": {
+            "format": "%12.0g",
+            "name": "ptntresp",
+            "type": "double"
+        },
+        "2013": {
+            "format": "%12.0g",
+            "name": "ptntresp",
+            "type": "double"
+        },
+        "desc": "revenue center patient responsibility payment"
+    },
+    "rbenepmt": {
+        "2001": {
+            "format": "%8.0g",
+            "name": "rbenepmt",
+            "type": "byte"
+        },
+        "2002": {
+            "format": "%8.0g",
+            "name": "rbenepmt",
+            "type": "byte"
+        },
+        "2003": {
+            "format": "%8.0g",
+            "name": "rbenepmt",
+            "type": "byte"
+        },
+        "2004": {
+            "format": "%8.0g",
+            "name": "rbenepmt",
+            "type": "byte"
+        },
+        "2005": {
+            "format": "%8.0g",
+            "name": "rbenepmt",
+            "type": "byte"
+        },
+        "2006": {
+            "format": "%9.0g",
+            "name": "rbenepmt",
+            "type": "float"
+        },
+        "2007": {
+            "format": "%8.0g",
+            "name": "rbenepmt",
+            "type": "byte"
+        },
+        "2008": {
+            "format": "%9.0g",
+            "name": "rbenepmt",
+            "type": "float"
+        },
+        "2009": {
+            "format": "%8.0g",
+            "name": "rbenepmt",
+            "type": "byte"
+        },
+        "2010": {
+            "format": "%10.0g",
+            "name": "rbenepmt",
+            "type": "double"
+        },
+        "2011": {
+            "format": "%12.0g",
+            "name": "rbenepmt",
+            "type": "double"
+        },
+        "2012": {
+            "format": "%8.0g",
+            "name": "rbenepmt",
+            "type": "byte"
+        },
+        "2013": {
+            "format": "%8.0g",
+            "name": "rbenepmt",
+            "type": "byte"
+        },
+        "desc": "revenue center beneficiary payment amount"
+    },
+    "rdcdcoin": {
+        "2001": {
+            "format": "%8.0g",
+            "name": "rdcdcoin",
+            "type": "byte"
+        },
+        "2002": {
+            "format": "%8.0g",
+            "name": "rdcdcoin",
+            "type": "byte"
+        },
+        "2003": {
+            "format": "%8.0g",
+            "name": "rdcdcoin",
+            "type": "byte"
+        },
+        "2004": {
+            "format": "%8.0g",
+            "name": "rdcdcoin",
+            "type": "byte"
+        },
+        "2005": {
+            "format": "%8.0g",
+            "name": "rdcdcoin",
+            "type": "byte"
+        },
+        "2006": {
+            "format": "%8.0g",
+            "name": "rdcdcoin",
+            "type": "byte"
+        },
+        "2007": {
+            "format": "%8.0g",
+            "name": "rdcdcoin",
+            "type": "byte"
+        },
+        "2008": {
+            "format": "%8.0g",
+            "name": "rdcdcoin",
+            "type": "byte"
+        },
+        "2009": {
+            "format": "%8.0g",
+            "name": "rdcdcoin",
+            "type": "byte"
+        },
+        "2010": {
+            "format": "%8.0g",
+            "name": "rdcdcoin",
+            "type": "byte"
+        },
+        "2011": {
+            "format": "%8.0g",
+            "name": "rdcdcoin",
+            "type": "byte"
+        },
+        "2012": {
+            "format": "%8.0g",
+            "name": "rdcdcoin",
+            "type": "byte"
+        },
+        "2013": {
+            "format": "%8.0g",
+            "name": "rdcdcoin",
+            "type": "byte"
+        },
+        "desc": "revenue center reduced coinsurance amount"
+    },
+    "rev_chrg": {
+        "2001": {
+            "format": "%10.0g",
+            "name": "rev_chrg",
+            "type": "double"
+        },
+        "2002": {
+            "format": "%10.0g",
+            "name": "rev_chrg",
+            "type": "double"
+        },
+        "2003": {
+            "format": "%10.0g",
+            "name": "rev_chrg",
+            "type": "double"
+        },
+        "2004": {
+            "format": "%10.0g",
+            "name": "rev_chrg",
+            "type": "double"
+        },
+        "2005": {
+            "format": "%10.0g",
+            "name": "rev_chrg",
+            "type": "double"
+        },
+        "2006": {
+            "format": "%10.0g",
+            "name": "rev_chrg",
+            "type": "double"
+        },
+        "2007": {
+            "format": "%9.0g",
+            "name": "rev_chrg",
+            "type": "float"
+        },
+        "2008": {
+            "format": "%10.0g",
+            "name": "rev_chrg",
+            "type": "double"
+        },
+        "2009": {
+            "format": "%10.0g",
+            "name": "rev_chrg",
+            "type": "double"
+        },
+        "2010": {
+            "format": "%10.0g",
+            "name": "rev_chrg",
+            "type": "double"
+        },
+        "2011": {
+            "format": "%12.0g",
+            "name": "rev_chrg",
+            "type": "double"
+        },
+        "2012": {
+            "format": "%12.0g",
+            "name": "rev_chrg",
+            "type": "double"
+        },
+        "2013": {
+            "format": "%12.0g",
+            "name": "rev_chrg",
+            "type": "double"
+        },
+        "desc": "revenue center total charge amount"
+    },
+    "rev_cntr": {
+        "2001": {
+            "format": "%4s",
+            "name": "rev_cntr",
+            "type": "str4"
+        },
+        "2002": {
+            "format": "%4s",
+            "name": "rev_cntr",
+            "type": "str4"
+        },
+        "2003": {
+            "format": "%4s",
+            "name": "rev_cntr",
+            "type": "str4"
+        },
+        "2004": {
+            "format": "%4s",
+            "name": "rev_cntr",
+            "type": "str4"
+        },
+        "2005": {
+            "format": "%4s",
+            "name": "rev_cntr",
+            "type": "str4"
+        },
+        "2006": {
+            "format": "%4s",
+            "name": "rev_cntr",
+            "type": "str4"
+        },
+        "2007": {
+            "format": "%4s",
+            "name": "rev_cntr",
+            "type": "str4"
+        },
+        "2008": {
+            "format": "%4s",
+            "name": "rev_cntr",
+            "type": "str4"
+        },
+        "2009": {
+            "format": "%4s",
+            "name": "rev_cntr",
+            "type": "str4"
+        },
+        "2010": {
+            "format": "%4s",
+            "name": "rev_cntr",
+            "type": "str4"
+        },
+        "2011": {
+            "format": "%4s",
+            "name": "rev_cntr",
+            "type": "str4"
+        },
+        "2012": {
+            "format": "%4s",
+            "name": "rev_cntr",
+            "type": "str4"
+        },
+        "2013": {
+            "format": "%4s",
+            "name": "rev_cntr",
+            "type": "str4"
+        },
+        "desc": "revenue center code"
+    },
+    "rev_cntr_ndc_qty": {
+        "2010": {
+            "format": "%10.0g",
+            "name": "rev_cntr_ndc_qty",
+            "type": "double"
+        },
+        "2011": {
+            "format": "%12.0g",
+            "name": "rev_cntr_ndc_qty",
+            "type": "double"
+        },
+        "2012": {
+            "format": "%12.0g",
+            "name": "rev_cntr_ndc_qty",
+            "type": "double"
+        },
+        "2013": {
+            "format": "%12.0g",
+            "name": "rev_cntr_ndc_qty",
+            "type": "double"
+        },
+        "desc": "revenue center ndc quantity"
+    },
+    "rev_cntr_ndc_qty_qlfr_cd": {
+        "2010": {
+            "format": "%2s",
+            "name": "rev_cntr_ndc_qty_qlfr_cd",
+            "type": "str2"
+        },
+        "2011": {
+            "format": "%2s",
+            "name": "rev_cntr_ndc_qty_qlfr_cd",
+            "type": "str2"
+        },
+        "2012": {
+            "format": "%2s",
+            "name": "rev_cntr_ndc_qty_qlfr_cd",
+            "type": "str2"
+        },
+        "2013": {
+            "format": "%2s",
+            "name": "rev_cntr_ndc_qty_qlfr_cd",
+            "type": "str2"
+        },
+        "desc": "revenue center ndc quantity qualifier code"
+    },
+    "rev_dt": {
+        "2001": {
+            "format": "%8.0g",
+            "name": "srev_dt",
+            "type": "int"
+        },
+        "2002": {
+            "format": "%8.0g",
+            "name": "srev_dt",
+            "type": "int"
+        },
+        "2003": {
+            "format": "%8.0g",
+            "name": "srev_dt",
+            "type": "int"
+        },
+        "2004": {
+            "format": "%8.0g",
+            "name": "srev_dt",
+            "type": "int"
+        },
+        "2005": {
+            "format": "%8.0g",
+            "name": "srev_dt",
+            "type": "int"
+        },
+        "2006": {
+            "format": "%dD_m_Y",
+            "name": "rev_dt",
+            "type": "long"
+        },
+        "2007": {
+            "format": "%dD_m_Y",
+            "name": "rev_dt",
+            "type": "long"
+        },
+        "2008": {
+            "format": "%dD_m_Y",
+            "name": "rev_dt",
+            "type": "long"
+        },
+        "2009": {
+            "format": "%dD_m_Y",
+            "name": "rev_dt",
+            "type": "long"
+        },
+        "2010": {
+            "format": "%tdD_m_Y",
+            "name": "rev_dt",
+            "type": "long"
+        },
+        "2011": {
+            "format": "%tdD_m_Y",
+            "name": "rev_dt",
+            "type": "long"
+        },
+        "2012": {
+            "format": "%tdD_m_Y",
+            "name": "rev_dt",
+            "type": "long"
+        },
+        "2013": {
+            "format": "%tdD_m_Y",
+            "name": "rev_dt",
+            "type": "long"
+        },
+        "desc": "revenue center date"
+    },
+    "rev_msp1": {
+        "2001": {
+            "format": "%10.0g",
+            "name": "rev_msp1",
+            "type": "double"
+        },
+        "2002": {
+            "format": "%8.0g",
+            "name": "rev_msp1",
+            "type": "byte"
+        },
+        "2003": {
+            "format": "%8.0g",
+            "name": "rev_msp1",
+            "type": "byte"
+        },
+        "2004": {
+            "format": "%8.0g",
+            "name": "rev_msp1",
+            "type": "byte"
+        },
+        "2005": {
+            "format": "%10.0g",
+            "name": "rev_msp1",
+            "type": "double"
+        },
+        "2006": {
+            "format": "%9.0g",
+            "name": "rev_msp1",
+            "type": "float"
+        },
+        "2007": {
+            "format": "%9.0g",
+            "name": "rev_msp1",
+            "type": "float"
+        },
+        "2008": {
+            "format": "%9.0g",
+            "name": "rev_msp1",
+            "type": "float"
+        },
+        "2009": {
+            "format": "%9.0g",
+            "name": "rev_msp1",
+            "type": "float"
+        },
+        "2010": {
+            "format": "%10.0g",
+            "name": "rev_msp1",
+            "type": "double"
+        },
+        "2011": {
+            "format": "%12.0g",
+            "name": "rev_msp1",
+            "type": "double"
+        },
+        "2012": {
+            "format": "%12.0g",
+            "name": "rev_msp1",
+            "type": "double"
+        },
+        "2013": {
+            "format": "%12.0g",
+            "name": "rev_msp1",
+            "type": "double"
+        },
+        "desc": "revenue center 1st medicare secondary payer paid amount"
+    },
+    "rev_msp2": {
+        "2001": {
+            "format": "%8.0g",
+            "name": "rev_msp2",
+            "type": "byte"
+        },
+        "2002": {
+            "format": "%8.0g",
+            "name": "rev_msp2",
+            "type": "byte"
+        },
+        "2003": {
+            "format": "%8.0g",
+            "name": "rev_msp2",
+            "type": "byte"
+        },
+        "2004": {
+            "format": "%8.0g",
+            "name": "rev_msp2",
+            "type": "byte"
+        },
+        "2005": {
+            "format": "%8.0g",
+            "name": "rev_msp2",
+            "type": "byte"
+        },
+        "2006": {
+            "format": "%8.0g",
+            "name": "rev_msp2",
+            "type": "byte"
+        },
+        "2007": {
+            "format": "%8.0g",
+            "name": "rev_msp2",
+            "type": "byte"
+        },
+        "2008": {
+            "format": "%8.0g",
+            "name": "rev_msp2",
+            "type": "byte"
+        },
+        "2009": {
+            "format": "%8.0g",
+            "name": "rev_msp2",
+            "type": "byte"
+        },
+        "2010": {
+            "format": "%8.0g",
+            "name": "rev_msp2",
+            "type": "byte"
+        },
+        "2011": {
+            "format": "%8.0g",
+            "name": "rev_msp2",
+            "type": "byte"
+        },
+        "2012": {
+            "format": "%8.0g",
+            "name": "rev_msp2",
+            "type": "byte"
+        },
+        "2013": {
+            "format": "%8.0g",
+            "name": "rev_msp2",
+            "type": "byte"
+        },
+        "desc": "revenue center 2nd medicare secondary payer paid amount"
+    },
+    "rev_ncvr": {
+        "2006": {
+            "format": "%9.0g",
+            "name": "rev_ncvr",
+            "type": "float"
+        },
+        "2007": {
+            "format": "%9.0g",
+            "name": "rev_ncvr",
+            "type": "float"
+        },
+        "2008": {
+            "format": "%9.0g",
+            "name": "rev_ncvr",
+            "type": "float"
+        },
+        "2009": {
+            "format": "%9.0g",
+            "name": "rev_ncvr",
+            "type": "float"
+        },
+        "2010": {
+            "format": "%10.0g",
+            "name": "rev_ncvr",
+            "type": "double"
+        },
+        "2011": {
+            "format": "%12.0g",
+            "name": "rev_ncvr",
+            "type": "double"
+        },
+        "2012": {
+            "format": "%12.0g",
+            "name": "rev_ncvr",
+            "type": "double"
+        },
+        "2013": {
+            "format": "%12.0g",
+            "name": "rev_ncvr",
+            "type": "double"
+        },
+        "desc": "revenue center non-covered charge amount"
+    },
+    "rev_rate": {
+        "2001": {
+            "format": "%10.0g",
+            "name": "rev_rate",
+            "type": "double"
+        },
+        "2002": {
+            "format": "%10.0g",
+            "name": "rev_rate",
+            "type": "double"
+        },
+        "2003": {
+            "format": "%10.0g",
+            "name": "rev_rate",
+            "type": "double"
+        },
+        "2004": {
+            "format": "%10.0g",
+            "name": "rev_rate",
+            "type": "double"
+        },
+        "2005": {
+            "format": "%10.0g",
+            "name": "rev_rate",
+            "type": "double"
+        },
+        "2006": {
+            "format": "%9.0g",
+            "name": "rev_rate",
+            "type": "float"
+        },
+        "2007": {
+            "format": "%9.0g",
+            "name": "rev_rate",
+            "type": "float"
+        },
+        "2008": {
+            "format": "%9.0g",
+            "name": "rev_rate",
+            "type": "float"
+        },
+        "2009": {
+            "format": "%9.0g",
+            "name": "rev_rate",
+            "type": "float"
+        },
+        "2010": {
+            "format": "%10.0g",
+            "name": "rev_rate",
+            "type": "double"
+        },
+        "2011": {
+            "format": "%12.0g",
+            "name": "rev_rate",
+            "type": "double"
+        },
+        "2012": {
+            "format": "%12.0g",
+            "name": "rev_rate",
+            "type": "double"
+        },
+        "2013": {
+            "format": "%12.0g",
+            "name": "rev_rate",
+            "type": "double"
+        },
+        "desc": "revenue center rate amount"
+    },
+    "rev_unit": {
+        "2001": {
+            "format": "%8.0g",
+            "name": "rev_unit",
+            "type": "int"
+        },
+        "2002": {
+            "format": "%8.0g",
+            "name": "rev_unit",
+            "type": "int"
+        },
+        "2003": {
+            "format": "%8.0g",
+            "name": "rev_unit",
+            "type": "int"
+        },
+        "2004": {
+            "format": "%8.0g",
+            "name": "rev_unit",
+            "type": "byte"
+        },
+        "2005": {
+            "format": "%8.0g",
+            "name": "rev_unit",
+            "type": "int"
+        },
+        "2006": {
+            "format": "%8.0g",
+            "name": "rev_unit",
+            "type": "int"
+        },
+        "2007": {
+            "format": "%8.0g",
+            "name": "rev_unit",
+            "type": "int"
+        },
+        "2008": {
+            "format": "%8.0g",
+            "name": "rev_unit",
+            "type": "int"
+        },
+        "2009": {
+            "format": "%8.0g",
+            "name": "rev_unit",
+            "type": "int"
+        },
+        "2010": {
+            "format": "%8.0g",
+            "name": "rev_unit",
+            "type": "int"
+        },
+        "2011": {
+            "format": "%8.0g",
+            "name": "rev_unit",
+            "type": "int"
+        },
+        "2012": {
+            "format": "%8.0g",
+            "name": "rev_unit",
+            "type": "int"
+        },
+        "2013": {
+            "format": "%8.0g",
+            "name": "rev_unit",
+            "type": "int"
+        },
+        "desc": "revenue center unit count"
+    },
+    "revansi1": {
+        "2001": {
+            "format": "%5s",
+            "name": "revansi1",
+            "type": "str5"
+        },
+        "2002": {
+            "format": "%5s",
+            "name": "revansi1",
+            "type": "str5"
+        },
+        "2003": {
+            "format": "%5s",
+            "name": "revansi1",
+            "type": "str5"
+        },
+        "2004": {
+            "format": "%5s",
+            "name": "revansi1",
+            "type": "str5"
+        },
+        "2005": {
+            "format": "%5s",
+            "name": "revansi1",
+            "type": "str5"
+        },
+        "2006": {
+            "format": "%5s",
+            "name": "revansi1",
+            "type": "str5"
+        },
+        "2007": {
+            "format": "%5s",
+            "name": "revansi1",
+            "type": "str5"
+        },
+        "2008": {
+            "format": "%5s",
+            "name": "revansi1",
+            "type": "str5"
+        },
+        "2009": {
+            "format": "%5s",
+            "name": "revansi1",
+            "type": "str5"
+        },
+        "2010": {
+            "format": "%5s",
+            "name": "revansi1",
+            "type": "str5"
+        },
+        "2011": {
+            "format": "%5s",
+            "name": "revansi1",
+            "type": "str5"
+        },
+        "2012": {
+            "format": "%5s",
+            "name": "revansi1",
+            "type": "str5"
+        },
+        "2013": {
+            "format": "%5s",
+            "name": "revansi1",
+            "type": "str5"
+        },
+        "desc": "revenue center 1st ansi code"
+    },
+    "revansi2": {
+        "2001": {
+            "format": "%1s",
+            "name": "revansi2",
+            "type": "str1"
+        },
+        "2002": {
+            "format": "%5s",
+            "name": "revansi2",
+            "type": "str5"
+        },
+        "2003": {
+            "format": "%5s",
+            "name": "revansi2",
+            "type": "str5"
+        },
+        "2004": {
+            "format": "%1s",
+            "name": "revansi2",
+            "type": "str1"
+        },
+        "2005": {
+            "format": "%1s",
+            "name": "revansi2",
+            "type": "str1"
+        },
+        "2006": {
+            "format": "%5s",
+            "name": "revansi2",
+            "type": "str5"
+        },
+        "2007": {
+            "format": "%5s",
+            "name": "revansi2",
+            "type": "str5"
+        },
+        "2008": {
+            "format": "%5s",
+            "name": "revansi2",
+            "type": "str5"
+        },
+        "2009": {
+            "format": "%4s",
+            "name": "revansi2",
+            "type": "str4"
+        },
+        "2010": {
+            "format": "%5s",
+            "name": "revansi2",
+            "type": "str5"
+        },
+        "2011": {
+            "format": "%5s",
+            "name": "revansi2",
+            "type": "str5"
+        },
+        "2012": {
+            "format": "%5s",
+            "name": "revansi2",
+            "type": "str5"
+        },
+        "2013": {
+            "format": "%5s",
+            "name": "revansi2",
+            "type": "str5"
+        },
+        "desc": "revenue center 2nd ansi code"
+    },
+    "revansi3": {
+        "2001": {
+            "format": "%1s",
+            "name": "revansi3",
+            "type": "str1"
+        },
+        "2002": {
+            "format": "%5s",
+            "name": "revansi3",
+            "type": "str5"
+        },
+        "2003": {
+            "format": "%5s",
+            "name": "revansi3",
+            "type": "str5"
+        },
+        "2004": {
+            "format": "%1s",
+            "name": "revansi3",
+            "type": "str1"
+        },
+        "2005": {
+            "format": "%1s",
+            "name": "revansi3",
+            "type": "str1"
+        },
+        "2006": {
+            "format": "%1s",
+            "name": "revansi3",
+            "type": "str1"
+        },
+        "2007": {
+            "format": "%4s",
+            "name": "revansi3",
+            "type": "str4"
+        },
+        "2008": {
+            "format": "%5s",
+            "name": "revansi3",
+            "type": "str5"
+        },
+        "2009": {
+            "format": "%5s",
+            "name": "revansi3",
+            "type": "str5"
+        },
+        "2010": {
+            "format": "%1s",
+            "name": "revansi3",
+            "type": "str1"
+        },
+        "2011": {
+            "format": "%1s",
+            "name": "revansi3",
+            "type": "str1"
+        },
+        "2012": {
+            "format": "%1s",
+            "name": "revansi3",
+            "type": "str1"
+        },
+        "2013": {
+            "format": "%1s",
+            "name": "revansi3",
+            "type": "str1"
+        },
+        "desc": "revenue center 3rd ansi code"
+    },
+    "revansi4": {
+        "2001": {
+            "format": "%1s",
+            "name": "revansi4",
+            "type": "str1"
+        },
+        "2002": {
+            "format": "%5s",
+            "name": "revansi4",
+            "type": "str5"
+        },
+        "2003": {
+            "format": "%5s",
+            "name": "revansi4",
+            "type": "str5"
+        },
+        "2004": {
+            "format": "%1s",
+            "name": "revansi4",
+            "type": "str1"
+        },
+        "2005": {
+            "format": "%1s",
+            "name": "revansi4",
+            "type": "str1"
+        },
+        "2006": {
+            "format": "%1s",
+            "name": "revansi4",
+            "type": "str1"
+        },
+        "2007": {
+            "format": "%1s",
+            "name": "revansi4",
+            "type": "str1"
+        },
+        "2008": {
+            "format": "%1s",
+            "name": "revansi4",
+            "type": "str1"
+        },
+        "2009": {
+            "format": "%1s",
+            "name": "revansi4",
+            "type": "str1"
+        },
+        "2010": {
+            "format": "%1s",
+            "name": "revansi4",
+            "type": "str1"
+        },
+        "2011": {
+            "format": "%1s",
+            "name": "revansi4",
+            "type": "str1"
+        },
+        "2012": {
+            "format": "%1s",
+            "name": "revansi4",
+            "type": "str1"
+        },
+        "2013": {
+            "format": "%1s",
+            "name": "revansi4",
+            "type": "str1"
+        },
+        "desc": "revenue center 4th ansi code"
+    },
+    "revblood": {
+        "2001": {
+            "format": "%8.0g",
+            "name": "revblood",
+            "type": "byte"
+        },
+        "2002": {
+            "format": "%8.0g",
+            "name": "revblood",
+            "type": "byte"
+        },
+        "2003": {
+            "format": "%8.0g",
+            "name": "revblood",
+            "type": "byte"
+        },
+        "2004": {
+            "format": "%8.0g",
+            "name": "revblood",
+            "type": "byte"
+        },
+        "2005": {
+            "format": "%8.0g",
+            "name": "revblood",
+            "type": "byte"
+        },
+        "2006": {
+            "format": "%8.0g",
+            "name": "revblood",
+            "type": "byte"
+        },
+        "2007": {
+            "format": "%9.0g",
+            "name": "revblood",
+            "type": "float"
+        },
+        "2008": {
+            "format": "%8.0g",
+            "name": "revblood",
+            "type": "byte"
+        },
+        "2009": {
+            "format": "%8.0g",
+            "name": "revblood",
+            "type": "int"
+        },
+        "2010": {
+            "format": "%8.0g",
+            "name": "revblood",
+            "type": "int"
+        },
+        "2011": {
+            "format": "%12.0g",
+            "name": "revblood",
+            "type": "double"
+        },
+        "2012": {
+            "format": "%12.0g",
+            "name": "revblood",
+            "type": "double"
+        },
+        "2013": {
+            "format": "%12.0g",
+            "name": "revblood",
+            "type": "double"
+        },
+        "desc": "revenue center blood deductible amount"
+    },
+    "revdctbl": {
+        "2001": {
+            "format": "%10.0g",
+            "name": "revdctbl",
+            "type": "double"
+        },
+        "2002": {
+            "format": "%10.0g",
+            "name": "revdctbl",
+            "type": "double"
+        },
+        "2003": {
+            "format": "%10.0g",
+            "name": "revdctbl",
+            "type": "double"
+        },
+        "2004": {
+            "format": "%10.0g",
+            "name": "revdctbl",
+            "type": "double"
+        },
+        "2005": {
+            "format": "%10.0g",
+            "name": "revdctbl",
+            "type": "double"
+        },
+        "2006": {
+            "format": "%9.0g",
+            "name": "revdctbl",
+            "type": "float"
+        },
+        "2007": {
+            "format": "%9.0g",
+            "name": "revdctbl",
+            "type": "float"
+        },
+        "2008": {
+            "format": "%9.0g",
+            "name": "revdctbl",
+            "type": "float"
+        },
+        "2009": {
+            "format": "%9.0g",
+            "name": "revdctbl",
+            "type": "float"
+        },
+        "2010": {
+            "format": "%10.0g",
+            "name": "revdctbl",
+            "type": "double"
+        },
+        "2011": {
+            "format": "%12.0g",
+            "name": "revdctbl",
+            "type": "double"
+        },
+        "2012": {
+            "format": "%12.0g",
+            "name": "revdctbl",
+            "type": "double"
+        },
+        "2013": {
+            "format": "%12.0g",
+            "name": "revdctbl",
+            "type": "double"
+        },
+        "desc": "revenue center cash deductible amount"
+    },
+    "revdedcd": {
+        "2001": {
+            "format": "%1s",
+            "name": "revdedcd",
+            "type": "str1"
+        },
+        "2002": {
+            "format": "%1s",
+            "name": "revdedcd",
+            "type": "str1"
+        },
+        "2003": {
+            "format": "%1s",
+            "name": "revdedcd",
+            "type": "str1"
+        },
+        "2004": {
+            "format": "%1s",
+            "name": "revdedcd",
+            "type": "str1"
+        },
+        "2005": {
+            "format": "%1s",
+            "name": "revdedcd",
+            "type": "str1"
+        },
+        "desc": "197. revenue center deductible coinsurance code"
+    },
+    "revpcchg": {
+        "2001": {
+            "format": "%8.0g",
+            "name": "revpcchg",
+            "type": "byte"
+        },
+        "2002": {
+            "format": "%8.0g",
+            "name": "revpcchg",
+            "type": "byte"
+        },
+        "2003": {
+            "format": "%8.0g",
+            "name": "revpcchg",
+            "type": "byte"
+        },
+        "2004": {
+            "format": "%8.0g",
+            "name": "revpcchg",
+            "type": "byte"
+        },
+        "2005": {
+            "format": "%8.0g",
+            "name": "revpcchg",
+            "type": "byte"
+        },
+        "desc": "190. revenue center professional component amount"
+    },
+    "revpmt": {
+        "2001": {
+            "format": "%10.0g",
+            "name": "revpmt",
+            "type": "double"
+        },
+        "2002": {
+            "format": "%10.0g",
+            "name": "revpmt",
+            "type": "double"
+        },
+        "2003": {
+            "format": "%10.0g",
+            "name": "revpmt",
+            "type": "double"
+        },
+        "2004": {
+            "format": "%10.0g",
+            "name": "revpmt",
+            "type": "double"
+        },
+        "2005": {
+            "format": "%10.0g",
+            "name": "revpmt",
+            "type": "double"
+        },
+        "2006": {
+            "format": "%9.0g",
+            "name": "revpmt",
+            "type": "float"
+        },
+        "2007": {
+            "format": "%9.0g",
+            "name": "revpmt",
+            "type": "float"
+        },
+        "2008": {
+            "format": "%9.0g",
+            "name": "revpmt",
+            "type": "float"
+        },
+        "2009": {
+            "format": "%9.0g",
+            "name": "revpmt",
+            "type": "float"
+        },
+        "2010": {
+            "format": "%10.0g",
+            "name": "revpmt",
+            "type": "double"
+        },
+        "2011": {
+            "format": "%12.0g",
+            "name": "revpmt",
+            "type": "double"
+        },
+        "2012": {
+            "format": "%12.0g",
+            "name": "revpmt",
+            "type": "double"
+        },
+        "2013": {
+            "format": "%12.0g",
+            "name": "revpmt",
+            "type": "double"
+        },
+        "desc": "revenue center payment amount amount"
+    },
+    "revstind": {
+        "2006": {
+            "format": "%1s",
+            "name": "revstind",
+            "type": "str1"
+        },
+        "2007": {
+            "format": "%1s",
+            "name": "revstind",
+            "type": "str1"
+        },
+        "2008": {
+            "format": "%1s",
+            "name": "revstind",
+            "type": "str1"
+        },
+        "2009": {
+            "format": "%2s",
+            "name": "revstind",
+            "type": "str2"
+        },
+        "2010": {
+            "format": "%2s",
+            "name": "revstind",
+            "type": "str2"
+        },
+        "2011": {
+            "format": "%2s",
+            "name": "revstind",
+            "type": "str2"
+        },
+        "2012": {
+            "format": "%2s",
+            "name": "revstind",
+            "type": "str2"
+        },
+        "2013": {
+            "format": "%2s",
+            "name": "revstind",
+            "type": "str2"
+        },
+        "desc": "revenue center status indicator code"
+    },
+    "rndrng_physn_npi": {
+        "2010": {
+            "format": "%1s",
+            "name": "rndrng_physn_npi",
+            "type": "str1"
+        },
+        "2011": {
+            "format": "%1s",
+            "name": "rndrng_physn_npi",
+            "type": "str1"
+        },
+        "2012": {
+            "format": "%10s",
+            "name": "rndrng_physn_npi",
+            "type": "str10"
+        },
+        "2013": {
+            "format": "%10s",
+            "name": "rndrng_physn_npi",
+            "type": "str10"
+        },
+        "desc": "revenue center rendering physician npi"
+    },
+    "rndrng_physn_upin": {
+        "2010": {
+            "format": "%1s",
+            "name": "rndrng_physn_upin",
+            "type": "str1"
+        },
+        "2011": {
+            "format": "%1s",
+            "name": "rndrng_physn_upin",
+            "type": "str1"
+        },
+        "2012": {
+            "format": "%1s",
+            "name": "rndrng_physn_upin",
+            "type": "str1"
+        },
+        "2013": {
+            "format": "%1s",
+            "name": "rndrng_physn_upin",
+            "type": "str1"
+        },
+        "desc": "revenue center rendering physician upin"
+    },
+    "rprvdpmt": {
+        "2001": {
+            "format": "%10.0g",
+            "name": "rprvdpmt",
+            "type": "double"
+        },
+        "2002": {
+            "format": "%10.0g",
+            "name": "rprvdpmt",
+            "type": "double"
+        },
+        "2003": {
+            "format": "%10.0g",
+            "name": "rprvdpmt",
+            "type": "double"
+        },
+        "2004": {
+            "format": "%10.0g",
+            "name": "rprvdpmt",
+            "type": "double"
+        },
+        "2005": {
+            "format": "%10.0g",
+            "name": "rprvdpmt",
+            "type": "double"
+        },
+        "2006": {
+            "format": "%9.0g",
+            "name": "rprvdpmt",
+            "type": "float"
+        },
+        "2007": {
+            "format": "%9.0g",
+            "name": "rprvdpmt",
+            "type": "float"
+        },
+        "2008": {
+            "format": "%9.0g",
+            "name": "rprvdpmt",
+            "type": "float"
+        },
+        "2009": {
+            "format": "%9.0g",
+            "name": "rprvdpmt",
+            "type": "float"
+        },
+        "2010": {
+            "format": "%10.0g",
+            "name": "rprvdpmt",
+            "type": "double"
+        },
+        "2011": {
+            "format": "%12.0g",
+            "name": "rprvdpmt",
+            "type": "double"
+        },
+        "2012": {
+            "format": "%12.0g",
+            "name": "rprvdpmt",
+            "type": "double"
+        },
+        "2013": {
+            "format": "%12.0g",
+            "name": "rprvdpmt",
+            "type": "double"
+        },
+        "desc": "revenue center provider payment amount"
+    },
+    "sgmt_num": {
+        "2001": {
+            "format": "%8.0g",
+            "name": "sgmt_num",
+            "type": "byte"
+        },
+        "2002": {
+            "format": "%8.0g",
+            "name": "sgmt_num",
+            "type": "byte"
+        },
+        "2003": {
+            "format": "%8.0g",
+            "name": "sgmt_num",
+            "type": "byte"
+        },
+        "2004": {
+            "format": "%8.0g",
+            "name": "sgmt_num",
+            "type": "byte"
+        },
+        "2005": {
+            "format": "%8.0g",
+            "name": "sgmt_num",
+            "type": "byte"
+        },
+        "desc": "26. claim segment number"
+    },
+    "sgmtline": {
+        "2001": {
+            "format": "%8.0g",
+            "name": "sgmtline",
+            "type": "byte"
+        },
+        "2002": {
+            "format": "%8.0g",
+            "name": "sgmtline",
+            "type": "byte"
+        },
+        "2003": {
+            "format": "%8.0g",
+            "name": "sgmtline",
+            "type": "byte"
+        },
+        "2004": {
+            "format": "%8.0g",
+            "name": "sgmtline",
+            "type": "byte"
+        },
+        "2005": {
+            "format": "%8.0g",
+            "name": "sgmtline",
+            "type": "byte"
+        },
+        "desc": "28. claim segment line count"
+    },
+    "thru_dt": {
+        "2006": {
+            "format": "%dD_m_Y",
+            "name": "thru_dt",
+            "type": "long"
+        },
+        "2007": {
+            "format": "%dD_m_Y",
+            "name": "thru_dt",
+            "type": "long"
+        },
+        "2008": {
+            "format": "%dD_m_Y",
+            "name": "thru_dt",
+            "type": "long"
+        },
+        "2009": {
+            "format": "%dD_m_Y",
+            "name": "thru_dt",
+            "type": "long"
+        },
+        "2010": {
+            "format": "%tdD_m_Y",
+            "name": "thru_dt",
+            "type": "long"
+        },
+        "2011": {
+            "format": "%tdD_m_Y",
+            "name": "thru_dt",
+            "type": "long"
+        },
+        "2012": {
+            "format": "%tdD_m_Y",
+            "name": "thru_dt",
+            "type": "long"
+        },
+        "2013": {
+            "format": "%tdD_m_Y",
+            "name": "thru_dt",
+            "type": "long"
+        },
+        "desc": "claim through date  (determines year of claim)"
+    },
+    "wageadj": {
+        "2001": {
+            "format": "%10.0g",
+            "name": "wageadj",
+            "type": "double"
+        },
+        "2002": {
+            "format": "%10.0g",
+            "name": "wageadj",
+            "type": "double"
+        },
+        "2003": {
+            "format": "%10.0g",
+            "name": "wageadj",
+            "type": "double"
+        },
+        "2004": {
+            "format": "%10.0g",
+            "name": "wageadj",
+            "type": "double"
+        },
+        "2005": {
+            "format": "%10.0g",
+            "name": "wageadj",
+            "type": "double"
+        },
+        "2006": {
+            "format": "%9.0g",
+            "name": "wageadj",
+            "type": "float"
+        },
+        "2007": {
+            "format": "%9.0g",
+            "name": "wageadj",
+            "type": "float"
+        },
+        "2008": {
+            "format": "%9.0g",
+            "name": "wageadj",
+            "type": "float"
+        },
+        "2009": {
+            "format": "%9.0g",
+            "name": "wageadj",
+            "type": "float"
+        },
+        "2010": {
+            "format": "%10.0g",
+            "name": "wageadj",
+            "type": "double"
+        },
+        "2011": {
+            "format": "%12.0g",
+            "name": "wageadj",
+            "type": "double"
+        },
+        "2012": {
+            "format": "%12.0g",
+            "name": "wageadj",
+            "type": "double"
+        },
+        "2013": {
+            "format": "%12.0g",
+            "name": "wageadj",
+            "type": "double"
+        },
+        "desc": "revenue center coinsurance/wage adjusted coinsurance amount"
+    }
+}

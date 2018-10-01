@@ -2,6 +2,7 @@
 import os
 import re
 import math
+import json
 import inspect
 import pkg_resources
 import numpy as np
@@ -10,6 +11,7 @@ import pandas as pd
 from time import time
 from joblib import Parallel, delayed
 from typing import Any, Dict, List, Union
+from pkg_resources import resource_filename
 from pandas.api.types import CategoricalDtype
 
 from .utils import fpath, _mywrap
@@ -150,8 +152,7 @@ def _convert_med(
         manual_schema: bool = False,
         med_dta: str = '/disk/aging/medicare/data',
         med_pq:
-        str = '/disk/agebulk3/medicare.work/doyle-dua51929/barronk-dua51929/raw/pq',
-        xw_dir: str = '/disk/aging/medicare/data/docs') -> None:
+        str = '/disk/agebulk3/medicare.work/doyle-dua51929/barronk-dua51929/raw/pq') -> None:
     """Convert a single Medicare file to parquet format.
 
     Args:
@@ -188,7 +189,6 @@ def _convert_med(
             always work.
         med_dta: canonical path for raw medicare dta files
         med_pq: top of tree to output new parquet files
-        xw_dir: directory with variable name crosswalks
     Returns:
         nothing. Writes parquet file to disk.
     Raises:
@@ -204,24 +204,19 @@ def _convert_med(
     outfile = fpath(
         percent=pct, year=year, data_type=data_type, dta=False, pq_path=med_pq)
 
-    if data_type.startswith('bsf'):
-        varnames = None
-    else:
-        try:
-            varnames = pd.read_stata(f'{xw_dir}/harm{data_type}.dta')
-        except (PermissionError, FileNotFoundError):
-            varnames = None
+    if not data_type.startswith('bsf'):
+        path = resource_filename(
+            'medicare_utils', f'metadata/xw/{data_type}.json')
+        with open(path) as f:
+            varnames = json.load(f)
 
-    if varnames is not None:
-        if year in set(varnames.year):
-            varnames = varnames.loc[varnames['year'] == year]
-            rename_dict = varnames.set_index('name').to_dict()['cname']
+        rename_dict = {}
+        for varname, names in varnames.items():
+            n = {k: v for k, v in names.items() if k == str(year)}
+            if n:
+                rename_dict[n[str(year)]['name']] = varname
 
-            # Can't have missing values in rename_dict
-            for key, val in rename_dict.items():
-                if val == '':
-                    rename_dict[key] = key
-
+        if rename_dict:
             # Remove items from dict that map to duplicate values
             # Can't save a parquet file where multiple cols have same name
             rev_rename_dict = {}
@@ -229,10 +224,9 @@ def _convert_med(
                 rev_rename_dict.setdefault(value, set()).add(key)
             dups = [key for key, val in rev_rename_dict.items() if len(val) > 1]
 
-            [
-                rename_dict.pop(k)
-                for k, v in rename_dict.copy().items()
-                if v in dups]
+            for k, v in rename_dict.copy().items():
+                if v in dups:
+                    rename_dict.pop(k)
         else:
             print(f'Year not in variable dictionary: {year}')
             rename_dict = None
