@@ -59,6 +59,7 @@ def fpath(
             - ``snfc``  (`Skilled Nursing Facility File, Claims segment`_)
             - ``snfr``  (`Skilled Nursing Facility File, Revenue Center segment`_)
             - ``xw``    (Crosswalks files for ``ehic`` - ``bene_id``)
+            - ``xw_bsf`` (Crosswalks files for ``ehic`` - ``bene_id``)
 
             .. _`Beneficiary Summary File, Base segment`: https://kylebarron.github.io/medicare-documentation/resdac/mbsf/#base-abcd-segment_2
             .. _`Beneficiary Summary File, Chronic Conditions segment`: https://kylebarron.github.io/medicare-documentation/resdac/mbsf/#chronic-conditions-segment_2
@@ -109,13 +110,6 @@ def fpath(
         if percent not in allowed_pcts:
             msg = f'percent must be one of: {allowed_pcts}'
             raise ValueError(msg)
-
-    allowed_data_types = [
-        'bsfab', 'bsfcc', 'bsfcu', 'bsfd', 'carc', 'carl', 'den', 'dmec',
-        'dmel', 'hhac', 'hhar', 'hosc', 'hosr', 'ipc', 'ipr', 'med', 'opc',
-        'opr', 'snfc', 'snfr', 'xw']
-    if data_type not in allowed_data_types:
-        raise ValueError(f'data_type must be one of:\n{allowed_data_types}')
 
     dta_path = str(Path(dta_path).expanduser().resolve())
     pq_path = str(Path(pq_path).expanduser().resolve())
@@ -201,6 +195,17 @@ def fpath(
     elif data_type == 'xw':
         dta_path = f'{dta_path}/{percent}pct/xw/{year}/ehicbenex_one{year}.dta'
         pq_path = f'{pq_path}/{percent}pct/xw/ehicbenex_one{year}.parquet'
+
+    elif data_type == 'xw_bsf':
+        dta_path = f'{dta_path}/{percent}pct/bsf/{year}/xw/ehic2bene_id{year}.dta'
+        pq_path = f'{pq_path}/{percent}pct/xw/ehic2bene_id{year}.parquet'
+
+    else:
+        allowed_data_types = [
+            'bsfab', 'bsfcc', 'bsfcu', 'bsfd', 'carc', 'carl', 'den', 'dmec',
+            'dmel', 'hhac', 'hhar', 'hosc', 'hosr', 'ipc', 'ipr', 'med', 'opc',
+            'opr', 'snfc', 'snfr', 'xw', 'xw_bsf']
+        raise ValueError(f'data_type must be one of:\n{allowed_data_types}')
 
     if dta:
         return dta_path
