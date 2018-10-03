@@ -283,12 +283,15 @@ def convert_file(
 
     t0 = time()
 
-    infile_stub = re.search(r'/?([^/]+?)\.([a-z0-9]+)$', infile)
-    infile_stub, infile_type = infile_stub[1], infile_stub[2]
+    infile = Path(infile)
+    # File name without suffix
+    infile_stub = infile.stem
+    # Extension
+    infile_type = infile.suffix[1:]
 
     # Set row group size. The following makes an even multiple of row groups
     # as close as possible to the given `rg_size`
-    file_size = Path(infile).stat().st_size / (1024 ** 3)
+    file_size = infile.stat().st_size / (1024 ** 3)
     n_rg = round(file_size / rg_size)
     if n_rg == 0:
         n_rg += 1
@@ -300,12 +303,6 @@ def convert_file(
     msg = f"""\
     Row groups:
     - {n_rg} of size {gb_per_rg:.2f} GB
-    - infile: {infile_stub}.{infile_type}
-    - time: {(time() - t0) / 60:.2f} minutes
-    """
-    print(_mywrap(msg))
-
-    msg = f"""\
     Beginning scanning dtypes of file:
     - infile: {infile_stub}.{infile_type}
     - time: {(time() - t0) / 60:.2f} minutes
@@ -415,7 +412,7 @@ def _convert_dates(df, datecols):
 
 
 def _scan_file(
-        infile: str,
+        infile: Union[str, Path],
         categorical: bool = True,
         chunksize: int = 100000,
         cat_threshold: float = 0.1,
