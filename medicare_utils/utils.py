@@ -197,8 +197,8 @@ def fpath(
         pq_path = f'{pq_path}/{percent}pct/xw/ehicbenex_one{year}.parquet'
 
     elif data_type == 'xw_bsf':
-        dta_path = f'{dta_path}/{percent}pct/bsf/{year}/xw/ehic2bene_id{year}.dta'
-        pq_path = f'{pq_path}/{percent}pct/xw/ehic2bene_id{year}.parquet'
+        dta_path = f'{dta_path}/{percent}pct/bsf/{year}/xw/ehicbenex_unique{year}.dta'
+        pq_path = f'{pq_path}/{percent}pct/xw/ehicbenex_unique{year}.parquet'
 
     else:
         allowed_data_types = [
