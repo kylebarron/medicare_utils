@@ -30,7 +30,8 @@ def convert_med(
         n_jobs: int = 6,
         med_dta: str = '/disk/aging/medicare/data',
         med_pq:
-        str = '/disk/agebulk3/medicare.work/doyle-dua51929/barronk-dua51929/raw/pq') -> None:
+        str = '/disk/agebulk3/medicare.work/doyle-dua51929/barronk-dua51929/raw/pq'
+        ) -> None: # yapf: disable
     """Convert Medicare Stata files to parquet
 
     Args:
@@ -153,7 +154,8 @@ def _convert_med(
         ehic_xw: bool = True,
         med_dta: str = '/disk/aging/medicare/data',
         med_pq:
-        str = '/disk/agebulk3/medicare.work/doyle-dua51929/barronk-dua51929/raw/pq') -> None:
+        str = '/disk/agebulk3/medicare.work/doyle-dua51929/barronk-dua51929/raw/pq'
+        ) -> None: # yapf: disable
     """Convert a single Medicare file to parquet format.
 
     Args:
