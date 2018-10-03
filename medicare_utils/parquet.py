@@ -9,7 +9,7 @@ import pandas as pd
 
 from time import time
 from joblib import Parallel, delayed
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 from pathlib import Path
 from pkg_resources import resource_filename
 from pandas.api.types import CategoricalDtype
@@ -26,6 +26,7 @@ def convert_med(
         parquet_engine: str = 'pyarrow',
         compression_type: str = 'SNAPPY',
         manual_schema: bool = False,
+        ehic_xw: bool = True,
         n_jobs: int = 6,
         med_dta: str = '/disk/aging/medicare/data',
         med_pq:
@@ -85,6 +86,7 @@ def convert_med(
         compression_type: 'SNAPPY' or 'GZIP'
         manual_schema: whether to create manual parquet schema. Doesn't
             always work.
+        ehic_xw: Merge bene_id onto old files with ehic
         n_jobs: number of processes to use
         med_dta: top of tree for medicare stata files
         med_pq: top of tree to output new parquet files
@@ -135,6 +137,7 @@ def convert_med(
             parquet_engine=parquet_engine,
             compression_type=compression_type,
             manual_schema=manual_schema,
+            ehic_xw=ehic_xw,
             med_dta=med_dta,
             med_pq=med_pq) for i in data_list)
 
@@ -147,6 +150,7 @@ def _convert_med(
         parquet_engine: str = 'pyarrow',
         compression_type: str = 'SNAPPY',
         manual_schema: bool = False,
+        ehic_xw: bool = True,
         med_dta: str = '/disk/aging/medicare/data',
         med_pq:
         str = '/disk/agebulk3/medicare.work/doyle-dua51929/barronk-dua51929/raw/pq') -> None:
@@ -186,6 +190,7 @@ def _convert_med(
             always work.
         med_dta: canonical path for raw medicare dta files
         med_pq: top of tree to output new parquet files
+        ehic_xw: Merge bene_id onto old files with ehic
     Returns:
         nothing. Writes parquet file to disk.
     Raises:
@@ -202,6 +207,7 @@ def _convert_med(
         percent=pct, year=year, data_type=data_type, dta=False, pq_path=med_pq)
 
     if not data_type.startswith('bsf'):
+        # TODO Refactor this into separate function.
         path = resource_filename(
             'medicare_utils', f'metadata/xw/{data_type}.json')
         try:
@@ -244,6 +250,13 @@ def _convert_med(
     """
     print(_mywrap(msg))
 
+    if ehic_xw and (year <= 2005) and not (data_type.startswith('bsf')):
+        ehic_xw = fpath(pct, year, 'xw_bsf', pq_path=med_pq)
+        if not Path(ehic_xw).is_file():
+            ehic_xw = fpath(pct, year, 'xw_bsf', dta=True, dta_path=med_dta)
+    else:
+        ehic_xw = None
+
     convert_file(
         infile=infile,
         outfile=outfile,
@@ -251,7 +264,8 @@ def _convert_med(
         rg_size=rg_size,
         parquet_engine=parquet_engine,
         compression_type=compression_type,
-        manual_schema=manual_schema)
+        manual_schema=manual_schema,
+        ehic_xw=ehic_xw)
 
 
 def convert_file(
@@ -261,7 +275,8 @@ def convert_file(
         rg_size: float = 2.5,
         parquet_engine: str = 'pyarrow',
         compression_type: str = 'SNAPPY',
-        manual_schema: bool = False) -> None:
+        manual_schema: bool = False,
+        ehic_xw: Optional[str] = None) -> None:
     """Convert arbitrary Stata file to Parquet format
 
     Args:
@@ -275,6 +290,7 @@ def convert_file(
             ``GZIP``.
         manual_schema: Create parquet schema manually. For use with
             pyarrow; doesn't always work
+        ehic_xw: Merge bene_id onto old files with ehic
     Returns:
         Writes .parquet file to disk.
     """
@@ -331,6 +347,14 @@ def convert_file(
     """
     print(_mywrap(msg))
 
+    if ehic_xw:
+        ehic_xw = Path(ehic_xw)
+        if ehic_xw.suffix == '.parquet':
+            xw = pd.read_parquet(ehic_xw, columns=['ehic', 'bene_id'])
+        elif ehic_xw.suffix == '.dta':
+            xw = pd.read_stata(ehic_xw, columns=['ehic', 'bene_id'])
+        xw = xw.set_index('ehic')
+
     itr = pd.read_stata(infile, chunksize=nrow_rg)
     i = 0
     for df in itr:
@@ -349,8 +373,16 @@ def convert_file(
             # Rename columns that aren't in XW with `x_` prefix
             non_xw_cols = set(df.columns).difference(rename_dict.values())
             df = df.rename(columns={x: 'x_' + x for x in non_xw_cols})
+            for col in non_xw_cols:
+                try:
+                    dtypes['x_' + col] = dtypes.pop(col)
+                except KeyError:
+                    pass
 
         df = df.astype(dtypes)
+
+        if ehic_xw:
+            df = df.merge(xw, how='left', left_on='ehic', right_index=True)
 
         msg = f"""\
         Cleaned file:
