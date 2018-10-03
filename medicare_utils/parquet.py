@@ -343,6 +343,10 @@ def convert_file(
         if rename_dict is not None:
             df = df.rename(columns=rename_dict)
 
+            # Rename columns that aren't in XW with `x_` prefix
+            non_xw_cols = set(df.columns).difference(rename_dict.values())
+            df = df.rename(columns={x: 'x_' + x for x in non_xw_cols})
+
         df = df.astype(dtypes)
 
         msg = f"""\
