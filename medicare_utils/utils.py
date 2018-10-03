@@ -179,7 +179,10 @@ def fpath(
         pq_path = f'{pq_path}/{percent}pct/med/med{year}.parquet'
 
     elif data_type == 'opc':
-        dta_path = f'{dta_path}/{percent}pct/op/{year}/opc{year}.dta'
+        if year >= 2001:
+            dta_path = f'{dta_path}/{percent}pct/op/{year}/opc{year}.dta'
+        else:
+            dta_path = f'{dta_path}/{percent}pct/op/{year}/op{year}.dta'
         pq_path = f'{pq_path}/{percent}pct/op/opc{year}.parquet'
     elif data_type == 'opr':
         dta_path = f'{dta_path}/{percent}pct/op/{year}/opr{year}.dta'
