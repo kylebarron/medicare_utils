@@ -29,8 +29,7 @@ def convert_med(
         n_jobs: int = 6,
         med_dta: str = '/disk/aging/medicare/data',
         med_pq:
-        str = '/disk/agebulk3/medicare.work/doyle-dua51929/barronk-dua51929/raw/pq',
-        xw_dir: str = '/disk/aging/medicare/data/docs') -> None:
+        str = '/disk/agebulk3/medicare.work/doyle-dua51929/barronk-dua51929/raw/pq') -> None:
     """Convert Medicare Stata files to parquet
 
     Args:
@@ -89,7 +88,6 @@ def convert_med(
         n_jobs: number of processes to use
         med_dta: top of tree for medicare stata files
         med_pq: top of tree to output new parquet files
-        xw_dir: directory with variable name crosswalks
     """
 
     if type(pcts) is str:
@@ -138,8 +136,7 @@ def convert_med(
             compression_type=compression_type,
             manual_schema=manual_schema,
             med_dta=med_dta,
-            med_pq=med_pq,
-            xw_dir=xw_dir) for i in data_list)
+            med_pq=med_pq) for i in data_list)
 
 
 def _convert_med(
