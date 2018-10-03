@@ -259,15 +259,18 @@ def _convert_med(
     else:
         ehic_xw = None
 
-    convert_file(
-        infile=infile,
-        outfile=outfile,
-        rename_dict=rename_dict,
-        rg_size=rg_size,
-        parquet_engine=parquet_engine,
-        compression_type=compression_type,
-        manual_schema=manual_schema,
-        ehic_xw=ehic_xw)
+    try:
+        convert_file(
+            infile=infile,
+            outfile=outfile,
+            rename_dict=rename_dict,
+            rg_size=rg_size,
+            parquet_engine=parquet_engine,
+            compression_type=compression_type,
+            manual_schema=manual_schema,
+            ehic_xw=ehic_xw)
+    except:
+        pass
 
 
 def convert_file(
