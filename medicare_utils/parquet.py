@@ -204,8 +204,11 @@ def _convert_med(
     if not data_type.startswith('bsf'):
         path = resource_filename(
             'medicare_utils', f'metadata/xw/{data_type}.json')
-        with open(path) as f:
-            varnames = json.load(f)
+        try:
+            with open(path) as f:
+                varnames = json.load(f)
+        except OSError:
+            varnames = {}
 
         rename_dict = {}
         for varname, names in varnames.items():
