@@ -334,9 +334,9 @@ def convert_file(
     print(_mywrap(msg))
 
     if parquet_engine == 'pyarrow':
-        dtypes = _scan_file(infile, categorical=False)
+        dtypes, date_cols = _scan_file(infile, categorical=False)
     elif parquet_engine == 'fastparquet':
-        dtypes = _scan_file(infile, categorical=True)
+        dtypes, date_cols = _scan_file(infile, categorical=True)
 
     if rename_dict is not None:
         for old_name, new_name in rename_dict.items():
@@ -360,7 +360,7 @@ def convert_file(
             xw = pd.read_stata(ehic_xw, columns=['ehic', 'bene_id'])
         xw = xw.set_index('ehic')
 
-    itr = pd.read_stata(infile, chunksize=nrow_rg)
+    itr = pd.read_stata(infile, chunksize=nrow_rg, convert_dates=False)
     i = 0
     for df in itr:
         i += 1
@@ -385,6 +385,14 @@ def convert_file(
                     pass
 
         df = df.astype(dtypes)
+
+        # Convert dates; allow for invalid dates
+        for col in date_cols:
+            df.loc[:, col] = pd.to_datetime(
+                df.loc[:, col],
+                unit='D',
+                origin=pd.Timestamp('1960-01-01'),
+                errors='coerce')
 
         if ehic_xw:
             df = df.merge(xw, how='left', left_on='ehic', right_index=True)
@@ -509,6 +517,7 @@ def _scan_file(
         lambda x: np.issubdtype(x, np.floating) if inspect.isclass(x) else False
     )
     float_cols = varlist_df[float_cols]['name'].values.tolist()
+    float_cols = [x for x in float_cols if x not in date_cols]
     start_cols['float_cols'] = float_cols
 
     end_cols = {
@@ -534,7 +543,8 @@ def _scan_file(
     tokeep.extend(start_cols['int_cols'])
     if categorical:
         tokeep.extend(start_cols['str_cols'])
-    itr = pd.read_stata(infile, columns=tokeep, chunksize=chunksize)
+    itr = pd.read_stata(
+        infile, columns=tokeep, chunksize=chunksize, convert_dates=False)
 
     i = 0
     for df in itr:
@@ -623,7 +633,7 @@ def _scan_file(
             dtypes_dict[col] = CategoricalDtype(
                 end_cols['cat_cols']['cats'][col])
 
-    return dtypes_dict
+    return dtypes_dict, start_cols['date_cols']
 
 
 def _create_parquet_schema(dtypes):
