@@ -122,7 +122,7 @@ class MedicareDF(object):
             parquet_engine: str = 'pyarrow',
             max_cores: Optional[int] = None,
             pq_path:
-            str = '/disk/agebulk3/medicare.work/doyle-dua51929/barronk-dua51929/raw/pq'
+            str = '/disk/agebulk3/medicare.work/doyle-DUA51929/barronk-DUA51929/raw/pq'
             ) -> None: # yapf: disable
         """Instantiate a MedicareDF object"""
 
