@@ -8,6 +8,7 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 import pandas as pd
 import fastparquet as fp
 import dask.dataframe as dd
+import pyarrow as pa
 import pyarrow.parquet as pq
 
 from time import time
@@ -387,7 +388,10 @@ class MedicareDF(object):
         toload_vars: Dict[int, List[str]] = {}
         for year in self.years:
             if self.parquet_engine == 'pyarrow':
-                pf = pq.ParquetFile(self._fpath(self.percent, year, 'bsfab'))
+                try:
+                    pf = pq.ParquetFile(self._fpath(self.percent, year, 'bsfab'))
+                except pa.ArrowIOError:
+                    pf = pq.ParquetDataset(self._fpath(self.percent, year, 'bsfab'))
                 cols = pf.schema.names
             elif self.parquet_engine == 'fastparquet':
                 pf = fp.ParquetFile(self._fpath(self.percent, year, 'bsfab'))
@@ -451,7 +455,10 @@ class MedicareDF(object):
                 index=['bene_id'],
                 engine=self.parquet_engine)
         elif self.parquet_engine == 'pyarrow':
-            pf = pq.ParquetFile(self._fpath(self.percent, year, 'bsfab'))
+            try:
+                pf = pq.ParquetFile(self._fpath(self.percent, year, 'bsfab'))
+            except pa.ArrowIOError:
+                pf = pq.ParquetDataset(self._fpath(self.percent, year, 'bsfab'))
             pl = pf.read(
                 columns=toload_vars,
                 nthreads=min(
@@ -1663,8 +1670,10 @@ class MedicareDF(object):
                     right = right.to_frame()
                 else:
                     if self.parquet_engine == 'pyarrow':
-                        pf = pq.ParquetFile(
-                            self._fpath(self.percent, year, 'bsfab'))
+                        try:
+                            pf = pq.ParquetFile(self._fpath(self.percent, year, 'bsfab'))
+                        except pa.ArrowIOError:
+                            pf = pq.ParquetDataset(self._fpath(self.percent, year, 'bsfab'))
                         right = pf.read(
                             columns=['ehic'],
                             nthreads=2).to_pandas().set_index('bene_id')
@@ -1889,7 +1898,10 @@ class MedicareDF(object):
 
         # Determine which variables to extract
         if self.parquet_engine == 'pyarrow':
-            pf = pq.ParquetFile(self._fpath(self.percent, year, data_type))
+            try:
+                pf = pq.ParquetFile(self._fpath(self.percent, year, data_type))
+            except pa.ArrowIOError:
+                pf = pq.ParquetDataset(self._fpath(self.percent, year, data_type))
             all_cols = pf.schema.names
             ngroups = pf.num_row_groups
         elif self.parquet_engine == 'fastparquet':
@@ -2007,7 +2019,10 @@ class MedicareDF(object):
                 columns=cols_toload - set([cols['pl_id']]),
                 index=cols['pl_id'])
         elif self.parquet_engine == 'pyarrow':
-            pf = pq.ParquetFile(path)
+            try:
+                pf = pq.ParquetFile(path)
+            except pa.ArrowIOError:
+                pf = pq.ParquetDataset(path)
             itr = (
                 pf.read_row_group(
                     i,
