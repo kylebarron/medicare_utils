@@ -12,7 +12,6 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from time import time
-from joblib import Parallel, delayed
 from typing import Dict, List, NamedTuple, Optional, Pattern, Union
 from multiprocessing import cpu_count
 
@@ -1309,8 +1308,7 @@ class MedicareDF(object):
                 'icd9_sg': None},
             convert_ehic: bool = True,
             dask: bool = False,
-            verbose: bool = False,
-            test_joblib=False): # yapf: disable
+            verbose: bool = False): # yapf: disable
         """Search in claim-level datasets for HCPCS and/or ICD9 codes
 
         Note: Each code given must be distinct, or ``collapse_codes`` must be ``True``.
@@ -1467,8 +1465,6 @@ class MedicareDF(object):
                 >>> len(mdf.cl['opc'])
 
         """
-
-        self.test_joblib = test_joblib
 
         if self.verbose or verbose:
             verbose = True
@@ -1903,11 +1899,9 @@ class MedicareDF(object):
             except pa.ArrowIOError:
                 pf = pq.ParquetDataset(self._fpath(self.percent, year, data_type))
             all_cols = pf.schema.names
-            ngroups = pf.num_row_groups
         elif self.parquet_engine == 'fastparquet':
             pf = fp.ParquetFile(self._fpath(self.percent, year, data_type))
             all_cols = pf.columns
-            ngroups = len(pf.row_groups)
 
         regexes = {'hcpcs': r'^hcpcs_cd$', 'icd9_sg': r'^icd_prcdr_cd(\d+)$'}
         if data_type == 'carl':
@@ -2048,31 +2042,18 @@ class MedicareDF(object):
         else:
             # This holds the df's from each iteration over the claim-level
             # dataset
-            if self.test_joblib:
-                n_jobs = min(cpu_count(), ngroups, self.max_cores)
-                all_cl = Parallel(n_jobs=n_jobs)(
-                    delayed(self._search_for_codes_df_inner)(
-                        cl,
-                        codes=codes,
-                        cols=cols,
-                        year=year,
-                        keep_vars=keep_vars,
-                        rename=rename,
-                        collapse_codes=collapse_codes,
-                        pl_ids_to_filter=pl_ids_to_filter) for cl in itr)
-            else:
-                all_cl = []
-                for cl in itr:
-                    cl = self._search_for_codes_df_inner(
-                        cl=cl,
-                        codes=codes,
-                        cols=cols,
-                        year=year,
-                        keep_vars=keep_vars,
-                        rename=rename,
-                        collapse_codes=collapse_codes,
-                        pl_ids_to_filter=pl_ids_to_filter)
-                    all_cl.append(cl)
+            all_cl = []
+            for cl in itr:
+                cl = self._search_for_codes_df_inner(
+                    cl=cl,
+                    codes=codes,
+                    cols=cols,
+                    year=year,
+                    keep_vars=keep_vars,
+                    rename=rename,
+                    collapse_codes=collapse_codes,
+                    pl_ids_to_filter=pl_ids_to_filter)
+                all_cl.append(cl)
 
             cl = pd.concat(all_cl, axis=0, sort=False)
 
