@@ -7,7 +7,6 @@ import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 import pandas as pd
 import fastparquet as fp
-import dask.dataframe as dd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
@@ -62,13 +61,6 @@ class MedicareDF(object):
             ``calendar`` to work with multiple years as calendar years; ``age``
             to work with patients' age years. The latter does computations
             using the age a patient is when admitted.
-        dask:
-            Use dask library for out of core computation. In general this is
-            unnecessary because this package tries to be smart about only
-            storing the minimum amount of data in memory at a time. This is a
-            global option that applies for all methods called from this object.
-            However, as of now, dask support doesn't exist for
-            :meth:`search_for_codes`.
         verbose:
             Print progress status of program to console. This is a global option
             that applies for all methods called from this object.
@@ -117,7 +109,6 @@ class MedicareDF(object):
             percent: Union[str, int, float],
             years: Union[int, List[int]],
             year_type: str = 'calendar',
-            dask: bool = False,
             verbose: bool = False,
             parquet_engine: str = 'pyarrow',
             max_cores: Optional[int] = None,
@@ -166,7 +157,6 @@ class MedicareDF(object):
         self.years = years
         self.year_type = year_type
         self.verbose = verbose
-        self.dask = dask
         self.tc = time()
 
         if parquet_engine not in ['pyarrow', 'fastparquet']:
@@ -204,7 +194,6 @@ class MedicareDF(object):
         hmo_val: Optional[List[str]]
         join: str
         keep_vars: List[Union[str, Pattern]]
-        dask: bool
         verbose: bool
 
     def _get_cohort_type_check(
@@ -217,7 +206,6 @@ class MedicareDF(object):
             hmo_val: Union[str, List[str], None],
             join: str,
             keep_vars: Union[str, Pattern, List[Union[str, Pattern]], None],
-            dask: bool,
             verbose: bool) -> _ReturnGetCohortTypeCheck: # yapf: disable
         """Check types and valid values for :func:`get_cohort`
 
@@ -324,8 +312,6 @@ class MedicareDF(object):
         else:
             raise TypeError(_mywrap(msg))
 
-        if not isinstance(dask, bool):
-            raise TypeError('dask must be type bool')
         if not isinstance(verbose, bool):
             raise TypeError('verbose must be type bool')
 
@@ -339,7 +325,6 @@ class MedicareDF(object):
             hmo_val=hmo_val,
             join=join,
             keep_vars=keep_vars,
-            dask=dask,
             verbose=verbose)
 
     def _get_cohort_get_vars_toload(
@@ -432,9 +417,8 @@ class MedicareDF(object):
             hmo_val: Optional[List[str]],
             join: str,
             keep_vars: List[str],
-            dask: bool,
             verbose: bool
-        ) -> (Union[pd.DataFrame, dd.DataFrame], Dict[int, Dict[str, float]]):
+        ) -> (pd.DataFrame, Dict[int, Dict[str, float]]):
         # yapf: enable
 
         if verbose:
@@ -447,13 +431,7 @@ class MedicareDF(object):
             """
             print(_mywrap(msg))
 
-        if dask:
-            pl = dd.read_parquet(
-                self._fpath(self.percent, year, 'bsfab'),
-                columns=[x for x in toload_vars if x != 'bene_id'],
-                index=['bene_id'],
-                engine=self.parquet_engine)
-        elif self.parquet_engine == 'pyarrow':
+        if self.parquet_engine == 'pyarrow':
             try:
                 pf = pq.ParquetFile(self._fpath(self.percent, year, 'bsfab'))
             except pa.ArrowIOError:
@@ -467,8 +445,7 @@ class MedicareDF(object):
             pf = fp.ParquetFile(self._fpath(self.percent, year, 'bsfab'))
             pl = pf.to_pandas(columns=toload_vars, index='bene_id')
 
-        if not dask:
-            nobs = len(pl)
+        nobs = len(pl)
 
         iemsg = 'Internal error: Missing column: '
         iemsg2 = '\nPlease submit a bug report at\n'
@@ -493,17 +470,15 @@ class MedicareDF(object):
             if not self._str_in_keep_vars('sex', keep_vars):
                 pl = pl.drop('sex', axis=1)
 
-            if not dask:
-                nobs_dropped[year]['gender'] = 1 - (len(pl) / nobs)
-                nobs = len(pl)
+            nobs_dropped[year]['gender'] = 1 - (len(pl) / nobs)
+            nobs = len(pl)
 
         if ages is not None:
             assert 'age' in pl.columns, iemsg + 'age' + iemsg2
             pl = pl.loc[pl['age'].isin(ages)]
 
-            if not dask:
-                nobs_dropped[year]['age'] = 1 - (len(pl) / nobs)
-                nobs = len(pl)
+            nobs_dropped[year]['age'] = 1 - (len(pl) / nobs)
+            nobs = len(pl)
 
             if not self._str_in_keep_vars('age', keep_vars):
                 pl = pl.drop('age', axis=1)
@@ -512,9 +487,8 @@ class MedicareDF(object):
             assert race_col in pl.columns, iemsg + race_col + iemsg2
             pl = pl.loc[pl[race_col].isin(races)]
 
-            if not dask:
-                nobs_dropped[year]['race'] = 1 - (len(pl) / nobs)
-                nobs = len(pl)
+            nobs_dropped[year]['race'] = 1 - (len(pl) / nobs)
+            nobs = len(pl)
 
             if not self._str_in_keep_vars(race_col, keep_vars):
                 pl = pl.drop(race_col, axis=1)
@@ -528,17 +502,15 @@ class MedicareDF(object):
                     pl = pl.loc[(pl[buyin_cols].isin(buyin_val)).all(axis=1)]
                     pl = pl.drop(set(buyin_cols).difference(keep_vars), axis=1)
 
-                    if not dask:
-                        nobs_dropped[year]['buyin_val'] = 1 - (len(pl) / nobs)
-                        nobs = len(pl)
+                    nobs_dropped[year]['buyin_val'] = 1 - (len(pl) / nobs)
+                    nobs = len(pl)
 
                 if hmo_val:
                     pl = pl.loc[(pl[hmo_cols].isin(hmo_val)).all(axis=1)]
                     pl = pl.drop(set(hmo_cols).difference(keep_vars), axis=1)
 
-                    if not dask:
-                        nobs_dropped[year]['hmo_val'] = 1 - (len(pl) / nobs)
-                        nobs = len(pl)
+                    nobs_dropped[year]['hmo_val'] = 1 - (len(pl) / nobs)
+                    nobs = len(pl)
 
             elif self.year_type == 'age':
                 # Create month of birth variable
@@ -571,7 +543,7 @@ class MedicareDF(object):
         return pl, nobs_dropped
 
     def _get_cohort_month_filter(
-            self, pl: Union[pd.DataFrame, dd.DataFrame], var: str, values: list,
+            self, pl: pd.DataFrame, var: str, values: list,
             year: int, keep_vars):
         """Filter variables that are at the month level
 
@@ -652,7 +624,6 @@ class MedicareDF(object):
             join: str = 'outer',
             keep_vars: Union[str, Pattern, List[Union[str, Pattern]],
                              None] = [],
-            dask: bool = False,
             verbose: bool = False): # yapf: disable
         """Get cohort with given demographic and enrollment characteristics.
 
@@ -715,10 +686,6 @@ class MedicareDF(object):
                 ``False`` otherwise. The list of variables in the dataset can be
                 found `here
                 <https://kylebarron.github.io/medicare-documentation/resdac/mbsf/#base-abcd-segment_2>`_.
-            dask:
-                Use dask library for out of core computation. In general this is
-                unnecessary because this package tries to be smart about only
-                storing the minimum amount of data in memory at a time.
             verbose:
                 Print progress of program to console.
 
@@ -798,9 +765,6 @@ class MedicareDF(object):
             verbose = True
             self.t0 = time()
 
-        if self.dask or dask:
-            dask = True
-
         objs = self._get_cohort_type_check(
             gender=gender,
             ages=ages,
@@ -810,7 +774,6 @@ class MedicareDF(object):
             hmo_val=hmo_val,
             join=join,
             keep_vars=keep_vars,
-            dask=dask,
             verbose=verbose)
         gender = objs.gender
         ages = objs.ages
@@ -821,7 +784,6 @@ class MedicareDF(object):
         hmo_val = objs.hmo_val
         join = objs.join
         keep_vars = objs.keep_vars
-        dask = objs.dask
         verbose = objs.verbose
 
         if verbose:
@@ -860,7 +822,6 @@ class MedicareDF(object):
                 hmo_val=hmo_val,
                 join=join,
                 keep_vars=keep_vars,
-                dask=dask,
                 verbose=verbose)
             extracted_dfs.append(pl)
 
@@ -882,29 +843,13 @@ class MedicareDF(object):
             if len(extracted_dfs) == 2:
                 pl = extracted_dfs[0].join(extracted_dfs[1], how='left')
             else:
-                if not dask:
-                    pl = extracted_dfs[0].join(
-                        extracted_dfs[1:-1], how='outer').join(
-                            extracted_dfs[-1], how='left')
-                else:
-                    pl = extracted_dfs[0]
-                    for i in range(1, len(extracted_dfs) - 1):
-                        pl = pl.join(extracted_dfs[i], how='outer')
-                    pl = pl.join(extracted_dfs[-1], how='left')
+                pl = extracted_dfs[0].join(
+                    extracted_dfs[1:-1], how='outer').join(
+                        extracted_dfs[-1], how='left')
         elif join == 'right':
-            if not dask:
-                pl = extracted_dfs[-1].join(extracted_dfs[:-1], how='left')
-            else:
-                pl = extracted_dfs[-1]
-                for i in range(len(extracted_dfs) - 1):
-                    pl = pl.join(extracted_dfs[i], how='left')
+            pl = extracted_dfs[-1].join(extracted_dfs[:-1], how='left')
         else:
-            if not dask:
-                pl = extracted_dfs[0].join(extracted_dfs[1:], how=join)
-            else:
-                pl = extracted_dfs[0]
-                for i in range(1, len(extracted_dfs)):
-                    pl = pl.join(extracted_dfs[i], how='left')
+            pl = extracted_dfs[0].join(extracted_dfs[1:], how=join)
 
         pl.index.name = 'bene_id'
 
@@ -961,9 +906,6 @@ class MedicareDF(object):
             pl = pl.drop(cols[1:], axis=1)
             pl = pl.rename(columns={cols[0]: name})
 
-        if dask:
-            pl = pl.compute()
-
         # Reshape non-static variables
         stubs = {x[:-5] for x in pl.columns if re.search(r'_\d{4}$', x)}
         pl = pd.wide_to_long(
@@ -973,9 +915,7 @@ class MedicareDF(object):
         # patient-level and claim-level datasets
         pl = pl.rename(columns={'match': 'cohort_match'})
 
-        if not dask:
-            self.nobs_dropped = nobs_dropped
-
+        self.nobs_dropped = nobs_dropped
         self.pl = pl
 
         if verbose:
@@ -1120,7 +1060,6 @@ class MedicareDF(object):
         collapse_codes: bool
         rename: Dict[str, Union[str, List[str], Dict[str, str], None]]
         convert_ehic: bool
-        dask: bool
         verbose: bool
 
     def _search_for_codes_type_check(
@@ -1136,7 +1075,6 @@ class MedicareDF(object):
             collapse_codes: bool,
             rename: Dict[str, Union[str, List[str], Dict[str, str], None]],
             convert_ehic: bool,
-            dask: bool,
             verbose: bool) -> _ReturnSearchForCodesTypeCheck: # yapf: disable
         """Check types and valid values for :func:`search_for_codes`
 
@@ -1239,8 +1177,6 @@ class MedicareDF(object):
             raise TypeError('collapse_codes must be bool')
         if not isinstance(convert_ehic, bool):
             raise TypeError('convert_ehic must be bool')
-        if not isinstance(dask, bool):
-            raise TypeError('dask must be type bool')
         if not isinstance(verbose, bool):
             raise TypeError('verbose must be bool')
         if not isinstance(rename, dict):
@@ -1288,7 +1224,6 @@ class MedicareDF(object):
             collapse_codes=collapse_codes,
             rename=rename,
             convert_ehic=convert_ehic,
-            dask=dask,
             verbose=verbose)
 
     def search_for_codes(
@@ -1307,7 +1242,6 @@ class MedicareDF(object):
                 'icd9_dx': None,
                 'icd9_sg': None},
             convert_ehic: bool = True,
-            dask: bool = False,
             verbose: bool = False): # yapf: disable
         """Search in claim-level datasets for HCPCS and/or ICD9 codes
 
@@ -1378,9 +1312,6 @@ class MedicareDF(object):
                 If ``False``, will leave ``ehic`` as the patient identifier.
                 This is always ``True`` when years before and after 2005 are
                 provided.
-            dask:
-                Use dask library for out of core computation. Not yet
-                implemented; as of now everything happens in core.
             verbose:
                 Print progress of program to console
 
@@ -1482,7 +1413,6 @@ class MedicareDF(object):
             collapse_codes=collapse_codes,
             rename=rename,
             convert_ehic=convert_ehic,
-            dask=dask,
             verbose=verbose)
         data_types = objs.data_types
         pl_ids_to_filter = objs.pl_ids_to_filter
@@ -1492,14 +1422,7 @@ class MedicareDF(object):
         collapse_codes = objs.collapse_codes
         rename = objs.rename
         convert_ehic = objs.convert_ehic
-        dask = objs.dask
         verbose = objs.verbose
-
-        if self.dask or dask:
-            dask = True
-
-        # Dask isn't ready yet
-        dask = False
 
         ok_data_types = {
             'hcpcs': {'carl', 'ipr', 'opr'},
@@ -1571,7 +1494,6 @@ class MedicareDF(object):
                     keep_vars=keep_vars[data_type],
                     rename=rename,
                     collapse_codes=collapse_codes,
-                    dask=dask,
                     verbose=verbose)
 
         data = self._search_for_codes_data_join(
@@ -1697,7 +1619,7 @@ class MedicareDF(object):
         return data
 
     def _search_for_codes_df_inner(self,
-            cl: Union[pd.DataFrame, dd.DataFrame],
+            cl: pd.DataFrame,
             codes: Dict[str, List[Union[str, Pattern]]],
             cols: Dict[str, Union[str, List[str]]],
             year: int,
@@ -1705,13 +1627,8 @@ class MedicareDF(object):
             rename: Dict[str, str],
             collapse_codes: bool,
             pl_ids_to_filter: Optional[pd.DataFrame],
-            ) -> Union[pd.DataFrame, dd.DataFrame]: # yapf: disable
+            ) -> pd.DataFrame: # yapf: disable
         """Meat of the code to search for codes in files
-
-        Dask.dataframe doesn't support multiindexes yet (see
-        github.com/dask/dask/issues/811, github.com/dask/dask/issues/1493). So
-        as of now, the loaded cl data is singly-indexed with the patient-level
-        identifier.
 
         Args:
             cl:
@@ -1857,7 +1774,6 @@ class MedicareDF(object):
             keep_vars: List[Union[str, Pattern]],
             rename: Dict[str, str],
             collapse_codes: bool,
-            dask: bool,
             verbose: bool) -> pd.DataFrame: # yapf: disable
         """Search in a single claim-level dataset for HCPCS/ICD9 codes
 
@@ -1883,8 +1799,6 @@ class MedicareDF(object):
             collapse_codes:
                 If True, returns a single column "match";
                 else it returns a column for each code provided
-            dask:
-                Use dask library for out of core computation
             verbose:
                 Print logging messages to console
 
@@ -2006,13 +1920,7 @@ class MedicareDF(object):
                 pass
 
         path = self._fpath(self.percent, year, data_type)
-        if dask:
-            # NOTE: should the index here be cols['cl_id'] ?
-            cl = dd.read_parquet(
-                path,
-                columns=cols_toload - set([cols['pl_id']]),
-                index=cols['pl_id'])
-        elif self.parquet_engine == 'pyarrow':
+        if self.parquet_engine == 'pyarrow':
             try:
                 pf = pq.ParquetFile(path)
             except pa.ArrowIOError:
@@ -2029,7 +1937,10 @@ class MedicareDF(object):
             pf = fp.ParquetFile(path)
             itr = pf.iter_row_groups(columns=list(cols_toload), index=cols['pl_id'])
 
-        if dask:
+        # This holds the df's from each iteration over the claim-level
+        # dataset
+        all_cl = []
+        for cl in itr:
             cl = self._search_for_codes_df_inner(
                 cl=cl,
                 codes=codes,
@@ -2039,24 +1950,9 @@ class MedicareDF(object):
                 rename=rename,
                 collapse_codes=collapse_codes,
                 pl_ids_to_filter=pl_ids_to_filter)
-        else:
-            # This holds the df's from each iteration over the claim-level
-            # dataset
-            all_cl = []
-            for cl in itr:
-                cl = self._search_for_codes_df_inner(
-                    cl=cl,
-                    codes=codes,
-                    cols=cols,
-                    year=year,
-                    keep_vars=keep_vars,
-                    rename=rename,
-                    collapse_codes=collapse_codes,
-                    pl_ids_to_filter=pl_ids_to_filter)
-                all_cl.append(cl)
+            all_cl.append(cl)
 
-            cl = pd.concat(all_cl, axis=0, sort=False)
-
+        cl = pd.concat(all_cl, axis=0, sort=False)
         cl['year'] = np.uint16(year)
         return cl
 
