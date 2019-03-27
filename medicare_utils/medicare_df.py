@@ -191,8 +191,9 @@ class MedicareDF(object):
             percent=percent,
             year=year,
             data_type=data_type,
-            dta=False,
-            pq_path=self.pq_path)
+            root_path=self.pq_path,
+            extension='.parquet',
+            new_style=True)
 
     class _ReturnGetCohortTypeCheck(NamedTuple):
         gender: Optional[str]
