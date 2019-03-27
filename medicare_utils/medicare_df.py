@@ -76,9 +76,6 @@ class MedicareDF(object):
             The engine to use to read Parquet files: ``pyarrow`` or
             ``fastparquet``. Usually you'll have better reliability when using
             the engine you created the Parquet files with.
-        max_cores:
-            Maximum number of CPU cores to use. By default uses
-            ``multiprocessing.cpu_count() - 1``.
         pq_path:
             Path to Parquet Medicare files. As of now, these must be created by
             hand using :func:`medicare_utils.parquet.convert_med`, but I hope to
@@ -120,7 +117,6 @@ class MedicareDF(object):
             dask: bool = False,
             verbose: bool = False,
             parquet_engine: str = 'pyarrow',
-            max_cores: Optional[int] = None,
             pq_path:
             str = '/disk/agebulk3/medicare.work/doyle-DUA51929/barronk-DUA51929/raw/pq'
             ) -> None: # yapf: disable
@@ -172,12 +168,7 @@ class MedicareDF(object):
         if parquet_engine not in ['pyarrow', 'fastparquet']:
             raise ValueError('parquet_engine must be pyarrow or fastparquet')
 
-        if max_cores is None:
-            max_cores = cpu_count() - 1
-
         self.parquet_engine = parquet_engine
-        self.parquet_nthreads = max_cores
-        self.max_cores = max_cores
 
         self.pl = None
         self.cl = None
@@ -460,10 +451,7 @@ class MedicareDF(object):
             except pa.ArrowIOError:
                 pf = pq.ParquetDataset(self._fpath(self.percent, year, 'bsfab'))
             pl = pf.read(
-                columns=toload_vars,
-                nthreads=min(
-                    len(toload_vars),
-                    self.parquet_nthreads)).to_pandas().set_index('bene_id')
+                columns=toload_vars).to_pandas().set_index('bene_id')
         elif self.parquet_engine == 'fastparquet':
             pf = fp.ParquetFile(self._fpath(self.percent, year, 'bsfab'))
             pl = pf.to_pandas(columns=toload_vars, index='bene_id')
@@ -1672,8 +1660,7 @@ class MedicareDF(object):
                         except pa.ArrowIOError:
                             pf = pq.ParquetDataset(self._fpath(self.percent, year, 'bsfab'))
                         right = pf.read(
-                            columns=['ehic'],
-                            nthreads=2).to_pandas().set_index('bene_id')
+                            columns=['ehic']).to_pandas().set_index('bene_id')
                     elif self.parquet_engine == 'fastparquet':
                         pf = fp.ParquetFile(
                             self._fpath(self.percent, year, 'bsfab'))
@@ -2016,16 +2003,16 @@ class MedicareDF(object):
         elif self.parquet_engine == 'pyarrow':
             try:
                 pf = pq.ParquetFile(path)
+                itr = (
+                    pf.read_row_group(
+                        i,
+                        columns=cols_toload).to_pandas().set_index(
+                                         cols['pl_id'])
+                    for i in range(pf.num_row_groups))
             except pa.ArrowIOError:
                 pf = pq.ParquetDataset(path)
-            itr = (
-                pf.read_row_group(
-                    i,
-                    columns=cols_toload,
-                    nthreads=min(len(cols_toload),
-                                 self.parquet_nthreads)).to_pandas().set_index(
-                                     cols['pl_id'])
-                for i in range(pf.num_row_groups))
+                itr = (pf.read(columns=cols_toload).to_pandas().set_index(
+                                 cols['pl_id']) for i in [1])
         elif self.parquet_engine == 'fastparquet':
             pf = fp.ParquetFile(path)
             itr = pf.iter_row_groups(columns=list(cols_toload), index=cols['pl_id'])
