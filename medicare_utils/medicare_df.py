@@ -2045,7 +2045,7 @@ class MedicareDF(object):
 
             cl = pd.concat(all_cl, axis=0, sort=False)
 
-        cl['year'] = np.uint16(year)
+        cl['year'] = np.int16(year)
         return cl
 
     def _search_for_codes_pl(
